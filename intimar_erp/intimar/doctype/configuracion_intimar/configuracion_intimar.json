@@ -1,0 +1,82 @@
+{
+ "actions": [],
+ "allow_import": 1,
+ "creation": "2024-04-26 10:40:00.000000",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "anticipo_section",
+  "anticipo_persona",
+  "monto_anticipo_persona",
+  "duracion_reserva",
+  "aforo_maximo",
+  "hora_minima",
+  "hora_maxima"
+ ],
+ "fields": [
+  {
+   "fieldname": "anticipo_section",
+   "fieldtype": "Section Break",
+   "label": "Configuraci\u00f3n de Anticipos"
+  },
+  {
+   "default": "8",
+   "fieldname": "anticipo_persona",
+   "fieldtype": "Int",
+   "label": "L\u00edmite de Personas para Anticipo"
+  },
+  {
+   "default": "20",
+   "fieldname": "monto_anticipo_persona",
+   "fieldtype": "Currency",
+   "label": "Monto de Anticipo por Persona"
+  },
+  {
+   "fieldname": "duracion_reserva",
+   "fieldtype": "Float",
+   "label": "Duraci\u00f3n Estimada (Horas)",
+   "default": "2"
+  },
+  {
+   "fieldname": "aforo_maximo",
+   "fieldtype": "Int",
+   "label": "Aforo M\u00e1ximo"
+  },
+  {
+   "fieldname": "hora_minima",
+   "fieldtype": "Time",
+   "label": "Hora Apertura"
+  },
+  {
+   "fieldname": "hora_maxima",
+   "fieldtype": "Time",
+   "label": "Hora Cierre"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "issingle": 1,
+ "links": [],
+ "modified": "2024-04-26 11:30:00.000000",
+ "modified_by": "Administrator",
+ "module": "Intimar",
+ "name": "Configuracion Intimar",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

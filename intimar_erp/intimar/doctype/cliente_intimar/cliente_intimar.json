@@ -1,0 +1,101 @@
+{
+ "actions": [],
+ "allow_import": 1,
+ "creation": "2023-11-20 00:00:00",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "name1",
+  "lastname",
+  "nombre_y_apellido_completo",
+  "dni_ruc",
+  "phone",
+  "email",
+  "direccion",
+  "fecha_nacimiento",
+  "alergias",
+  "observaciones"
+ ],
+ "fields": [
+  {
+   "fieldname": "name1",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Nombre",
+   "reqd": 1
+  },
+  {
+   "fieldname": "lastname",
+   "fieldtype": "Data",
+   "label": "Apellido"
+  },
+  {
+   "fieldname": "nombre_y_apellido_completo",
+   "fieldtype": "Data",
+   "label": "Nombre y Apellido completo",
+   "read_only": 1
+  },
+  {
+   "fieldname": "dni_ruc",
+   "fieldtype": "Data",
+   "label": "DNI / RUC / Pasaporte",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "phone",
+   "fieldtype": "Data",
+   "label": "Tel\u00e9fono"
+  },
+  {
+   "fieldname": "email",
+   "fieldtype": "Data",
+   "label": "Correo Electr\u00f3nico"
+  },
+  {
+   "fieldname": "direccion",
+   "fieldtype": "Small Text",
+   "label": "Direcci\u00f3n"
+  },
+  {
+   "fieldname": "fecha_nacimiento",
+   "fieldtype": "Date",
+   "label": "Fecha de Nacimiento"
+  },
+  {
+   "fieldname": "alergias",
+   "fieldtype": "Small Text",
+   "label": "Alergias"
+  },
+  {
+   "fieldname": "observaciones",
+   "fieldtype": "Small Text",
+   "label": "Observaciones"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-04-26 17:40:00.000000",
+ "modified_by": "Administrator",
+ "module": "intimar",
+ "name": "Cliente Intimar",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

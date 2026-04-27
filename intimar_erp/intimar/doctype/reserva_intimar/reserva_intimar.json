@@ -1,0 +1,189 @@
+{
+ "actions": [],
+ "allow_import": 1,
+ "autoname": "RES-.#####",
+ "creation": "2024-04-26 10:00:00",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "cliente",
+  "section_break_wdoj",
+  "nombre",
+  "column_break_nfly",
+  "celular",
+  "rerserva_datos_section",
+  "cant_adultos",
+  "fecha_reserva",
+  "hora_reserva",
+  "anticipo_required",
+  "mozo",
+  "column_break_ijhz",
+  "cant_ninos",
+  "estado_reserva",
+  "section_mesas",
+  "mesas",
+  "section_anticipos",
+  "anticipos",
+  "section_tiempos",
+  "hora_llegada",
+  "hora_salida",
+  "am_pm"
+ ],
+ "fields": [
+  {
+   "fieldname": "cliente",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Cliente",
+   "options": "Cliente Intimar",
+   "reqd": 1
+  },
+  {
+   "fieldname": "cant_adultos",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Cantidad de Adultos",
+   "reqd": 1
+  },
+  {
+   "fieldname": "cant_ninos",
+   "fieldtype": "Int",
+   "label": "Cantidad de Ni\u00f1os"
+  },
+  {
+   "fieldname": "fecha_reserva",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Fecha de Reserva",
+   "reqd": 1
+  },
+  {
+   "fieldname": "hora_reserva",
+   "fieldtype": "Time",
+   "in_list_view": 1,
+   "label": "Hora de Reserva",
+   "reqd": 1
+  },
+  {
+   "default": "Solicitud de reserva",
+   "fieldname": "estado_reserva",
+   "fieldtype": "Select",
+   "label": "Estado de Reserva",
+   "options": "Solicitud de reserva\nPendiente a confirmar\nConfirmada\nEn proceso\nFinalizada\nCancelada\nLista de espera"
+  },
+  {
+   "default": "0",
+   "fieldname": "anticipo_required",
+   "fieldtype": "Check",
+   "label": "Requiere Anticipo"
+  },
+  {
+   "fieldname": "mozo",
+   "fieldtype": "Link",
+   "label": "Mozo",
+   "options": "Mozo Intimar"
+  },
+  {
+   "fieldname": "section_mesas",
+   "fieldtype": "Section Break",
+   "label": "Asignaci\u00f3n de Mesas"
+  },
+  {
+   "fieldname": "mesas",
+   "fieldtype": "Table",
+   "label": "Mesas Asignadas",
+   "options": "Mesa Reserva Intimar"
+  },
+  {
+   "fieldname": "section_anticipos",
+   "fieldtype": "Section Break",
+   "label": "Pagos / Anticipos"
+  },
+  {
+   "fieldname": "anticipos",
+   "fieldtype": "Table",
+   "label": "Anticipos Registrados",
+   "options": "Anticipo Reserva Intimar"
+  },
+  {
+   "fieldname": "section_tiempos",
+   "fieldtype": "Section Break",
+   "label": "Registro de Tiempos"
+  },
+  {
+   "fieldname": "hora_llegada",
+   "fieldtype": "Time",
+   "label": "Hora de Llegada",
+   "read_only": 1
+  },
+  {
+   "fieldname": "hora_salida",
+   "fieldtype": "Time",
+   "label": "Hora de Salida",
+   "read_only": 1
+  },
+  {
+   "fieldname": "am_pm",
+   "fieldtype": "Data",
+   "label": "AM/PM",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_break_wdoj",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fetch_from": "cliente.nombre_y_apellido_completo",
+   "fieldname": "nombre",
+   "fieldtype": "Data",
+   "label": "Nombre",
+   "options": "Cliente Intimar"
+  },
+  {
+   "fieldname": "column_break_nfly",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "rerserva_datos_section",
+   "fieldtype": "Section Break",
+   "label": "Rerserva Datos"
+  },
+  {
+   "fieldname": "column_break_ijhz",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fetch_from": "cliente.phone",
+   "fieldname": "celular",
+   "fieldtype": "Data",
+   "label": "Celular"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-04-26 14:24:43.360695",
+ "modified_by": "Administrator",
+ "module": "intimar",
+ "name": "Reserva Intimar",
+ "naming_rule": "",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

@@ -1,0 +1,68 @@
+{
+ "actions": [],
+ "allow_import": 1,
+ "autoname": "Expression",
+ "creation": "2023-11-20 00:00:00.000000",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "naming_rule": "Expression",
+ "field_order": [
+  "numero_mesa",
+  "ubicacion_mesa",
+  "codigo_ubicacion",
+  "estado_mesa"
+ ],
+ "fields": [
+  {
+   "fieldname": "numero_mesa",
+   "fieldtype": "Int",
+   "label": "N\u00famero de Mesa",
+   "reqd": 1
+  },
+  {
+   "fieldname": "ubicacion_mesa",
+   "fieldtype": "Link",
+   "label": "Ubicaci\u00f3n",
+   "options": "Ubicacion Mesa Intimar",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "ubicacion_mesa.codigo_ubicacion",
+   "fieldname": "codigo_ubicacion",
+   "fieldtype": "Data",
+   "label": "C\u00f3digo Ubicaci\u00f3n",
+   "read_only": 1
+  },
+  {
+   "default": "1",
+   "fieldname": "estado_mesa",
+   "fieldtype": "Check",
+   "label": "Disponible"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2024-04-26 10:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Intimar",
+ "name": "Mesa Intimar",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

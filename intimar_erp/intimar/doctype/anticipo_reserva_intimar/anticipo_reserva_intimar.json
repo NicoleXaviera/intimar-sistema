@@ -1,0 +1,67 @@
+{
+ "actions": [],
+ "allow_import": 1,
+ "creation": "2024-04-26 10:00:00.000000",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "monto_anticipo",
+  "banco",
+  "moneda",
+  "estado_anticipo",
+  "fecha_pago",
+  "comprobante"
+ ],
+ "fields": [
+  {
+   "fieldname": "monto_anticipo",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Monto",
+   "reqd": 1
+  },
+  {
+   "fieldname": "banco",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Banco"
+  },
+  {
+   "default": "PEN",
+   "fieldname": "moneda",
+   "fieldtype": "Select",
+   "label": "Moneda",
+   "options": "PEN\nUSD"
+  },
+  {
+   "default": "Pendiente",
+   "fieldname": "estado_anticipo",
+   "fieldtype": "Select",
+   "label": "Estado Pago",
+   "options": "Pendiente\nPagado\nRechazado"
+  },
+  {
+   "fieldname": "fecha_pago",
+   "fieldtype": "Date",
+   "label": "Fecha de Pago"
+  },
+  {
+   "fieldname": "comprobante",
+   "fieldtype": "Attach",
+   "label": "Comprobante"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2024-04-26 10:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Intimar",
+ "name": "Anticipo Reserva Intimar",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}
