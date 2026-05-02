@@ -6,6 +6,9 @@ app_email = "nicole.argueda@gmail.com"
 app_license = "mit"
 app_version = "1.0.0"
 
+# Dependencias requeridas por Frappe Cloud
+required_apps = ["frappe@>=15.0.0 <16.0.0"]
+
 # Includes in <head>
 # ------------------
 # include js, css files in header of desk.html
