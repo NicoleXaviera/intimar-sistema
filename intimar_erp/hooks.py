@@ -1,5 +1,5 @@
 app_name = "intimar_erp"
-app_title = "intimar"
+app_title = "intimar_erp"
 app_publisher = "Intimar"
 app_description = "Sistema de gestión y reservas para Intimar"
 app_email = "nicole.argueda@gmail.com"
