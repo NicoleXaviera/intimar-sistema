@@ -281,14 +281,14 @@ onMounted(() => {
   script.onload = () => {
     const connectSocket = () => {
       if (window.io) {
-        const socket = window.io('http://intimar.localhost:8000', {
+        const socket = window.io(window.location.origin, {
           path: '/socket.io',
           withCredentials: true,
           transports: ['websocket', 'polling']
         })
         
         socket.on('connect', () => {
-          socket.emit('subscribe_site', 'intimar.localhost')
+          socket.emit('subscribe_site', window.location.hostname)
         })
 
         socket.on('intimar_notification', addNotification)

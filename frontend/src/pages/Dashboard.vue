@@ -74,7 +74,7 @@
         <div class="w-full h-[800px] bg-white rounded-[3rem] shadow-2xl shadow-gray-200/50 border border-gray-100 overflow-hidden relative">
           <iframe 
             :key="dashboardKey"
-            src="http://intimar.localhost:8000/insights/shared/dashboard/4329ndoq8f" 
+            :src="dashboardUrl" 
             class="w-full h-full border-none"
             allowfullscreen
           ></iframe>
@@ -96,6 +96,10 @@ const loading = ref(true)
 const occupancyPercent = computed(() => {
   if (!stats.value?.kpis?.aforo_total) return 0
   return (stats.value.kpis.personas_en_restaurante / stats.value.kpis.aforo_total) * 100
+})
+
+const dashboardUrl = computed(() => {
+  return window.location.origin + '/insights/shared/dashboard/4329ndoq8f'
 })
 
 const fetchRealtimeStats = async () => {
