@@ -158,25 +158,30 @@
    "fieldtype": "Section Break"
   },
   {
+   "fetch_from": "cliente.name1",
    "fieldname": "nombre",
    "fieldtype": "Data",
    "label": "Nombre"
   },
   {
+   "fetch_from": "cliente.lastname",
    "fieldname": "apellido",
    "fieldtype": "Data",
    "label": "Apellido"
   },
   {
+   "fetch_from": "cliente.email",
    "fieldname": "email",
    "fieldtype": "Data",
-   "label": "Email"
+   "label": "Email",
+   "options": "Email"
   },
   {
    "fieldname": "column_break_nfly",
    "fieldtype": "Column Break"
   },
   {
+   "fetch_from": "cliente.phone",
    "fieldname": "celular",
    "fieldtype": "Data",
    "label": "Celular"
@@ -187,6 +192,7 @@
    "label": "C\u00f3digo de Pa\u00eds"
   },
   {
+   "fetch_from": "cliente.dni_ruc",
    "fieldname": "dni",
    "fieldtype": "Data",
    "label": "DNI/Pasaporte"
@@ -240,10 +246,11 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-05-02 01:55:00",
+ "modified": "2026-05-02 14:06:29.507348",
  "modified_by": "Administrator",
  "module": "intimar",
  "name": "Reserva Intimar",
+ "naming_rule": "Expression",
  "owner": "Administrator",
  "permissions": [
   {

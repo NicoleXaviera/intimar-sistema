@@ -36,6 +36,51 @@
           </div>
         </div>
 
+        <!-- Dashboard de Aforo Rápido -->
+        <div v-if="realtimeStats" class="grid grid-cols-1 md:grid-cols-4 gap-4 animate-in fade-in slide-in-from-top-4 duration-500 delay-75">
+          <!-- Aforo Total -->
+          <div class="bg-white p-5 rounded-[2rem] border border-gray-100 shadow-sm relative overflow-hidden group">
+            <div class="absolute right-4 top-4 text-gray-100 group-hover:text-intimar-gold/20 transition-colors">
+              <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9h18v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9Z"/><path d="M3 9V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v4"/></svg>
+            </div>
+            <p class="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">General</p>
+            <h3 class="text-[10px] font-black text-gray-400 mb-1 italic uppercase">Aforo total</h3>
+            <h2 class="text-3xl font-black text-intimar-dark tracking-tighter">{{ realtimeStats?.kpis?.aforo_total || 0 }}</h2>
+          </div>
+
+          <!-- Aforo Actual -->
+          <div class="bg-intimar-primary p-5 rounded-[2rem] shadow-xl shadow-intimar-primary/20 relative overflow-hidden group">
+            <div class="absolute right-4 top-4 text-white/10 group-hover:scale-110 transition-transform">
+              <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            </div>
+            <p class="text-[9px] font-black text-white/50 uppercase tracking-widest mb-1">En Intimar</p>
+            <h3 class="text-[10px] font-black text-intimar-gold mb-1 italic uppercase">Aforo actual</h3>
+            <h2 class="text-3xl font-black text-white leading-none tracking-tighter mb-1">{{ realtimeStats?.kpis?.personas_en_restaurante || 0 }}</h2>
+            <p class="text-[9px] font-black text-white/40 uppercase tracking-widest">de {{ realtimeStats?.kpis?.reservas_en_proceso || 0 }} reservas</p>
+          </div>
+
+          <!-- Lista de Espera -->
+          <div class="bg-white p-5 rounded-[2rem] border border-gray-100 shadow-sm relative group">
+            <div class="absolute right-4 top-4 text-amber-500/10">
+              <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+            </div>
+            <p class="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">Por entrar</p>
+            <h3 class="text-[10px] font-black text-amber-500 mb-1 italic uppercase">Lista de espera</h3>
+            <h2 class="text-3xl font-black text-intimar-dark tracking-tighter mb-1">{{ realtimeStats?.kpis?.personas_en_espera || 0 }}</h2>
+            <p class="text-[9px] font-black text-gray-400 uppercase tracking-widest">de {{ realtimeStats?.kpis?.reservas_en_espera || 0 }} reservas</p>
+          </div>
+
+          <!-- Mesas Disponibles -->
+          <div class="bg-white p-5 rounded-[2rem] border-2 border-emerald-500/20 shadow-sm relative group overflow-hidden">
+            <div class="absolute right-4 top-4 text-emerald-500/10">
+              <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
+            </div>
+            <p class="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">Disponibilidad</p>
+            <h3 class="text-[10px] font-black text-emerald-500 mb-1 italic uppercase">Mesas libres</h3>
+            <h2 class="text-3xl font-black text-intimar-dark tracking-tighter">{{ realtimeStats?.kpis?.mesas_disponibles || 0 }}</h2>
+          </div>
+        </div>
+
         <!-- Filtros Component -->
         <ReservasFilter @filter="applyFilters" class="animate-in fade-in slide-in-from-top-4 duration-500 delay-75" />
 
@@ -66,7 +111,7 @@
 
           <div class="flex flex-col sm:flex-row items-center gap-4">
             <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest hidden sm:block">
-              Mostrando {{ filteredReservas.length }} registros
+              Mostrando {{ filteredReservas.length }} registros de {{ stats.reservas }} en total
             </p>
           <div class="flex items-center gap-4 bg-white px-3 py-1.5 rounded-xl shadow-sm border border-gray-100">
             <button 
@@ -418,17 +463,21 @@ const fetchReservas = async () => {
 }
 
 const stats = ref({ reservas: 0, personas: 0 })
+const realtimeStats = ref(null)
 const statsLoading = ref(false)
 
 const fetchStats = async () => {
   statsLoading.value = true
   try {
-    const data = await call('frappe.client.get_list', {
-      doctype: 'Reserva Intimar',
-      fields: ['cant_adultos', 'cant_ninos'],
-      limit_page_length: 99999, // Obtener todos para contar
-      filters: buildFilters()
-    })
+    const [data, rStats] = await Promise.all([
+      call('frappe.client.get_list', {
+        doctype: 'Reserva Intimar',
+        fields: ['cant_adultos', 'cant_ninos'],
+        limit_page_length: 99999,
+        filters: buildFilters()
+      }),
+      call('intimar_erp.api.get_dashboard_stats')
+    ])
     
     let totalPersonas = 0
     data.forEach(r => {
@@ -439,6 +488,7 @@ const fetchStats = async () => {
       reservas: data.length,
       personas: totalPersonas
     }
+    realtimeStats.value = rStats
   } catch (error) {
     console.error('Error calculando estadísticas:', error)
   } finally {

@@ -1,6 +1,12 @@
 import frappe
 from frappe import _
 import json
+import re
+
+def clean_phone(phone):
+    if not phone: return ""
+    # Remove everything except + and digits
+    return re.sub(r"[^\d+]", "", phone)
 
 @frappe.whitelist()
 def get_mesas_with_reserva(limit_start=0, limit_page_length=0, with_pagination=0, search_query="", ubicacion_mesa=""):
@@ -168,6 +174,9 @@ def crear_reserva_publica(cliente_nombre, cliente_celular, fecha, hora, adultos,
                           aceptar_lista_espera=0):
     
     # 1. Buscar o crear cliente
+    # Limpiamos el celular para consistencia
+    cliente_celular = clean_phone(cliente_celular)
+    
     # Usamos el celular como identificador único
     cliente_id = frappe.db.get_value('Cliente Intimar', {'phone': cliente_celular}, 'name')
     
@@ -215,12 +224,17 @@ def crear_reserva_publica(cliente_nombre, cliente_celular, fecha, hora, adultos,
             'reserva_name': reserva.name
         }
     except frappe.ValidationError as e:
-        if "Aforo excedido" in str(e):
-            return {
-                'status': 'error',
-                'message': 'Lo sentimos, ya no tenemos disponibilidad para este horario. Por favor, selecciona otro horario o ingresa a nuestra lista de espera.'
-            }
-        raise e
+        msg = str(e).split(':', 1)[-1].strip() if ':' in str(e) else str(e)
+        return {
+            'status': 'error',
+            'message': msg
+        }
+    except Exception as e:
+        frappe.log_error(frappe.get_traceback(), "Error en crear_reserva_publica")
+        return {
+            'status': 'error',
+            'message': 'Ocurrió un error inesperado al procesar su reserva.'
+        }
 
 
 @frappe.whitelist()
@@ -370,12 +384,26 @@ def get_dashboard_stats(start_date=None, end_date=None):
         status = r.estado_reserva or "Sin Estado"
         status_counts[status] = status_counts.get(status, 0) + 1
     
+    # KPIs adicionales para tiempo real
+    aforo_maximo = frappe.db.get_single_value("Configuracion Intimar", "aforo_maximo") or 0
+    mesas_disponibles = frappe.db.count("Mesa Intimar", {"estado_mesa": 1})
+    
+    en_espera = [r for r in reservas if r.estado_reserva == 'Lista de espera']
+    personas_en_espera = sum([r.cant_adultos + r.cant_ninos for r in en_espera])
+    
+    reservas_en_proceso = len([r for r in reservas if r.estado_reserva == 'En proceso'])
+
     return {
         "kpis": {
             "personas_en_restaurante": personas_en_restaurante,
             "reservas_confirmadas": count_confirmadas,
             "comensales_confirmados": comensales_confirmados,
-            "total_reservas": len(reservas)
+            "total_reservas": len(reservas),
+            "aforo_total": aforo_maximo,
+            "mesas_disponibles": mesas_disponibles,
+            "personas_en_espera": personas_en_espera,
+            "reservas_en_espera": len(en_espera),
+            "reservas_en_proceso": reservas_en_proceso
         },
         "financials": {
             "total_anticipos": total_anticipos

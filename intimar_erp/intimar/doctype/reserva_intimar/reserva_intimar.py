@@ -34,6 +34,7 @@ class ReservaIntimar(Document):
 		self.validate_past_date()
 		self.validate_wednesday()
 		self.validate_aforo()
+		self.validate_opening_hours()
 		self.handle_status_change()
 		self.validate_mesas_disponibles()
 		self.validate_anticipo()

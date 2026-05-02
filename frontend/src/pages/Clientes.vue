@@ -259,34 +259,12 @@
             </div>
             <div>
               <label class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 ml-2 mb-2 block font-black">Teléfono</label>
-              <div class="flex gap-2">
-                <select v-model="form.country_code" class="w-24 px-2 py-4 bg-gray-50 border-2 border-transparent rounded-2xl focus:bg-white focus:border-intimar-primary outline-none transition-all font-black text-sm appearance-none text-center">
-                  <option value="+51">🇵🇪 +51</option>
-                  <option value="+1">🇺🇸 +1</option>
-                  <option value="+52">🇲🇽 +52</option>
-                  <option value="+54">🇦🇷 +54</option>
-                  <option value="+55">🇧🇷 +55</option>
-                  <option value="+56">🇨🇱 +56</option>
-                  <option value="+57">🇨🇴 +57</option>
-                  <option value="+58">🇻🇪 +58</option>
-                  <option value="+591">🇧🇴 +591</option>
-                  <option value="+593">🇪🇨 +593</option>
-                  <option value="+595">🇵🇾 +595</option>
-                  <option value="+598">🇺🇾 +598</option>
-                  <option value="+502">🇬🇹 +502</option>
-                  <option value="+503">🇸🇻 +503</option>
-                  <option value="+504">🇭🇳 +504</option>
-                  <option value="+505">🇳🇮 +505</option>
-                  <option value="+506">🇨🇷 +506</option>
-                  <option value="+507">🇵🇦 +507</option>
-                  <option value="+34">🇪🇸 +34</option>
-                  <option value="+39">🇮🇹 +39</option>
-                  <option value="+33">🇫🇷 +33</option>
-                  <option value="+44">🇬🇧 +44</option>
-                  <option value="+49">🇩🇪 +49</option>
-                </select>
-                <input v-model="form.phone" type="text" class="flex-1 px-6 py-4 bg-gray-50 border-2 border-transparent rounded-2xl focus:bg-white focus:border-intimar-primary outline-none transition-all font-bold text-lg" placeholder="999 999 999">
-              </div>
+              <vue-tel-input 
+                v-model="form.phone" 
+                @on-input="onPhoneInput"
+                v-bind="telInputOptions"
+                class="bg-gray-50 border-2 border-transparent rounded-2xl focus-within:bg-white focus-within:border-intimar-primary transition-all font-bold"
+              ></vue-tel-input>
             </div>
             <div>
               <label class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 ml-2 mb-2 block font-black">Correo Electrónico</label>
@@ -388,6 +366,8 @@
 import { ref, reactive, computed, watch, onMounted } from 'vue'
 import { Button, LoadingIndicator, createResource, call, Dialog } from 'frappe-ui'
 import Sidebar from '@/components/Sidebar.vue'
+import { VueTelInput } from 'vue-tel-input'
+import 'vue-tel-input/vue-tel-input.css'
 
 const showCreateModal = ref(false)
 const showDeleteDialog = ref(false)
@@ -405,6 +385,19 @@ const showNotification = (message, type = 'success') => {
   }, 3000)
 }
 const searchQuery = ref('')
+
+const telInputOptions = {
+  mode: 'international',
+  dropdownOptions: { showFlags: true, showDialCodeInSelection: true },
+  inputOptions: { placeholder: '987 654 321', showDialCode: false },
+  autoDefaultCountry: true
+}
+
+const onPhoneInput = (phone, phoneObject) => {
+  if (phoneObject && phoneObject.number) {
+    form.fullPhone = phoneObject.number
+  }
+}
 
 const colFilters = reactive({
   name: '',
@@ -493,18 +486,8 @@ const editCliente = (cliente) => {
   form.alergias = cliente.alergias
   form.observaciones = cliente.observaciones
   
-  // Split phone into code and number
-  const fullPhone = cliente.phone || ''
-  const match = fullPhone.match(/^(\+\d+)\s*(.*)$/)
-  if (match) {
-    form.country_code = match[1]
-    form.phone = match[2]
-  } else {
-    form.country_code = '+51'
-    form.phone = fullPhone
-  }
-  
   form.email = cliente.email
+  form.phone = cliente.phone // VueTelInput manejará el formato al cargar
   showCreateModal.value = true
 }
 
@@ -513,7 +496,7 @@ const saveCliente = async () => {
   
   saving.value = true
   try {
-    const fullPhone = `${form.country_code} ${form.phone}`.trim()
+    const finalPhone = form.fullPhone || form.phone.replace(/\s/g, '')
     const isEdit = !!editingCliente.value
     
     if (isEdit) {
@@ -524,7 +507,7 @@ const saveCliente = async () => {
           name1: form.name1,
           lastname: form.lastname,
           dni_ruc: form.dni_ruc,
-          phone: fullPhone,
+          phone: finalPhone,
           email: form.email,
           direccion: form.direccion,
           fecha_nacimiento: form.fecha_nacimiento,
@@ -539,7 +522,7 @@ const saveCliente = async () => {
           name1: form.name1,
           lastname: form.lastname,
           dni_ruc: form.dni_ruc,
-          phone: fullPhone,
+          phone: finalPhone,
           email: form.email,
           direccion: form.direccion,
           fecha_nacimiento: form.fecha_nacimiento,

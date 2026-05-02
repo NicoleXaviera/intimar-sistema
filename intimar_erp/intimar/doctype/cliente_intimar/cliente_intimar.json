@@ -1,6 +1,7 @@
 {
  "actions": [],
  "allow_import": 1,
+ "autoname": "CLI-.######",
  "creation": "2023-11-20 00:00:00",
  "doctype": "DocType",
  "editable_grid": 1,
@@ -39,18 +40,19 @@
   {
    "fieldname": "dni_ruc",
    "fieldtype": "Data",
-   "label": "DNI / RUC / Pasaporte",
-   "in_list_view": 1
+   "in_list_view": 1,
+   "label": "DNI / RUC / Pasaporte"
   },
   {
    "fieldname": "phone",
    "fieldtype": "Data",
-   "label": "Tel\u00e9fono"
+   "label": "Celular"
   },
   {
    "fieldname": "email",
    "fieldtype": "Data",
-   "label": "Correo Electr\u00f3nico"
+   "label": "Correo Electr\u00f3nico",
+   "options": "Email"
   },
   {
    "fieldname": "direccion",
@@ -75,10 +77,11 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-04-26 17:40:00.000000",
+ "modified": "2026-05-02 14:35:12.637332",
  "modified_by": "Administrator",
  "module": "intimar",
  "name": "Cliente Intimar",
+ "naming_rule": "Expression",
  "owner": "Administrator",
  "permissions": [
   {

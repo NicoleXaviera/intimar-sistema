@@ -614,12 +614,12 @@
 
               <div>
                 <label class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 ml-2 mb-2 block">Celular (con código de país)</label>
-                <input 
-                  v-model="newClienteForm.phone"
-                  type="tel" 
-                  placeholder="Ej. +51 987 654 321"
-                  class="w-full px-6 py-4 bg-gray-50 border-2 border-transparent rounded-2xl focus:bg-white focus:border-intimar-primary focus:ring-0 outline-none transition-all font-bold"
-                >
+                <vue-tel-input 
+                  v-model="newClienteForm.phone" 
+                  @on-input="onPhoneInput"
+                  v-bind="telInputOptions"
+                  class="bg-gray-50 border-2 border-transparent rounded-2xl focus-within:bg-white focus-within:border-intimar-primary transition-all font-bold"
+                ></vue-tel-input>
               </div>
             </div>
 
@@ -756,9 +756,24 @@
 import { ref, reactive, onMounted, computed, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { call } from 'frappe-ui'
+import { VueTelInput } from 'vue-tel-input'
+import 'vue-tel-input/vue-tel-input.css'
 
 const route = useRoute()
 const router = useRouter()
+
+const telInputOptions = {
+  mode: 'international',
+  dropdownOptions: { showFlags: true, showDialCodeInSelection: true },
+  inputOptions: { placeholder: '987 654 321', showDialCode: false },
+  autoDefaultCountry: true
+}
+
+const onPhoneInput = (phone, phoneObject) => {
+  if (phoneObject && phoneObject.number) {
+    newClienteForm.fullPhone = phoneObject.number
+  }
+}
 
 const isEditing = ref(false)
 const loading = ref(false)
@@ -1145,7 +1160,7 @@ const saveNewCliente = async () => {
         doctype: 'Cliente Intimar',
         name1: newClienteForm.name1,
         lastname: newClienteForm.lastname,
-        phone: newClienteForm.phone
+        phone: newClienteForm.fullPhone || newClienteForm.phone.replace(/\s/g, '')
       }
     })
     

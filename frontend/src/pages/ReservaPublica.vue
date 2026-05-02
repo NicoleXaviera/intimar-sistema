@@ -87,7 +87,15 @@
                   <div class="space-y-1.5"><label class="text-[9px] font-bold uppercase tracking-widest text-gray-700 ml-0.5">Email *</label><input v-model="form.email" type="email" :class="['w-full border-b outline-none py-1 text-sm font-medium transition-all', errors.email ? 'border-red-400' : 'border-gray-200 focus:border-intimar-primary']"></div>
                   <div class="grid grid-cols-2 gap-4">
                     <div class="space-y-1.5"><label class="text-[9px] font-bold uppercase tracking-widest text-gray-700 ml-0.5">DNI / Passport</label><input v-model="form.dni" type="text" class="w-full border-b border-gray-200 focus:border-intimar-primary outline-none py-1 text-sm font-medium uppercase"></div>
-                    <div class="space-y-1.5"><label class="text-[9px] font-bold uppercase tracking-widest text-gray-700 ml-0.5">{{ t.labelPhone }} *</label><div class="flex gap-2"><select v-model="form.codigoPais" class="w-12 border-b border-gray-200 focus:border-intimar-primary outline-none py-1 font-bold text-[9px] bg-transparent appearance-none"><option value="+51">PE +51</option><option value="+1">US +1</option></select><input v-model="form.celular" type="tel" :class="['flex-1 border-b outline-none py-1 text-sm font-medium transition-all', errors.celular ? 'border-red-400' : 'border-gray-200 focus:border-intimar-primary']"></div></div>
+                    <div class="space-y-1.5">
+                      <label class="text-[9px] font-bold uppercase tracking-widest text-gray-700 ml-0.5">{{ t.labelPhone }} *</label>
+                      <vue-tel-input 
+                        v-model="form.celular" 
+                        @on-input="onPhoneInput"
+                        v-bind="telInputOptions"
+                        :class="['border-b transition-all', errors.celular ? 'border-red-400' : 'border-gray-200 focus-within:border-intimar-primary']"
+                      ></vue-tel-input>
+                    </div>
                   </div>
                 </div>
                 <div class="space-y-3 pt-6 border-t border-gray-50">
@@ -95,6 +103,13 @@
                     <label class="flex gap-3 cursor-pointer group"><input type="checkbox" v-model="form.acepta_legal3" class="mt-0.5 w-4 h-4 rounded border-gray-300 text-intimar-primary transition-all"><span :class="['text-[9px] font-bold uppercase tracking-tight leading-snug transition-all', errors.acepta_legal3 ? 'text-red-500' : 'text-gray-500']">{{ t.legal3 }} *</span></label>
                 </div>
                 <div class="space-y-4">
+                    <!-- Mensaje de Error del Servidor -->
+                    <div v-if="apiError" class="p-4 bg-red-50 border border-red-100 rounded-2xl animate-in fade-in zoom-in duration-300">
+                        <p class="text-[10px] font-black text-red-600 uppercase tracking-widest leading-relaxed text-center">
+                           {{ apiError }}
+                        </p>
+                    </div>
+
                     <p v-if="Object.keys(errors).length > 0" class="text-[10px] font-bold text-red-500 uppercase tracking-widest text-center animate-pulse">{{ t.errorRequired }}</p>
                     <button @click="submitReserva" :disabled="submitting" class="w-full py-5 bg-intimar-primary text-white rounded-full font-medium uppercase tracking-[0.5em] text-[10px] shadow-xl shadow-intimar-primary/20 active:translate-y-1 transition-all flex items-center justify-center gap-4 disabled:opacity-50">{{ submitting ? t.btnProcessing : t.btnConfirm }}</button>
                 </div>
@@ -172,12 +187,34 @@
 <script setup>
 import { ref, reactive, computed, onMounted, onUnmounted } from 'vue'
 import { call } from 'frappe-ui'
+import { VueTelInput } from 'vue-tel-input'
+import 'vue-tel-input/vue-tel-input.css'
 
 const step = ref(1); const submitting = ref(false); const lang = ref('es'); const showManualPax = ref(false); const currentMonthOffset = ref(0); const currentHeroIdx = ref(0); let heroTimer = null;
-const reservationId = ref(''); const showWaitlistModal = ref(false);
+const reservationId = ref(''); const showWaitlistModal = ref(false); const apiError = ref('');
 const heroImages = ['/files/intimar-1.webp','/files/intimar-2.webp','/files/intimar-3.webp']
 const form = reactive({ fecha: '', adultos: 2, ninos: 0, hora: '', nombre: '', apellido: '', celular: '', codigoPais: '+51', email: '', dni: '', requerimientos: '', necesidades: '', alergias: '', acepta_legal1: false, acepta_legal3: false, aceptar_lista_espera: 0 })
 const errors = reactive({})
+
+const telInputOptions = {
+  mode: 'international',
+  dropdownOptions: { showFlags: true, showDialCodeInSelection: true },
+  inputOptions: { placeholder: '987 654 321', showDialCode: false },
+  autoDefaultCountry: true
+}
+
+const onPhoneInput = (phone, phoneObject) => {
+  if (phoneObject) {
+    // Guardamos el código de país por separado por si acaso
+    if (phoneObject.countryCallingCode) {
+      form.codigoPais = '+' + phoneObject.countryCallingCode
+    }
+    // Si el número es válido o tiene formato, lo usamos completo
+    if (phoneObject.number) {
+      form.fullPhone = phoneObject.number // Este ya incluye el + y prefijo
+    }
+  }
+}
 
 const translations = {
   es: {
@@ -263,15 +300,29 @@ const submitReserva = async () => {
   if (!validateForm()) { window.scrollTo({ top: 0, behavior: 'smooth' }); return }
   submitting.value = true
   try {
-    const res = await call('intimar_erp.api.crear_reserva_publica', { cliente_nombre: form.nombre, apellido: form.apellido, cliente_celular: `${form.codigoPais} ${form.celular}`, codigo_pais: form.codigoPais, fecha: form.fecha, hora: form.hora, adultos: form.adultos, ninos: form.ninos || 0, email: form.email, dni: form.dni, alergias: form.alergias, requerimientos: form.requerimientos, necesidades: form.necesidades, acepta_politicas: form.acepta_legal1 ? 1 : 0, acepta_promociones: form.acepta_legal3 ? 1 : 0, aceptar_lista_espera: form.aceptar_lista_espera })
+    const finalPhone = form.fullPhone || form.celular.replace(/\s/g, '')
+
+    const res = await call('intimar_erp.api.crear_reserva_publica', { 
+      cliente_nombre: form.nombre, 
+      apellido: form.apellido, 
+      cliente_celular: finalPhone, 
+      codigo_pais: form.codigoPais,
+      fecha: form.fecha, hora: form.hora, adultos: form.adultos, ninos: form.ninos || 0, email: form.email, dni: form.dni, alergias: form.alergias, requerimientos: form.requerimientos, necesidades: form.necesidades, acepta_politicas: form.acepta_legal1 ? 1 : 0, acepta_promociones: form.acepta_legal3 ? 1 : 0, aceptar_lista_espera: form.aceptar_lista_espera })
     
     if (res && res.status === 'success') {
         reservationId.value = res.reserva_name;
         step.value = 5; showWaitlistModal.value = false; window.scrollTo({ top: 0, behavior: 'smooth' })
     } else if (res && res.status === 'error') {
-        showWaitlistModal.value = true
+        if (res.message && res.message.includes('Aforo excedido')) {
+            showWaitlistModal.value = true
+        } else {
+            apiError.value = res.message || 'Error al procesar la reserva.'
+        }
     }
-  } catch (e) { console.error(e); alert('Error al crear la reserva.') } finally { submitting.value = false }
+  } catch (e) { 
+    console.error(e); 
+    apiError.value = 'Ocurrió un problema de conexión. Intente nuevamente.'
+  } finally { submitting.value = false }
 }
 
 const joinWaitlist = () => { form.aceptar_lista_espera = 1; submitReserva(); }
