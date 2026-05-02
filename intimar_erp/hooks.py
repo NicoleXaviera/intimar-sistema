@@ -4,7 +4,6 @@ app_publisher = "Intimar"
 app_description = "Sistema de gestión y reservas para Intimar"
 app_email = "nicole.argueda@gmail.com"
 app_license = "mit"
-app_version = ">=15.0.0 <16.0.0"
 
 # Includes in <head>
 # ------------------
