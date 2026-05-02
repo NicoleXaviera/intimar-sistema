@@ -1,6 +1,6 @@
 import frappe
 from frappe import _
-from frappe.utils import now_datetime, nowtime
+import json
 
 @frappe.whitelist()
 def get_mesas_with_reserva(limit_start=0, limit_page_length=0, with_pagination=0, search_query="", ubicacion_mesa=""):
@@ -98,11 +98,11 @@ def asignar_mesa_a_reserva(reserva_id, mesa_id, mozo_id=None):
         reserva.append("mesas", {"mesa": mesa_id})
     
     reserva.estado_reserva = "En proceso"
-    reserva.hora_llegada = nowtime()
+    reserva.hora_llegada = frappe.utils.nowtime()
     if mozo_id:
         reserva.mozo = mozo_id
         
-    reserva.save()
+    reserva.save(ignore_permissions=True)
     frappe.db.commit()
     return {"status": "success"}
 
@@ -112,8 +112,8 @@ def liberar_mesa(mesa_id):
     if reserva_parent:
         res = frappe.get_doc("Reserva Intimar", reserva_parent)
         res.estado_reserva = "Finalizada"
-        res.hora_salida = nowtime()
-        res.save()
+        res.hora_salida = frappe.utils.nowtime()
+        res.save(ignore_permissions=True)
     
     frappe.db.set_value("Mesa Intimar", mesa_id, "estado_mesa", 1)
     frappe.db.commit()
@@ -157,6 +157,71 @@ def get_reservas_list(filters=None, limit_start=0, limit_page_length=20, order_b
     data = frappe.db.sql(query, tuple(reserva_names), as_dict=1)
     
     return data
+
+
+
+@frappe.whitelist(allow_guest=True)
+def crear_reserva_publica(cliente_nombre, cliente_celular, fecha, hora, adultos, ninos=0, 
+                          email=None, dni=None, alergias=None, ocasion=None, 
+                          requerimientos=None, necesidades=None, apellido=None, 
+                          codigo_pais=None, acepta_politicas=0, acepta_promociones=0,
+                          aceptar_lista_espera=0):
+    
+    # 1. Buscar o crear cliente
+    # Usamos el celular como identificador único
+    cliente_id = frappe.db.get_value('Cliente Intimar', {'phone': cliente_celular}, 'name')
+    
+    if not cliente_id:
+        nuevo_cliente = frappe.get_doc({
+            'doctype': 'Cliente Intimar',
+            'name1': cliente_nombre,
+            'lastname': apellido,
+            'nombre_y_apellido_completo': f"{cliente_nombre} {apellido if apellido else ''}".strip(),
+            'phone': cliente_celular,
+            'email': email,
+            'dni_ruc': dni
+        })
+        nuevo_cliente.insert(ignore_permissions=True)
+        cliente_id = nuevo_cliente.name
+    
+    # 2. Crear la reserva
+    reserva = frappe.get_doc({
+        'doctype': 'Reserva Intimar',
+        'cliente': cliente_id,
+        'nombre': cliente_nombre,
+        'apellido': apellido,
+        'celular': cliente_celular,
+        'codigo_pais': codigo_pais,
+        'email': email,
+        'dni': dni,
+        'fecha_reserva': fecha,
+        'hora_reserva': hora,
+        'cant_adultos': adultos,
+        'cant_ninos': ninos,
+        'motivo_reserva': ocasion,
+        'requerimientos': requerimientos,
+        'necesidades': necesidades,
+        'alergias': alergias,
+        'acepta_politicas': acepta_politicas,
+        'acepta_promociones': acepta_promociones,
+        'aceptar_lista_espera': aceptar_lista_espera,
+        'estado_reserva': 'Solicitud de reserva'
+    })
+    
+    try:
+        reserva.insert(ignore_permissions=True)
+        return {
+            'status': 'success',
+            'reserva_name': reserva.name
+        }
+    except frappe.ValidationError as e:
+        if "Aforo excedido" in str(e):
+            return {
+                'status': 'error',
+                'message': 'Lo sentimos, ya no tenemos disponibilidad para este horario. Por favor, selecciona otro horario o ingresa a nuestra lista de espera.'
+            }
+        raise e
+
 
 @frappe.whitelist()
 def get_user_details(user_id):
@@ -234,3 +299,130 @@ def create_new_user(email, full_name, password, roles=None):
     
     frappe.db.commit()
     return {"status": "success"}
+
+@frappe.whitelist()
+def get_dashboard_stats(start_date=None, end_date=None):
+    if "System Manager" not in frappe.get_roles() and frappe.session.user != "Administrator":
+        frappe.throw(_("No tienes permiso para ver las estadísticas"))
+    
+    if not start_date:
+        start_date = frappe.utils.today()
+    if not end_date:
+        end_date = start_date
+        
+    # Todas las reservas en el rango
+    reservas = frappe.get_all("Reserva Intimar", 
+        filters={
+            "fecha_reserva": ["between", [start_date, end_date]]
+        },
+        fields=["estado_reserva", "cant_adultos", "cant_ninos", "name", "fecha_reserva", "hora_reserva"]
+    )
+    
+    # 1. Personas en el restaurante (Solo si el rango incluye HOY)
+    today = frappe.utils.today()
+    personas_en_restaurante = 0
+    if start_date <= today <= end_date:
+        en_proceso = [r for r in reservas if r.estado_reserva == 'En proceso' and str(r.fecha_reserva) == today]
+        personas_en_restaurante = sum([r.cant_adultos + r.cant_ninos for r in en_proceso])
+    
+    # 2. Reservas CONFIRMADAS
+    confirmadas = [r for r in reservas if r.estado_reserva == 'Confirmada']
+    count_confirmadas = len(confirmadas)
+    
+    # 3. Total Comensales (Confirmadas)
+    comensales_confirmados = sum([r.cant_adultos + r.cant_ninos for r in confirmadas])
+    
+    # 4. Total Anticipos Pagados (En el rango)
+    anticipos_query = """
+        SELECT SUM(monto_anticipo) as total
+        FROM `tabAnticipo Reserva Intimar`
+        WHERE estado_anticipo = 'Pagado'
+        AND creation BETWEEN %s AND %s
+    """
+    total_anticipos = frappe.db.sql(anticipos_query, (start_date + " 00:00:00", end_date + " 23:59:59"), as_dict=1)[0].total or 0
+    
+    # Rankings de Mozos
+    mozos_query = """
+        SELECT m.nombre as mozo, COUNT(r.name) as total
+        FROM `tabReserva Intimar` r
+        JOIN `tabMozo Intimar` m ON r.mozo = m.name
+        WHERE r.estado_reserva != 'Cancelada'
+        AND r.fecha_reserva BETWEEN %s AND %s
+        GROUP BY r.mozo
+        ORDER BY total DESC
+        LIMIT 5
+    """
+    mozos_ranking = frappe.db.sql(mozos_query, (start_date, end_date), as_dict=1)
+    
+    # Ocupación por Hora
+    hourly_query = """
+        SELECT hora_reserva, COUNT(name) as total
+        FROM `tabReserva Intimar`
+        WHERE fecha_reserva BETWEEN %s AND %s
+        GROUP BY hora_reserva
+        ORDER BY hora_reserva ASC
+    """
+    ocupacion_horas = frappe.db.sql(hourly_query, (start_date, end_date), as_dict=1)
+    
+    # Desglose de estados
+    status_counts = {}
+    for r in reservas:
+        status = r.estado_reserva or "Sin Estado"
+        status_counts[status] = status_counts.get(status, 0) + 1
+    
+    return {
+        "kpis": {
+            "personas_en_restaurante": personas_en_restaurante,
+            "reservas_confirmadas": count_confirmadas,
+            "comensales_confirmados": comensales_confirmados,
+            "total_reservas": len(reservas)
+        },
+        "financials": {
+            "total_anticipos": total_anticipos
+        },
+        "rankings": {
+            "mozos": mozos_ranking
+        },
+        "hourly": ocupacion_horas,
+        "status_counts": status_counts,
+        "raw_data": reservas # Para la descarga
+    }
+
+@frappe.whitelist()
+def get_recent_activity():
+    """Devuelve las últimas 10 actividades significativas para el Centro de Control."""
+    reservas = frappe.get_all("Reserva Intimar", 
+        fields=["name", "nombre", "estado_reserva", "modified", "hora_reserva"],
+        order_by="modified desc",
+        limit=10
+    )
+    
+    activities = []
+    for r in reservas:
+        msg = ""
+        msg_type = "nueva_reserva"
+        prefix = f"[{r.name}] "
+        
+        if r.estado_reserva == "En proceso":
+            msg = prefix + _("El cliente {0} ya llegó.").format(r.nombre)
+            msg_type = "cliente_llego"
+        elif r.estado_reserva == "Solicitud de reserva":
+            msg = prefix + _("Nueva solicitud de {0} para las {1}.").format(r.nombre, r.hora_reserva)
+        elif r.estado_reserva == "Confirmada":
+            msg = prefix + _("Reserva de {0} confirmada para las {1}.").format(r.nombre, r.hora_reserva)
+        elif r.estado_reserva == "Lista de espera":
+            msg = prefix + _("Aforo completo: {0} en lista de espera.").format(r.nombre)
+            msg_type = "aforo_lleno"
+        elif r.estado_reserva == "Finalizada":
+            msg = prefix + _("Mesa liberada de {0}.").format(r.nombre)
+            msg_type = "mesa_liberada"
+        
+        if msg:
+            activities.append({
+                "type": msg_type,
+                "message": msg,
+                "timestamp": r.modified,
+                "reserva_id": r.name
+            })
+            
+    return activities

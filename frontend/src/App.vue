@@ -1,13 +1,15 @@
 <template>
-  <div class="h-screen w-screen bg-gray-50">
+  <div class="min-h-screen w-full bg-gray-50 overflow-x-hidden flex flex-col">
+    <NotificationPanel v-if="route.name && route.name !== 'Login' && !route.meta.isPublic" />
     <router-view />
   </div>
 </template>
 
 <script setup>
-import { createResource } from 'frappe-ui'
-import { watch } from 'vue'
+import { createResource, call } from 'frappe-ui'
+import { watch, onMounted, onUnmounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
+import NotificationPanel from '@/components/NotificationPanel.vue'
 
 const router = useRouter()
 const route = useRoute()
@@ -17,21 +19,56 @@ const user = createResource({
   url: 'frappe.auth.get_logged_user',
   auto: true,
   onSuccess: (data) => {
-    if (!data && route.name !== 'Login') {
+    if (!data && route.name !== 'Login' && !route.meta.isPublic) {
       router.push({ name: 'Login' })
     }
   },
   onError: () => {
-    if (route.name !== 'Login') {
+    if (route.name !== 'Login' && !route.meta.isPublic) {
       router.push({ name: 'Login' })
     }
   }
 })
 
+// Inactivity Timeout (1 hora)
+let inactivityTimer
+const INACTIVITY_LIMIT = 60 * 60 * 1000 // 60 min
+
+const resetInactivityTimer = () => {
+  clearTimeout(inactivityTimer)
+  inactivityTimer = setTimeout(async () => {
+    if (route.name !== 'Login') {
+      try {
+        await call('frappe.auth.logout')
+        window.location.reload() // Redirige al login vía el watcher de usuario
+      } catch (e) {
+        console.error("Error al cerrar sesión por inactividad", e)
+      }
+    }
+  }, INACTIVITY_LIMIT)
+}
+
 // Vigilamos la ruta para redirigir si no hay sesión
 watch(() => route.name, (newName) => {
-  if (newName !== 'Login' && !user.data) {
+  if (newName !== 'Login' && !route.meta.isPublic && !user.data) {
     user.fetch()
   }
+})
+
+onMounted(() => {
+  // Listeners para actividad
+  window.addEventListener('mousemove', resetInactivityTimer)
+  window.addEventListener('keydown', resetInactivityTimer)
+  window.addEventListener('scroll', resetInactivityTimer)
+  window.addEventListener('click', resetInactivityTimer)
+  resetInactivityTimer()
+})
+
+onUnmounted(() => {
+  window.removeEventListener('mousemove', resetInactivityTimer)
+  window.removeEventListener('keydown', resetInactivityTimer)
+  window.removeEventListener('scroll', resetInactivityTimer)
+  window.removeEventListener('click', resetInactivityTimer)
+  clearTimeout(inactivityTimer)
 })
 </script>

@@ -66,6 +66,22 @@ const routes = [
     name: 'Usuarios',
     component: () => import('@/pages/Usuarios.vue'),
   },
+  {
+    path: '/insights',
+    name: 'Insights',
+    component: () => import('@/pages/Dashboard.vue'),
+  },
+  {
+    path: '/notificaciones',
+    name: 'HistorialNotificaciones',
+    component: () => import('@/pages/Notifications.vue'),
+  },
+  {
+    path: '/reservar',
+    name: 'ReservaPublica',
+    component: () => import('@/pages/ReservaPublica.vue'),
+    meta: { isPublic: true }
+  },
 ]
 
 let router = createRouter({

@@ -96,12 +96,18 @@
               <p class="text-4xl font-black text-green-600">{{ attendanceStats.attended }}</p>
             </div>
             <div class="bg-white p-6 rounded-[2rem] border border-gray-100 shadow-sm flex flex-col items-center justify-center text-center">
-              <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">No-Shows</p>
+              <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Inasistencias</p>
               <p class="text-4xl font-black text-red-600">{{ attendanceStats.noShows }}</p>
             </div>
-            <div class="bg-white p-6 rounded-[2rem] border border-gray-100 shadow-sm flex flex-col items-center justify-center text-center">
-              <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">% Fidelidad</p>
-              <p class="text-4xl font-black text-intimar-gold">{{ attendanceStats.rate }}%</p>
+            <div class="bg-white p-6 rounded-[2rem] border border-gray-100 shadow-sm flex flex-col items-center justify-center text-center relative overflow-hidden group">
+              <div class="absolute inset-0 bg-intimar-primary/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+              <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2 relative z-10">Nivel de Confianza</p>
+              <p class="text-xl font-black uppercase tracking-tighter relative z-10" :class="getConfidenceClass(attendanceStats.rate)">
+                {{ attendanceStats.level }}
+              </p>
+              <div class="flex gap-1 mt-2 relative z-10">
+                <div v-for="i in 5" :key="i" class="w-2.5 h-1 rounded-full" :class="i <= (attendanceStats.rate / 20) ? getConfidenceBg(attendanceStats.rate) : 'bg-gray-100'"></div>
+              </div>
             </div>
           </div>
 
@@ -133,7 +139,12 @@
                 </div>
                 
                 <div v-else class="space-y-4">
-                  <div v-for="res in reservas.data" :key="res.name" class="flex flex-col md:flex-row md:items-center justify-between p-6 bg-gray-50 rounded-3xl border border-transparent hover:border-intimar-primary/20 hover:bg-white hover:shadow-lg transition-all group">
+                  <router-link 
+                    v-for="res in reservas.data" 
+                    :key="res.name" 
+                    :to="{ name: 'EditarReserva', params: { name: res.name } }"
+                    class="flex flex-col md:flex-row md:items-center justify-between p-6 bg-gray-50 rounded-3xl border border-transparent hover:border-intimar-primary/20 hover:bg-white hover:shadow-lg transition-all group cursor-pointer"
+                  >
                     <div class="flex items-center gap-6">
                       <div class="w-14 h-14 bg-white rounded-2xl flex flex-col items-center justify-center shadow-sm">
                         <span class="text-[8px] font-black text-gray-400 uppercase tracking-tighter">{{ formatMonth(res.fecha_reserva) }}</span>
@@ -149,11 +160,11 @@
                         <div class="flex items-center gap-4 text-[10px] font-bold text-gray-500 uppercase tracking-widest">
                           <span class="flex items-center gap-1.5">
                             <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-                            {{ res.cant_adultos + res.cant_ninos }} PAX
+                            {{ res.cant_adultos + res.cant_ninos }} PERS.
                           </span>
-                          <span v-if="res.mozo" class="flex items-center gap-1.5">
+                          <span v-if="res.mozo_nombre" class="flex items-center gap-1.5">
                             <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="5"/><path d="M3 21v-2a7 7 0 0 1 7-7h4a7 7 0 0 1 7 7v2"/></svg>
-                            MOZO: {{ res.mozo }}
+                            MOZO: {{ res.mozo_nombre }}
                           </span>
                         </div>
                       </div>
@@ -162,13 +173,14 @@
                     <div class="mt-4 md:mt-0 flex items-center gap-4">
                       <div class="text-right">
                         <p class="text-[9px] font-black text-gray-400 uppercase tracking-widest">Mesa(s)</p>
-                        <p class="font-black text-intimar-primary">Pendiente de Mapa</p>
+                        <p v-if="res.mesas_asignadas" class="font-black text-intimar-primary text-xs uppercase tracking-tighter">{{ res.mesas_asignadas }}</p>
+                        <p v-else class="font-black text-gray-300 italic text-sm">Pendiente</p>
                       </div>
                       <div class="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-gray-300 group-hover:text-intimar-primary transition-colors">
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
                       </div>
                     </div>
-                  </div>
+                  </router-link>
                 </div>
               </div>
 
@@ -325,12 +337,10 @@ const cliente = createResource({
 
 // Obtener historial de Reservas
 const reservas = createResource({
-  url: 'frappe.client.get_list',
+  url: 'intimar_erp.api.get_reservas_list',
   params: {
-    doctype: 'Reserva Intimar',
     filters: { cliente: route.params.name },
-    fields: ['name', 'fecha_reserva', 'hora_reserva', 'estado_reserva', 'cant_adultos', 'cant_ninos', 'mozo', 'hora_llegada'],
-    order_by: 'fecha_reserva desc, hora_reserva desc'
+    limit_page_length: 50
   },
   auto: true
 })
@@ -385,17 +395,49 @@ const saveChanges = async () => {
   }
 }
 
-// Estadísticas de Asistencia
+// Estadísticas de Asistencia con Lógica Automática
 const attendanceStats = computed(() => {
-  if (!reservas.data || reservas.data.length === 0) return { attended: 0, noShows: 0, rate: 0 }
+  if (!reservas.data || reservas.data.length === 0) return { attended: 0, noShows: 0, rate: 0, level: 'Sin Datos' }
   
+  const today = new Date().toISOString().split('T')[0]
   const total = reservas.data.length
-  const attended = reservas.data.filter(r => ['Finalizada', 'En proceso'].includes(r.estado_reserva)).length
-  const noShows = reservas.data.filter(r => r.estado_reserva === 'Cancelada').length
-  const rate = total > 0 ? Math.round((attended / total) * 100) : 0
   
-  return { attended, noShows, rate }
+  // Asistencias: Solo cuando realmente vinieron
+  const attended = reservas.data.filter(r => ['Finalizada', 'En proceso'].includes(r.estado_reserva)).length
+  
+  // Inasistencias: Cancelaciones manuales + Reservas pasadas no atendidas
+  const noShows = reservas.data.filter(r => {
+    const isCancelled = r.estado_reserva === 'Cancelada'
+    const isPast = r.fecha_reserva < today
+    const wasNotAttended = ['Solicitud de reserva', 'Confirmada', 'Lista de espera'].includes(r.estado_reserva)
+    return isCancelled || (isPast && wasNotAttended)
+  }).length
+  
+  // Ratio de cumplimiento
+  const rate = (attended + noShows) > 0 ? Math.round((attended / (attended + noShows)) * 100) : 100
+  
+  let level = 'Estándar'
+  if (rate >= 90 && total >= 3) level = 'Premium VIP'
+  else if (rate >= 80) level = 'Muy Confiable'
+  else if (rate < 50) level = 'Riesgoso'
+  else if (total < 2) level = 'Cliente Nuevo'
+
+  return { attended, noShows, rate, level }
 })
+
+const getConfidenceClass = (rate) => {
+  if (rate >= 90) return 'text-emerald-600'
+  if (rate >= 70) return 'text-intimar-primary'
+  if (rate >= 50) return 'text-intimar-gold'
+  return 'text-red-600'
+}
+
+const getConfidenceBg = (rate) => {
+  if (rate >= 90) return 'bg-emerald-500'
+  if (rate >= 70) return 'bg-intimar-primary'
+  if (rate >= 50) return 'bg-intimar-gold'
+  return 'bg-red-500'
+}
 
 // Formateadores de fecha
 const formatMonth = (dateStr) => {

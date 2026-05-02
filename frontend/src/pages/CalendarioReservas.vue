@@ -7,41 +7,42 @@
       <div class="bg-white flex-1 rounded-[2.5rem] shadow-sm border border-gray-100 flex flex-col overflow-hidden relative animate-in fade-in slide-in-from-top-4 duration-500">
         
         <!-- Header -->
-        <div class="p-6 md:p-8 border-b border-gray-100 flex flex-col md:flex-row justify-between items-center gap-4">
-          <div class="flex items-center gap-4">
-            <div class="w-14 h-14 bg-gradient-to-br from-intimar-primary to-intimar-dark rounded-2xl flex items-center justify-center shadow-lg shadow-intimar-primary/20 shrink-0 text-white">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
-            </div>
-            <div>
-              <h1 class="text-3xl font-black text-gray-900 tracking-tight italic capitalize">
-                {{ currentView === 'day' ? currentDateFormatted : currentMonthName + ' ' + currentYear }}
-              </h1>
-              <p class="text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em] mt-0.5">
-                Vista {{ currentView === 'month' ? 'Mensual' : currentView === 'week' ? 'Semanal' : 'Diaria' }}
-              </p>
-            </div>
-          </div>
-
-          <div class="flex items-center gap-4">
-            <!-- Selector de Vista -->
-            <div class="hidden md:flex items-center bg-gray-50 p-1.5 rounded-2xl border border-gray-100">
-              <button @click="currentView = 'month'" :class="currentView === 'month' ? 'bg-white shadow-sm text-intimar-primary' : 'text-gray-400 hover:text-gray-600'" class="px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all">Mes</button>
-              <button @click="currentView = 'week'" :class="currentView === 'week' ? 'bg-white shadow-sm text-intimar-primary' : 'text-gray-400 hover:text-gray-600'" class="px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all">Semana</button>
-              <button @click="currentView = 'day'" :class="currentView === 'day' ? 'bg-white shadow-sm text-intimar-primary' : 'text-gray-400 hover:text-gray-600'" class="px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all">Día</button>
+        <!-- Header -->
+        <div class="p-4 md:p-8 border-b border-gray-100 flex flex-col gap-6">
+          <div class="flex justify-between items-center w-full">
+            <div class="flex items-center gap-3">
+              <div class="w-12 h-12 md:w-14 md:h-14 bg-gradient-to-br from-intimar-primary to-intimar-dark rounded-2xl flex items-center justify-center shadow-lg shadow-intimar-primary/20 shrink-0 text-white">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
+              </div>
+              <div>
+                <h1 class="text-xl md:text-3xl font-black text-gray-900 tracking-tight italic capitalize truncate max-w-[150px] md:max-w-none">
+                  {{ currentView === 'day' ? currentDateFormatted : currentMonthName + ' ' + currentYear }}
+                </h1>
+                <p class="text-[9px] md:text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em] mt-0.5">
+                  Vista {{ currentView === 'month' ? 'Mensual' : currentView === 'week' ? 'Semanal' : 'Diaria' }}
+                </p>
+              </div>
             </div>
 
             <!-- Controles de Navegación -->
-            <div class="flex items-center gap-2 bg-gray-50 p-1.5 rounded-2xl border border-gray-100">
-              <button @click="prevPeriod" class="p-3 text-gray-400 hover:text-intimar-primary hover:bg-white rounded-xl transition-all shadow-sm">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+            <div class="flex items-center gap-1 bg-gray-50 p-1 rounded-2xl border border-gray-100">
+              <button @click="prevPeriod" class="p-2 md:p-3 text-gray-400 hover:text-intimar-primary hover:bg-white rounded-xl transition-all">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
               </button>
-              <button @click="goToToday" class="px-6 py-2 text-xs font-black uppercase tracking-[0.2em] text-gray-700 hover:text-intimar-primary transition-colors">
+              <button @click="goToToday" class="px-3 md:px-6 py-2 text-[10px] font-black uppercase tracking-[0.2em] text-gray-700 hover:text-intimar-primary transition-colors">
                 Hoy
               </button>
-              <button @click="nextPeriod" class="p-3 text-gray-400 hover:text-intimar-primary hover:bg-white rounded-xl transition-all shadow-sm">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+              <button @click="nextPeriod" class="p-2 md:p-3 text-gray-400 hover:text-intimar-primary hover:bg-white rounded-xl transition-all">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
               </button>
             </div>
+          </div>
+
+          <!-- Selector de Vista (Visible en Móvil) -->
+          <div class="flex items-center justify-center bg-gray-50 p-1.5 rounded-2xl border border-gray-100 w-full">
+            <button @click="currentView = 'month'" :class="currentView === 'month' ? 'bg-white shadow-sm text-intimar-primary' : 'text-gray-400 hover:text-gray-600'" class="flex-1 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all">Mes</button>
+            <button @click="currentView = 'week'" :class="currentView === 'week' ? 'bg-white shadow-sm text-intimar-primary' : 'text-gray-400 hover:text-gray-600'" class="flex-1 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all">Semana</button>
+            <button @click="currentView = 'day'" :class="currentView === 'day' ? 'bg-white shadow-sm text-intimar-primary' : 'text-gray-400 hover:text-gray-600'" class="flex-1 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all">Día</button>
           </div>
         </div>
 
@@ -87,7 +88,7 @@
                     </span>
                     
                     <span v-if="day.reservations.length > 0" class="text-[9px] font-black tracking-widest text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">
-                      {{ day.totalPax }} PAX
+                      {{ day.totalPers }} PERS.
                     </span>
                   </div>
 
@@ -125,7 +126,7 @@
                      <h4 class="font-black text-[11px] text-gray-900 mt-2 truncate">{{ res.nombre }}</h4>
                      <div class="flex items-center gap-1.5 mt-1">
                         <span class="w-2 h-2 rounded-full" :class="getDotColor(res.estado_reserva)"></span>
-                        <span class="text-[9px] font-bold text-gray-400">{{ (res.cant_adultos || 0) + (res.cant_ninos || 0) }} PAX</span>
+                        <span class="text-[9px] font-bold text-gray-400">{{ (res.cant_adultos || 0) + (res.cant_ninos || 0) }} PERS.</span>
                      </div>
                   </div>
                 </div>
@@ -143,7 +144,7 @@
                       </div>
                       <div>
                         <p class="text-2xl font-black text-gray-900 italic tracking-tight">{{ currentDayData.reservations.length }} Reservas</p>
-                        <p class="text-[10px] font-bold text-intimar-primary uppercase tracking-[0.2em]">{{ currentDayData.totalPax }} Personas en Total</p>
+                        <p class="text-[10px] font-bold text-intimar-primary uppercase tracking-[0.2em]">{{ currentDayData.totalPers }} Personas en Total</p>
                       </div>
                     </div>
                   </div>
@@ -165,7 +166,7 @@
                           <h4 class="font-black text-xl italic text-intimar-primary leading-tight">{{ res.nombre }}</h4>
                         </div>
                         <div class="flex items-center gap-4 text-xs font-bold text-gray-500 uppercase tracking-widest bg-gray-50 px-4 py-3 rounded-2xl">
-                          <span class="flex items-center gap-2 text-intimar-red"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> {{ (res.cant_adultos || 0) + (res.cant_ninos || 0) }} PAX</span>
+                          <span class="flex items-center gap-2 text-intimar-red"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> {{ (res.cant_adultos || 0) + (res.cant_ninos || 0) }} PERS.</span>
                           <span class="w-1 h-1 rounded-full bg-gray-300"></span>
                           <span class="flex items-center gap-2"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" x2="8" y1="13" y2="13"/><line x1="16" x2="8" y1="17" y2="17"/><polyline points="10 9 9 9 8 9"/></svg> ID: {{ res.name.split('-').pop() }}</span>
                         </div>
@@ -203,7 +204,7 @@
               <h2 class="text-3xl font-black italic text-gray-900 tracking-tight">{{ selectedDayFormatted }}</h2>
               <div class="mt-2 flex items-center justify-between gap-4">
                 <p class="text-[11px] font-black text-intimar-red uppercase tracking-[0.2em] bg-intimar-red/10 px-3 py-1.5 rounded-xl inline-block border border-intimar-red/20 shadow-sm">
-                  {{ selectedDayReservations.length }} Reservas • {{ selectedDayPax }} PAX Totales
+                  {{ selectedDayReservations.length }} Reservas • {{ selectedDayPers }} PERS. Totales
                 </p>
                 <select v-model="selectedTimeFilter" class="bg-white border border-gray-100 rounded-xl px-3 py-1.5 text-[10px] font-bold text-gray-600 uppercase tracking-widest outline-none focus:ring-2 focus:ring-intimar-primary/20">
                   <option value="Todas">Todas las horas</option>
@@ -260,7 +261,7 @@
 
                   <h4 class="font-black text-lg italic text-intimar-primary leading-tight truncate mb-1">{{ res.nombre }}</h4>
                   <div class="flex items-center gap-2 text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-3">
-                    <span class="flex items-center gap-1.5"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> {{ (res.cant_adultos || 0) + (res.cant_ninos || 0) }} PAX</span>
+                    <span class="flex items-center gap-1.5"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> {{ (res.cant_adultos || 0) + (res.cant_ninos || 0) }} PERS.</span>
                     <span class="w-1 h-1 rounded-full bg-gray-200"></span>
                     <span class="flex items-center gap-1.5 truncate"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" x2="8" y1="13" y2="13"/><line x1="16" x2="8" y1="17" y2="17"/><polyline points="10 9 9 9 8 9"/></svg> Reserva: {{ res.name.split('-').pop() }}</span>
                   </div>
@@ -386,7 +387,7 @@ const calendarDays = computed(() => {
       dayNumber: prevMonthLastDay - i,
       isCurrentMonth: false,
       reservations: [],
-      totalPax: 0
+      totalPers: 0
     })
   }
   
@@ -396,14 +397,14 @@ const calendarDays = computed(() => {
     
     // Filtrar reservas para este día
     const dayReservations = rawReservations.value.filter(r => r.fecha_reserva === dateStr)
-    const pax = dayReservations.reduce((acc, curr) => acc + (curr.cant_adultos || 0) + (curr.cant_ninos || 0), 0)
+    const pers = dayReservations.reduce((acc, curr) => acc + (curr.cant_adultos || 0) + (curr.cant_ninos || 0), 0)
 
     days.push({
       date: dateStr,
       dayNumber: i,
       isCurrentMonth: true,
       reservations: dayReservations,
-      totalPax: pax
+      totalPers: pers
     })
   }
   
@@ -417,7 +418,7 @@ const calendarDays = computed(() => {
       dayNumber: i,
       isCurrentMonth: false,
       reservations: [],
-      totalPax: 0
+      totalPers: 0
     })
   }
   
@@ -444,7 +445,7 @@ const calendarWeekDays = computed(() => {
       date: dateStr,
       dayNumber: d.getDate(),
       reservations: dayReservations,
-      totalPax: pax
+      totalPers: pers
     })
   }
   return week
@@ -453,11 +454,11 @@ const calendarWeekDays = computed(() => {
 const currentDayData = computed(() => {
   const dateStr = currentDate.value.toISOString().split('T')[0]
   const dayReservations = rawReservations.value.filter(r => r.fecha_reserva === dateStr)
-  const pax = dayReservations.reduce((acc, curr) => acc + (curr.cant_adultos || 0) + (curr.cant_ninos || 0), 0)
+  const pers = dayReservations.reduce((acc, curr) => acc + (curr.cant_adultos || 0) + (curr.cant_ninos || 0), 0)
   return {
     date: dateStr,
     reservations: dayReservations,
-    totalPax: pax
+    totalPers: pers
   }
 })
 
@@ -508,8 +509,8 @@ const filteredDayReservations = computed(() => {
   return res.filter(r => parseInt(r.hora_reserva.split(':')[0]) === selectedHour)
 })
 
-const selectedDayPax = computed(() => {
-  return selectedDayData.value?.totalPax || 0
+const selectedDayPers = computed(() => {
+  return selectedDayData.value?.totalPers || 0
 })
 
 const selectedDayFormatted = computed(() => {

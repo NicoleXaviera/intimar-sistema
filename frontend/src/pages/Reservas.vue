@@ -1,8 +1,8 @@
 <template>
   <div class="min-h-screen bg-gray-50 flex">
     <Sidebar />
-    <div class="flex-1 p-4 pb-28 md:p-8 md:pb-8 overflow-y-auto">
-      <div class="max-w-[1400px] mx-auto space-y-8">
+    <div class="flex-1 p-4 pb-28 md:p-8 md:pb-8 overflow-y-auto overflow-x-hidden">
+      <div class="w-full space-y-8">
         
         <!-- Header -->
         <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 md:gap-0 bg-white p-6 rounded-[2.5rem] shadow-sm border border-gray-100 relative overflow-hidden animate-in fade-in slide-in-from-top-4 duration-500">
@@ -19,17 +19,35 @@
             </div>
           </div>
           
-          <router-link to="/reservas/nueva" class="relative z-10 w-full md:w-auto justify-center bg-intimar-primary hover:bg-intimar-dark text-white font-black uppercase tracking-widest text-[11px] py-4 px-8 rounded-2xl shadow-xl shadow-intimar-primary/20 transition-all flex items-center gap-2">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
-            NUEVA RESERVA
-          </router-link>
+          <div class="flex flex-col sm:flex-row gap-3 w-full md:w-auto relative z-10 items-center">
+            <button 
+              @click="exportToPDF" 
+              class="justify-center bg-white/50 hover:bg-white text-gray-400 hover:text-intimar-primary font-black uppercase tracking-widest text-[9px] py-2 px-4 rounded-xl border border-gray-100 transition-all flex items-center gap-2 opacity-60 hover:opacity-100"
+              title="Descargar listado actual en PDF"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
+              PDF
+            </button>
+            
+            <router-link to="/reservas/nueva" class="justify-center bg-intimar-primary hover:bg-intimar-dark text-white font-black uppercase tracking-widest text-[11px] py-4 px-8 rounded-2xl shadow-xl shadow-intimar-primary/20 transition-all flex items-center gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+              NUEVA RESERVA
+            </router-link>
+          </div>
         </div>
 
         <!-- Filtros Component -->
         <ReservasFilter @filter="applyFilters" class="animate-in fade-in slide-in-from-top-4 duration-500 delay-75" />
 
         <!-- Tabla Component -->
-        <ReservasTable :reservas="filteredReservas" :loading="loading" @refresh="fetchReservas" @asignar="openAsignarModal" class="animate-in fade-in slide-in-from-bottom-4 duration-500 delay-150" />
+        <ReservasTable 
+          :reservas="filteredReservas" 
+          :loading="loading" 
+          @refresh="fetchReservas" 
+          @asignar="openAsignarModal" 
+          @delete="handleDelete"
+          class="animate-in fade-in slide-in-from-bottom-4 duration-500 delay-150" 
+        />
 
         <!-- Controles Inferiores (Orden y Paginación) -->
         <div v-if="!loading && filteredReservas && filteredReservas.length > 0" class="mt-4 flex flex-col sm:flex-row justify-between items-center gap-4 px-2 animate-in fade-in slide-in-from-bottom-4 duration-500 delay-200">
@@ -157,26 +175,64 @@
         </div>
       </div>
     </Teleport>
-    <!-- Toasts -->
+
+    <!-- Modal Confirmación Eliminar (Custom) -->
     <Teleport to="body">
-      <div class="fixed top-4 right-4 z-[200] flex flex-col gap-2 pointer-events-none">
-        <TransitionGroup name="toast-slide">
+      <div v-if="showDeleteModal" class="fixed inset-0 z-[110] flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-gray-900/60 backdrop-blur-sm" @click="closeDeleteModal"></div>
+        <div class="bg-white rounded-[2.5rem] w-full max-w-sm shadow-2xl relative z-10 overflow-hidden animate-in zoom-in-95 duration-200 border border-gray-100">
+          <div class="p-8 text-center">
+            <div class="w-20 h-20 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-6 shadow-inner">
+              <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+            </div>
+            <h3 class="text-xl font-black text-gray-900 tracking-tight italic mb-2">¿Eliminar Reserva?</h3>
+            <p class="text-sm font-bold text-gray-500 leading-relaxed mb-8 px-4">
+              Estás por borrar la reserva de <span class="text-red-500">{{ reservaToDelete?.nombre }}</span>. Esta acción no se puede deshacer.
+            </p>
+            <div class="flex gap-3">
+              <button 
+                @click="closeDeleteModal"
+                class="flex-1 px-6 py-4 rounded-xl text-xs font-black uppercase tracking-widest text-gray-400 bg-gray-100 hover:bg-gray-200 transition-colors"
+              >
+                No, Volver
+              </button>
+              <button 
+                @click="confirmDelete"
+                class="flex-1 px-6 py-4 rounded-xl text-xs font-black uppercase tracking-widest text-white bg-red-500 hover:bg-red-600 shadow-lg shadow-red-200 transition-all"
+              >
+                Sí, Eliminar
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </Teleport>
+
+    <!-- Toasts Premium -->
+    <Teleport to="body">
+      <div class="fixed top-6 right-6 z-[200] flex flex-col gap-3 pointer-events-none">
+        <TransitionGroup name="toast-fancy">
           <div 
             v-for="toast in toasts" 
             :key="toast.id"
-            class="flex items-center gap-3 px-4 py-3 rounded-2xl shadow-xl text-white font-black max-w-sm pointer-events-auto"
+            class="flex items-center gap-4 px-6 py-4 rounded-[1.5rem] shadow-2xl backdrop-blur-md border pointer-events-auto min-w-[320px] max-w-md"
             :class="{
-              'bg-green-600/90': toast.type === 'success',
-              'bg-red-600/90': toast.type === 'error',
-              'bg-intimar-gold/90': toast.type === 'warning'
+              'bg-emerald-500/90 border-emerald-400/30 text-white': toast.type === 'success',
+              'bg-red-500/90 border-red-400/30 text-white': toast.type === 'error',
+              'bg-intimar-gold/90 border-intimar-gold/30 text-white': toast.type === 'warning'
             }"
           >
-            <svg v-if="toast.type === 'success'" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-            <svg v-if="toast.type === 'error'" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
-            <div class="flex-1">
-              <h4 class="text-sm tracking-wide">{{ toast.title }}</h4>
-              <p v-if="toast.message" class="text-[11px] opacity-80 font-medium mt-0.5">{{ toast.message }}</p>
+            <div class="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center shrink-0 shadow-inner">
+              <svg v-if="toast.type === 'success'" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              <svg v-if="toast.type === 'error'" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
             </div>
+            <div class="flex-1">
+              <h4 class="text-sm font-black uppercase tracking-widest italic leading-tight">{{ toast.title }}</h4>
+              <p v-if="toast.message" class="text-[11px] font-bold opacity-90 mt-0.5">{{ toast.message }}</p>
+            </div>
+            <button @click="removeToast(toast.id)" class="text-white/40 hover:text-white transition-colors">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
           </div>
         </TransitionGroup>
       </div>
@@ -195,7 +251,98 @@ import { watch } from 'vue'
 
 const router = useRouter()
 
-// Sistema de Toasts
+const exportToPDF = () => {
+  if (!window.jspdf) {
+    showToast('Error', 'La librería de PDF aún se está cargando. Reintenta en un segundo.', 'error')
+    return
+  }
+  
+  const { jsPDF } = window.jspdf
+  const doc = new jsPDF()
+  
+  // Estética del Header con el celeste de la marca (#00938F)
+  doc.setFillColor(0, 147, 143) // RGB del #00938F
+  doc.rect(0, 0, 210, 45, 'F')
+  
+  doc.setTextColor(255, 255, 255)
+  doc.setFontSize(24)
+  doc.setFont('helvetica', 'bold')
+  doc.text('INTIMAR', 14, 22)
+  doc.setFontSize(14)
+  doc.text('LISTADO DE RESERVAS', 14, 32)
+  
+  doc.setFontSize(9)
+  doc.setFont('helvetica', 'normal')
+  doc.text(`Generado el: ${new Date().toLocaleString()}`, 14, 40)
+  
+  // Filtros aplicados
+  let filterText = "Reporte de disponibilidad basado en filtros actuales"
+  if (activeFilters.value.fecha) filterText = `Reservas para el día: ${activeFilters.value.fecha}`
+  
+  doc.setTextColor(80, 80, 80)
+  doc.setFontSize(9)
+  doc.setFont('helvetica', 'bolditalic')
+  doc.text(filterText, 14, 55)
+
+  const columns = [
+    { header: 'ID RESERVA', dataKey: 'nro' },
+    { header: 'CLIENTE', dataKey: 'cliente' },
+    { header: 'PERS.', dataKey: 'personas' },
+    { header: 'FECHA', dataKey: 'fecha' },
+    { header: 'HORA', dataKey: 'hora' },
+    { header: 'ANTICIPO', dataKey: 'anticipo' }
+  ]
+
+  const rows = filteredReservas.value.map(res => {
+    // Formatear fecha de YYYY-MM-DD a DD-MM-YYYY
+    const dateParts = res.fecha_reserva?.split('-') || []
+    const formattedDate = dateParts.length === 3 ? `${dateParts[2]}-${dateParts[1]}-${dateParts[0]}` : res.fecha_reserva
+
+    return {
+      nro: res.name,
+      cliente: res.nombre?.toUpperCase(),
+      personas: (res.cant_adultos || 0) + (res.cant_ninos || 0),
+      fecha: formattedDate,
+      hora: `${res.hora_reserva} ${res.am_pm || ''}`,
+      anticipo: res.total_pagado ? `S/ ${parseFloat(res.total_pagado).toFixed(2)}` : '---'
+    }
+  })
+
+  doc.autoTable({
+    columns: columns,
+    body: rows,
+    startY: 60,
+    margin: { left: 10, right: 10 },
+    styles: { 
+      fontSize: 9, 
+      cellPadding: 3,
+      font: 'helvetica',
+      valign: 'middle'
+    },
+    headStyles: { 
+      fillColor: [0, 147, 143], 
+      textColor: [255, 255, 255],
+      fontStyle: 'bold',
+      halign: 'center',
+      fontSize: 10
+    },
+    columnStyles: {
+      nro: { halign: 'center', fontStyle: 'bold', cellWidth: 35 },
+      cliente: { fontStyle: 'bold', cellWidth: 45 },
+      personas: { halign: 'center', cellWidth: 15 },
+      fecha: { halign: 'center', cellWidth: 25 },
+      hora: { halign: 'center', cellWidth: 25 },
+      anticipo: { halign: 'right', fontStyle: 'bold', textColor: [0, 100, 0] }
+    },
+    alternateRowStyles: {
+      fillColor: [245, 252, 252]
+    }
+  })
+
+  doc.save(`reservas_intimar_${new Date().toISOString().split('T')[0]}.pdf`)
+  showToast('¡PDF Generado!', 'El reporte se ha descargado correctamente.', 'success')
+}
+
 const toasts = ref([])
 let toastCounter = 0
 
@@ -226,6 +373,7 @@ const applyFilters = (filters) => {
 
 const buildFilters = () => {
     let f = []
+    if (activeFilters.value.id) f.push(['name', 'like', `%${activeFilters.value.id}%`])
     if (activeFilters.value.nombre) f.push(['nombre', 'like', `%${activeFilters.value.nombre}%`])
     if (activeFilters.value.celular) f.push(['celular', 'like', `%${activeFilters.value.celular}%`])
     if (activeFilters.value.fecha) f.push(['fecha_reserva', '=', activeFilters.value.fecha])
@@ -295,6 +443,40 @@ const fetchStats = async () => {
     console.error('Error calculando estadísticas:', error)
   } finally {
     statsLoading.value = false
+  }
+}
+
+const showDeleteModal = ref(false)
+const reservaToDelete = ref(null)
+
+const handleDelete = (reserva) => {
+  reservaToDelete.value = reserva
+  showDeleteModal.value = true
+}
+
+const closeDeleteModal = () => {
+  showDeleteModal.value = false
+  reservaToDelete.value = null
+}
+
+const confirmDelete = async () => {
+  if (!reservaToDelete.value) return
+  
+  try {
+    const name = reservaToDelete.value.name
+    const nombre = reservaToDelete.value.nombre
+    
+    await call('intimar_erp.api.delete_reserva', {
+      name: name
+    })
+    
+    showToast('Reserva Eliminada', `La reserva de ${nombre} ha sido borrada exitosamente.`, 'success')
+    closeDeleteModal()
+    fetchReservas()
+    fetchStats()
+  } catch (error) {
+    console.error('Error eliminando reserva:', error)
+    showToast('Error', 'No se pudo eliminar la reserva. Verifica tus permisos.', 'error')
   }
 }
 
@@ -376,16 +558,18 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.toast-slide-enter-active,
-.toast-slide-leave-active {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+.toast-fancy-enter-active {
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
-.toast-slide-enter-from {
-  opacity: 0;
-  transform: translateX(100%) scale(0.9);
+.toast-fancy-leave-active {
+  transition: all 0.3s cubic-bezier(0.4, 0, 1, 1);
 }
-.toast-slide-leave-to {
+.toast-fancy-enter-from {
   opacity: 0;
-  transform: translateX(100%) scale(0.9);
+  transform: translateX(100px) scale(0.8);
+}
+.toast-fancy-leave-to {
+  opacity: 0;
+  transform: translateX(50px) scale(0.9);
 }
 </style>

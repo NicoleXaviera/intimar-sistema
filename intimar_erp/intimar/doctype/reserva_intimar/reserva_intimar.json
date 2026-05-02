@@ -10,17 +10,30 @@
   "cliente",
   "section_break_wdoj",
   "nombre",
+  "apellido",
+  "email",
   "column_break_nfly",
   "celular",
+  "codigo_pais",
+  "dni",
   "rerserva_datos_section",
   "cant_adultos",
   "fecha_reserva",
   "hora_reserva",
+  "motivo_reserva",
   "anticipo_required",
   "mozo",
   "column_break_ijhz",
   "cant_ninos",
   "estado_reserva",
+  "aceptar_lista_espera",
+  "personalizacion_section",
+  "requerimientos",
+  "necesidades",
+  "alergias",
+  "legal_section",
+  "acepta_politicas",
+  "acepta_promociones",
   "section_mesas",
   "mesas",
   "section_anticipos",
@@ -66,11 +79,22 @@
    "reqd": 1
   },
   {
+   "fieldname": "motivo_reserva",
+   "fieldtype": "Small Text",
+   "label": "Motivo de Reserva"
+  },
+  {
    "default": "Solicitud de reserva",
    "fieldname": "estado_reserva",
    "fieldtype": "Select",
    "label": "Estado de Reserva",
    "options": "Solicitud de reserva\nPendiente a confirmar\nConfirmada\nEn proceso\nFinalizada\nCancelada\nLista de espera"
+  },
+  {
+   "default": "0",
+   "fieldname": "aceptar_lista_espera",
+   "fieldtype": "Check",
+   "label": "Aceptar Lista de Espera"
   },
   {
    "default": "0",
@@ -134,15 +158,38 @@
    "fieldtype": "Section Break"
   },
   {
-   "fetch_from": "cliente.nombre_y_apellido_completo",
    "fieldname": "nombre",
    "fieldtype": "Data",
-   "label": "Nombre",
-   "options": "Cliente Intimar"
+   "label": "Nombre"
+  },
+  {
+   "fieldname": "apellido",
+   "fieldtype": "Data",
+   "label": "Apellido"
+  },
+  {
+   "fieldname": "email",
+   "fieldtype": "Data",
+   "label": "Email"
   },
   {
    "fieldname": "column_break_nfly",
    "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "celular",
+   "fieldtype": "Data",
+   "label": "Celular"
+  },
+  {
+   "fieldname": "codigo_pais",
+   "fieldtype": "Data",
+   "label": "C\u00f3digo de Pa\u00eds"
+  },
+  {
+   "fieldname": "dni",
+   "fieldtype": "Data",
+   "label": "DNI/Pasaporte"
   },
   {
    "fieldname": "rerserva_datos_section",
@@ -154,19 +201,49 @@
    "fieldtype": "Column Break"
   },
   {
-   "fetch_from": "cliente.phone",
-   "fieldname": "celular",
-   "fieldtype": "Data",
-   "label": "Celular"
+   "fieldname": "personalizacion_section",
+   "fieldtype": "Section Break",
+   "label": "Personalizaci\u00f3n"
+  },
+  {
+   "fieldname": "requerimientos",
+   "fieldtype": "Small Text",
+   "label": "Requerimientos Especiales"
+  },
+  {
+   "fieldname": "necesidades",
+   "fieldtype": "Small Text",
+   "label": "Necesidades"
+  },
+  {
+   "fieldname": "alergias",
+   "fieldtype": "Small Text",
+   "label": "Alergias"
+  },
+  {
+   "fieldname": "legal_section",
+   "fieldtype": "Section Break",
+   "label": "Legal"
+  },
+  {
+   "default": "0",
+   "fieldname": "acepta_politicas",
+   "fieldtype": "Check",
+   "label": "Acepta Pol\u00edticas"
+  },
+  {
+   "default": "0",
+   "fieldname": "acepta_promociones",
+   "fieldtype": "Check",
+   "label": "Acepta Promociones"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-04-26 14:24:43.360695",
+ "modified": "2026-05-02 01:55:00",
  "modified_by": "Administrator",
  "module": "intimar",
  "name": "Reserva Intimar",
- "naming_rule": "",
  "owner": "Administrator",
  "permissions": [
   {

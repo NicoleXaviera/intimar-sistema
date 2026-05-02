@@ -12,7 +12,10 @@
   "duracion_reserva",
   "aforo_maximo",
   "hora_minima",
-  "hora_maxima"
+  "hora_maxima",
+  "whatsapp_section",
+  "whatsapp_token",
+  "whatsapp_number_id"
  ],
  "fields": [
   {
@@ -52,6 +55,21 @@
    "fieldname": "hora_maxima",
    "fieldtype": "Time",
    "label": "Hora Cierre"
+  },
+  {
+   "fieldname": "whatsapp_section",
+   "fieldtype": "Section Break",
+   "label": "WhatsApp API (Meta)"
+  },
+  {
+   "fieldname": "whatsapp_token",
+   "fieldtype": "Password",
+   "label": "Access Token"
+  },
+  {
+   "fieldname": "whatsapp_number_id",
+   "fieldtype": "Data",
+   "label": "Phone Number ID"
   }
  ],
  "index_web_pages_for_search": 1,

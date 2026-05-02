@@ -4,7 +4,7 @@
       <table class="w-full text-left border-collapse">
         <thead>
           <tr class="bg-gray-50/50 border-b border-gray-100">
-            <th class="py-3 px-4 font-black text-gray-400 text-[10px] uppercase tracking-[0.2em] w-16 text-center">ID</th>
+            <th class="py-3 px-2 font-black text-gray-400 text-[10px] uppercase tracking-[0.2em] w-1 text-center">ID</th>
             <th class="py-3 px-4 font-black text-gray-400 text-[10px] uppercase tracking-[0.2em]">Cliente</th>
             <th class="py-3 px-4 font-black text-gray-400 text-[10px] uppercase tracking-[0.2em]">Detalles de Reserva</th>
             <th class="py-3 px-4 font-black text-gray-400 text-[10px] uppercase tracking-[0.2em]">Asignación</th>
@@ -26,9 +26,9 @@
             class="hover:bg-gray-50/50 transition-colors group"
           >
             <!-- ID -->
-            <td class="px-4 py-2">
-              <div class="bg-gray-100 text-gray-500 font-black text-[10px] py-1 px-2 rounded-md text-center tracking-wider">
-                {{ reserva.name.split('-').pop() }}
+            <td class="px-2 py-2">
+              <div class="bg-gray-100 text-gray-500 font-black text-[10px] py-1 px-2 rounded-md text-center tracking-tight inline-block w-full whitespace-nowrap">
+                {{ reserva.name }}
               </div>
             </td>
 
@@ -71,6 +71,15 @@
                     {{ reserva.cant_ninos || 0 }} Niñ.
                   </span>
                 </div>
+                <!-- Alergias y Requerimientos -->
+                <div v-if="reserva.alergias || reserva.necesidades || reserva.requerimientos" class="mt-2 flex flex-wrap gap-1">
+                  <span v-if="reserva.alergias" class="bg-red-50 text-red-600 text-[9px] font-black py-0.5 px-2 rounded-md border border-red-100 flex items-center gap-1 animate-pulse" :title="reserva.alergias">
+                    ALERGIAS: {{ reserva.alergias }}
+                  </span>
+                  <span v-if="reserva.requerimientos || reserva.necesidades" class="bg-blue-50 text-blue-600 text-[9px] font-black py-0.5 px-2 rounded-md border border-blue-100 flex items-center gap-1">
+                    {{ reserva.requerimientos || reserva.necesidades }}
+                  </span>
+                </div>
               </div>
             </td>
 
@@ -105,12 +114,21 @@
             <!-- Acciones -->
             <td class="px-4 py-2 text-right">
               <div class="flex justify-end gap-2">
+                <!-- WhatsApp -->
+                <button 
+                  @click="openWhatsApp(reserva)"
+                  class="p-2 bg-white text-emerald-500 hover:text-emerald-600 border border-gray-100 hover:border-emerald-200 rounded-lg shadow-sm hover:shadow-md transition-all"
+                  title="Enviar WhatsApp"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                </button>
+
                 <!-- Asignar Mesa -->
                 <button 
                   v-if="!reserva.mesas?.length" 
                   @click="$emit('asignar', reserva)"
-                  class="p-2 bg-white text-gray-400 hover:text-intimar-green border border-gray-100 hover:border-intimar-green/30 rounded-lg shadow-sm hover:shadow-md transition-all"
-                  title="Asignar Mesa Rápidamente"
+                  class="p-2 bg-white text-gray-400 hover:text-intimar-primary border border-gray-100 hover:border-intimar-primary/30 rounded-lg shadow-sm hover:shadow-md transition-all"
+                  title="Asignar Mesa"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><path d="M16 4l-4-4-4 4"/><path d="M12 0v16"/></svg>
                 </button>
@@ -119,10 +137,19 @@
                 <router-link 
                   :to="`/reservas/${reserva.name}`"
                   class="p-2 bg-white text-gray-400 hover:text-intimar-gold border border-gray-100 hover:border-intimar-gold/30 rounded-lg shadow-sm hover:shadow-md transition-all"
-                  title="Gestionar Reserva"
+                  title="Gestionar"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                 </router-link>
+
+                <!-- Eliminar -->
+                <button 
+                  @click="$emit('delete', reserva)"
+                  class="p-2 bg-white text-gray-400 hover:text-red-500 border border-gray-100 hover:border-red-200 rounded-lg shadow-sm hover:shadow-md transition-all"
+                  title="Eliminar Reserva"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+                </button>
               </div>
             </td>
           </tr>
@@ -146,7 +173,21 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['refresh', 'asignar'])
+const emit = defineEmits(['refresh', 'asignar', 'delete'])
+
+const openWhatsApp = (reserva) => {
+  if (!reserva.celular) return
+  
+  const nombre = reserva.nombre
+  const fecha = formatDate(reserva.fecha_reserva)
+  const hora = formatTime(reserva.hora_reserva)
+  const personas = (reserva.cant_adultos || 0) + (reserva.cant_ninos || 0)
+  
+  const mensaje = `Hola ${nombre}, te confirmamos tu reserva en Intimar para el ${fecha} a las ${hora} para ${personas} personas. ¡Te esperamos!`
+  const url = `https://wa.me/51${reserva.celular.replace(/\s/g, '')}?text=${encodeURIComponent(mensaje)}`
+  
+  window.open(url, '_blank')
+}
 
 // Utilidades
 const getInitials = (name) => {

@@ -1,6 +1,6 @@
 <template>
   <!-- Sidebar para Desktop -->
-  <div class="w-20 bg-intimar-primary flex flex-col items-center py-8 gap-10 hidden md:flex h-screen sticky top-0 shrink-0 shadow-2xl z-[100]">
+  <div class="w-20 bg-intimar-primary flex flex-col items-center py-8 gap-10 hidden md:flex min-h-screen sticky top-0 shrink-0 shadow-2xl z-[100]">
     <!-- Logo -->
     <router-link to="/mapa" class="w-12 h-12 flex items-center justify-center hover:scale-110 transition-transform cursor-pointer">
       <img :src="'/files/intimar-logo.png'" alt="Logo" class="w-full h-auto object-contain brightness-0 invert" />
@@ -8,6 +8,17 @@
 
     <!-- Navegación Desktop -->
     <nav class="flex-1 flex flex-col gap-6 w-full px-2">
+    <!-- Insights (Dashboard) -->
+      <router-link 
+        to="/insights" 
+        class="w-full aspect-square flex flex-col items-center justify-center rounded-2xl transition-all group relative"
+        :class="[isRouteActive('/insights') ? 'bg-white/15 text-white shadow-lg' : 'text-white/40 hover:bg-white/5 hover:text-white/70']"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        <span class="text-[8px] font-black uppercase tracking-[0.2em] mt-2 opacity-0 group-hover:opacity-100 transition-opacity">Inicio</span>
+        <div v-if="isRouteActive('/insights')" class="absolute left-[-8px] w-1 h-8 bg-intimar-gold rounded-full"></div>
+      </router-link> 
+      
       <!-- Mapa de Mesas -->
       <router-link 
         to="/mapa" 
@@ -15,7 +26,7 @@
         :class="[isRouteActive('/mapa') ? 'bg-white/15 text-white shadow-lg' : 'text-white/40 hover:bg-white/5 hover:text-white/70']"
       >
         <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg>
-        <span class="text-[8px] font-black uppercase tracking-[0.2em] mt-2 opacity-0 group-hover:opacity-100 transition-opacity">Mapa</span>
+        <span class="text-[8px] font-black uppercase tracking-[0.2em] mt-2 opacity-0 group-hover:opacity-100 transition-opacity">Asignadas</span>
         <div v-if="isRouteActive('/mapa')" class="absolute left-[-8px] w-1 h-8 bg-intimar-gold rounded-full"></div>
       </router-link>
 
@@ -29,6 +40,7 @@
         <span class="text-[8px] font-black uppercase tracking-[0.2em] mt-2 opacity-0 group-hover:opacity-100 transition-opacity">Calendario</span>
         <div v-if="isRouteActive('/calendario')" class="absolute left-[-8px] w-1 h-8 bg-intimar-gold rounded-full"></div>
       </router-link>
+
 
       <!-- Reservas -->
       <router-link 
@@ -62,17 +74,6 @@
         <span class="text-[8px] font-black uppercase tracking-[0.2em] mt-2 opacity-0 group-hover:opacity-100 transition-opacity">Mesas</span>
         <div v-if="isRouteActive('/gestion-mesas')" class="absolute left-[-8px] w-1 h-8 bg-intimar-gold rounded-full"></div>
       </router-link>
-
-      <!-- Configuración -->
-      <router-link 
-        to="/configuracion" 
-        class="w-full aspect-square flex flex-col items-center justify-center rounded-2xl transition-all group relative"
-        :class="[isRouteActive('/configuracion') ? 'bg-white/15 text-white shadow-lg' : 'text-white/40 hover:bg-white/5 hover:text-white/70']"
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.1a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
-        <span class="text-[8px] font-black uppercase tracking-[0.2em] mt-2 opacity-0 group-hover:opacity-100 transition-opacity">Ajustes</span>
-        <div v-if="isRouteActive('/configuracion')" class="absolute left-[-8px] w-1 h-8 bg-intimar-gold rounded-full"></div>
-      </router-link>
       <!-- Usuarios (Admin) -->
       <router-link 
         to="/usuarios" 
@@ -83,7 +84,19 @@
         <span class="text-[8px] font-black uppercase tracking-[0.2em] mt-2 opacity-0 group-hover:opacity-100 transition-opacity">Usuarios</span>
         <div v-if="isRouteActive('/usuarios')" class="absolute left-[-8px] w-1 h-8 bg-intimar-gold rounded-full"></div>
       </router-link>
+      
+    <!-- Configuración -->
+      <router-link 
+        to="/configuracion" 
+        class="w-full aspect-square flex flex-col items-center justify-center rounded-2xl transition-all group relative"
+        :class="[isRouteActive('/configuracion') ? 'bg-white/15 text-white shadow-lg' : 'text-white/40 hover:bg-white/5 hover:text-white/70']"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.1a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+        <span class="text-[8px] font-black uppercase tracking-[0.2em] mt-2 opacity-0 group-hover:opacity-100 transition-opacity">Ajustes</span>
+        <div v-if="isRouteActive('/configuracion')" class="absolute left-[-8px] w-1 h-8 bg-intimar-gold rounded-full"></div>
+      </router-link>
     </nav>
+    
 
 
     <!-- Perfil de Usuario -->
@@ -129,7 +142,7 @@
       <div class="w-10 h-10 flex items-center justify-center rounded-xl" :class="[isRouteActive('/mapa') ? 'bg-white/15 shadow-lg' : '']">
         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg>
       </div>
-      <span class="text-[7px] font-black uppercase tracking-widest">Mapa</span>
+      <span class="text-[7px] font-black uppercase tracking-widest">Asignadas</span>
     </router-link>
 
     <router-link 
@@ -141,6 +154,18 @@
         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
       </div>
       <span class="text-[7px] font-black uppercase tracking-widest">Calendario</span>
+    </router-link>
+
+    <!-- Insights Mobile -->
+    <router-link 
+      to="/insights" 
+      class="flex flex-col items-center gap-1 transition-all"
+      :class="[isRouteActive('/insights') ? 'text-white' : 'text-white/40']"
+    >
+      <div class="w-10 h-10 flex items-center justify-center rounded-xl" :class="[isRouteActive('/insights') ? 'bg-white/15 shadow-lg' : '']">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+      </div>
+      <span class="text-[7px] font-black uppercase tracking-widest">Insights</span>
     </router-link>
 
     <router-link 

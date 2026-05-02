@@ -194,11 +194,28 @@
 
             <div class="grid grid-cols-2 gap-4">
               <div>
-                <label class="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2 pl-1">Nombre Completo</label>
+                <label class="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2 pl-1 flex justify-between items-center">
+                  Nombre Completo
+                  <button 
+                    v-if="form.cliente" 
+                    @click="router.push('/clientes/' + form.cliente)" 
+                    type="button" 
+                    class="text-intimar-primary hover:text-intimar-dark transition-colors flex items-center gap-1 bg-intimar-primary/10 px-2 py-0.5 rounded-lg border border-intimar-primary/20"
+                  >
+                    <span class="lowercase font-black tracking-normal text-[9px]">ver perfil</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" x2="21" y1="14" y2="3"/></svg>
+                  </button>
+                </label>
                 <input v-model="form.nombre" type="text" readonly class="w-full px-4 py-3 bg-gray-100 border border-transparent rounded-xl text-xs font-bold text-gray-500 cursor-not-allowed">
               </div>
               <div>
-                <label class="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2 pl-1">Celular</label>
+                <label class="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2 pl-1 flex justify-between">
+                  Celular
+                  <button v-if="form.celular" @click="openWhatsApp" type="button" class="text-green-600 hover:text-green-700 flex items-center gap-1 lowercase font-black tracking-normal">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                    chatear
+                  </button>
+                </label>
                 <input v-model="form.celular" type="text" readonly class="w-full px-4 py-3 bg-gray-100 border border-transparent rounded-xl text-xs font-bold text-gray-500 cursor-not-allowed">
               </div>
             </div>
@@ -211,9 +228,14 @@
             <div class="w-10 h-10 bg-intimar-orange/10 rounded-xl flex items-center justify-center text-intimar-orange">
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
             </div>
-            <div>
+            <div class="flex-1">
               <h3 class="font-black text-gray-900 tracking-wide">Cuándo y Cuántos</h3>
               <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-0.5">Tiempos y personas</p>
+            </div>
+            <!-- CAMPO: FECHA DE CREACIÓN (NUEVO) -->
+            <div v-if="form.creation" class="text-right">
+              <label class="block text-[8px] font-black uppercase tracking-widest text-gray-300">Registrada el</label>
+              <p class="text-[10px] font-bold text-gray-400">{{ formatDateDisplay(form.creation) }}</p>
             </div>
           </div>
 
@@ -224,29 +246,45 @@
               <input v-model="form.fecha_reserva" type="date" class="w-full px-4 py-3.5 bg-gray-50 border border-transparent rounded-2xl text-sm font-bold text-gray-700 focus:border-intimar-gold/30 focus:bg-white focus:ring-4 focus:ring-intimar-gold/10 transition-all">
             </div>
 
-            <!-- Hora -->
-            <div>
-              <label class="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2 pl-1">Hora Reserva <span class="text-red-500">*</span></label>
-              <div class="relative">
-                <select v-model="form.hora_reserva" class="w-full pl-4 pr-10 py-3.5 bg-gray-50 border border-transparent rounded-2xl text-sm font-bold text-gray-700 focus:border-intimar-gold/30 focus:bg-white focus:ring-4 focus:ring-intimar-gold/10 transition-all appearance-none cursor-pointer">
-                  <option value="11:00:00">11:00 AM</option>
-                  <option value="11:30:00">11:30 AM</option>
-                  <option value="12:00:00">12:00 PM</option>
-                  <option value="12:30:00">12:30 PM</option>
-                  <option value="13:00:00">1:00 PM</option>
-                  <option value="13:30:00">1:30 PM</option>
-                  <option value="14:00:00">2:00 PM</option>
-                  <option value="14:30:00">2:30 PM</option>
-                  <option value="15:00:00">3:00 PM</option>
-                  <option value="15:30:00">3:30 PM</option>
-                  <option value="16:00:00">4:00 PM</option>
-                  <option value="16:30:00">4:30 PM</option>
-                  <option value="17:00:00">5:00 PM</option>
-                </select>
-                <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none text-gray-400"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></div>
+            <!-- Selector de Hora Ultra-Práctico -->
+            <div class="col-span-2 lg:col-span-1">
+              <label class="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-3 pl-1">Hora de Reserva <span class="text-red-500">*</span></label>
+              
+              <!-- Input para escribir hora personalizada -->
+              <div class="relative mb-4">
+                <input 
+                  v-model="form.hora_reserva" 
+                  type="text"
+                  placeholder="Escribe hora (ej: 14:15) o elige abajo..."
+                  class="w-full pl-12 pr-4 py-4 bg-white border-2 border-gray-100 rounded-2xl text-sm font-black text-gray-700 focus:border-intimar-gold focus:ring-0 transition-all outline-none shadow-sm"
+                >
+                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-intimar-gold">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                </div>
+              </div>
+
+              <!-- Grid de Horas Sugeridas (DINÁMICO según Configuración) -->
+              <div class="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-7 lg:grid-cols-4 gap-2">
+                <template v-for="h in ['11:00:00', '11:30:00', '12:00:00', '12:30:00', '13:00:00', '13:30:00', '14:00:00', '14:30:00', '15:00:00', '15:30:00', '16:00:00', '16:30:00', '17:00:00', '17:30:00', '18:00:00', '18:30:00', '19:00:00', '19:30:00', '20:00:00', '20:30:00', '21:00:00', '21:30:00', '22:00:00']" :key="h">
+                  <button 
+                    v-if="isTimeInRange(h)"
+                    type="button"
+                    @click="form.hora_reserva = h"
+                    :class="[
+                      'py-2 rounded-xl text-[10px] font-black transition-all border-2',
+                      form.hora_reserva === h 
+                        ? 'bg-intimar-gold border-intimar-gold text-white shadow-md shadow-intimar-gold/20 scale-105' 
+                        : 'bg-white border-gray-50 text-gray-400 hover:border-intimar-gold/30 hover:text-gray-600'
+                    ]"
+                  >
+                    {{ h.substring(0, 5) }}
+                  </button>
+                </template>
               </div>
             </div>
+          </div>
 
+          <div class="grid grid-cols-2 gap-5 mt-5">
             <!-- Adultos -->
             <div>
               <label class="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2 pl-1">Cant. Adultos <span class="text-red-500">*</span></label>
@@ -272,7 +310,7 @@
       <div class="flex flex-col gap-6">
         
         <!-- Tarjeta: Estado y Asignación -->
-        <div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-gray-100 relative">
+        <div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-gray-100 relative" :class="{'opacity-60': !canEditOperativa}">
           <div class="flex items-center gap-3 mb-6 border-b border-gray-100 pb-4">
             <div class="w-10 h-10 bg-intimar-gold/10 rounded-xl flex items-center justify-center text-intimar-gold">
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg>
@@ -281,6 +319,10 @@
               <h3 class="font-black text-gray-900 tracking-wide">Operativa</h3>
               <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-0.5">Estado y responsables</p>
             </div>
+            <div v-if="!canEditOperativa" class="ml-auto bg-amber-50 text-amber-600 px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest border border-amber-100 flex items-center gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              Bloqueado: Confirma primero
+            </div>
           </div>
 
           <div class="space-y-5">
@@ -288,13 +330,10 @@
             <div>
               <label class="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2 pl-1">Mozo Asignado</label>
               <div class="relative">
-                <select v-model="form.mozo" @change="onMozoChange" class="w-full pl-4 pr-10 py-3.5 bg-gray-50 border border-transparent rounded-2xl text-sm font-bold text-gray-700 focus:border-purple-500/30 focus:bg-white focus:ring-4 focus:ring-purple-500/10 transition-all appearance-none cursor-pointer">
+                <select v-model="form.mozo" @change="onMozoChange" :disabled="!canEditOperativa" class="w-full pl-4 pr-10 py-3.5 bg-gray-50 border border-transparent rounded-2xl text-sm font-bold text-gray-700 focus:border-purple-500/30 focus:bg-white focus:ring-4 focus:ring-purple-500/10 transition-all appearance-none cursor-pointer disabled:cursor-not-allowed">
                   <option value="">-- Ninguno asignado todavía --</option>
                   <option v-for="m in mozosList" :key="m.name" :value="m.name">
                     {{ m.name }}
-                  </option>
-                  <option value="CREAR_NUEVO" class="font-black text-intimar-primary">
-                    + CREAR NUEVO MOZO
                   </option>
                 </select>
                 <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none text-gray-400"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></div>
@@ -303,46 +342,61 @@
           </div>
         </div>
 
-        <!-- Tarjeta: Mesas Asignadas (Sub-tabla) -->
-        <div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-gray-100 relative">
-          <div class="flex items-center justify-between mb-4 border-b border-gray-100 pb-4">
+        <!-- Tarjeta: Mesas Asignadas (NUEVO DISEÑO CON TIEMPOS) -->
+        <div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-gray-100 relative" :class="{'opacity-60': !canEditOperativa}">
+          <div class="flex items-center justify-between mb-6 border-b border-gray-100 pb-4">
             <div class="flex items-center gap-3">
-              <div class="w-10 h-10 bg-green-50 rounded-xl flex items-center justify-center text-green-600">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
+              <div class="w-10 h-10 bg-green-600/10 rounded-xl flex items-center justify-center text-green-600">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3h18v18H3zM21 9H3M21 15H3M12 3v18"/></svg>
               </div>
               <div>
                 <h3 class="font-black text-gray-900 tracking-wide">Mesas Asignadas</h3>
                 <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-0.5">Sub-tabla (Mesa Reserva)</p>
               </div>
             </div>
-            
-            <button @click="addMesaRow" type="button" class="bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-black px-4 py-2 rounded-xl transition-colors flex items-center gap-1">
-              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-              Mesa
+            <button @click="addMesaRow" type="button" :disabled="!canEditOperativa" class="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+              <span class="text-[10px] font-black uppercase tracking-widest">Mesa</span>
             </button>
           </div>
 
-          <div v-if="form.mesas.length === 0" class="text-center py-6 border-2 border-dashed border-gray-100 rounded-2xl">
-            <p class="text-xs font-bold text-gray-400">No hay mesas asignadas.</p>
-          </div>
-
-          <div v-else class="space-y-3">
-            <div v-for="(row, idx) in form.mesas" :key="idx" class="flex gap-2 items-center bg-gray-50 p-2 rounded-2xl">
-              <div class="relative flex-1">
-                <select v-model="row.mesa" @change="onMesaChange($event, idx)" class="w-full pl-4 pr-10 py-2.5 bg-white border border-gray-200 rounded-xl text-xs font-bold text-gray-700 focus:border-intimar-gold/30 focus:ring-4 focus:ring-intimar-gold/10 transition-all appearance-none cursor-pointer">
-                  <option value="" disabled>Selecciona Mesa...</option>
-                  <option v-for="mesa in mesasList" :key="mesa.name" :value="mesa.name">
-                    {{ mesa.name }}
-                  </option>
-                  <option value="CREAR_NUEVO" class="font-black text-intimar-primary">
-                    + CREAR NUEVA MESA
-                  </option>
+          <div class="space-y-4">
+            <div v-for="(m, index) in form.mesas" :key="index" class="flex gap-3 group">
+              <div class="flex-1 relative">
+                <select v-model="m.mesa" :disabled="!canEditOperativa" class="w-full pl-4 pr-10 py-3.5 bg-gray-50 border border-transparent rounded-2xl text-sm font-bold text-gray-700 focus:border-green-600/30 focus:bg-white focus:ring-4 focus:ring-green-600/10 transition-all appearance-none cursor-pointer disabled:cursor-not-allowed">
+                  <option value="">Selecciona mesa...</option>
+                  <option v-for="mesa in mesasList" :key="mesa.name" :value="mesa.name">{{ mesa.name }}</option>
                 </select>
-                <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-gray-400"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></div>
+                <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none text-gray-400"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></div>
               </div>
-              <button @click="removeMesaRow(idx)" type="button" class="w-10 h-10 flex items-center justify-center bg-red-50 text-red-500 hover:bg-red-500 hover:text-white rounded-xl transition-all shrink-0">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+              <button v-if="canEditOperativa" @click="removeMesaRow(index)" type="button" class="p-3.5 text-red-400 hover:text-red-600 bg-red-50 hover:bg-red-100 rounded-2xl transition-all">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
               </button>
+            </div>
+
+            <!-- CUADRO DE TIEMPOS (REUBICADO AQUÍ) -->
+            <div v-if="form.hora_llegada || form.hora_salida" class="mt-8 p-6 bg-gray-50 rounded-[2rem] border-2 border-dashed border-gray-200">
+              <h4 class="text-[9px] font-black uppercase tracking-[0.2em] text-gray-400 mb-4 flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                Tiempos de Ocupación
+              </h4>
+              <div class="grid grid-cols-2 gap-4">
+                <div v-if="form.hora_llegada">
+                  <label class="block text-[8px] font-black uppercase tracking-widest text-blue-500 mb-1">Entrada</label>
+                  <p class="text-sm font-black text-gray-800">{{ formatTimeDisplay(form.hora_llegada) }}</p>
+                </div>
+                <div v-if="form.hora_salida">
+                  <label class="block text-[8px] font-black uppercase tracking-widest text-green-500 mb-1">Salida</label>
+                  <p class="text-sm font-black text-gray-800">{{ formatTimeDisplay(form.hora_salida) }}</p>
+                </div>
+              </div>
+              <div v-if="form.hora_llegada && !form.hora_salida" class="mt-4 pt-4 border-t border-gray-100 flex items-center justify-between">
+                <span class="text-[9px] font-black text-blue-600 uppercase tracking-widest flex items-center gap-2">
+                  <span class="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></span>
+                  En Mesa
+                </span>
+                <span class="text-[9px] font-bold text-gray-400">Desde hace {{ calcularTiempoTranscurrido(form.hora_llegada) }}</span>
+              </div>
             </div>
           </div>
         </div>
@@ -523,7 +577,7 @@
     </transition>
 
   </div>
-  </div>
+</div>
 </div>
 
     <!-- MODAL: NUEVO CLIENTE -->
@@ -559,11 +613,11 @@
               </div>
 
               <div>
-                <label class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 ml-2 mb-2 block">Celular</label>
+                <label class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 ml-2 mb-2 block">Celular (con código de país)</label>
                 <input 
                   v-model="newClienteForm.phone"
-                  type="text" 
-                  placeholder="Ej. +51 999 999 999"
+                  type="tel" 
+                  placeholder="Ej. +51 987 654 321"
                   class="w-full px-6 py-4 bg-gray-50 border-2 border-transparent rounded-2xl focus:bg-white focus:border-intimar-primary focus:ring-0 outline-none transition-all font-bold"
                 >
               </div>
@@ -718,6 +772,50 @@ const isImage = (url) => {
   return /\.(jpg|jpeg|png|gif|webp)$/i.test(url)
 }
 
+const canEditOperativa = computed(() => {
+  return ['Confirmada', 'En proceso', 'Finalizada'].includes(form.estado_reserva)
+})
+
+const formatDateDisplay = (dateStr) => {
+  if (!dateStr) return ''
+  const date = new Date(dateStr)
+  return date.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })
+}
+
+const calcularTiempoTranscurrido = (horaLlegada) => {
+  if (!horaLlegada) return ''
+  try {
+    const [h, m, s] = horaLlegada.split(':')
+    const llegada = new Date()
+    llegada.setHours(h, m, s)
+    const ahora = new Date()
+    const diffMs = ahora - llegada
+    const diffMins = Math.floor(diffMs / 60000)
+    
+    if (diffMins < 60) return `${diffMins} min`
+    const diffHrs = Math.floor(diffMins / 60)
+    const minsRestantes = diffMins % 60
+    return `${diffHrs}h ${minsRestantes}m`
+  } catch (e) { return '' }
+}
+
+const formatTimeDisplay = (timeStr) => {
+  if (!timeStr) return ''
+  // Limpiar microsegundos si existen (ej: 13:25:18.431818 -> 13:25:18)
+  return timeStr.split('.')[0]
+}
+
+const isTimeInRange = (timeStr) => {
+  if (!timeStr || !configuracion.value) return true
+  const min = configuracion.value.hora_minima || '00:00:00'
+  const max = configuracion.value.hora_maxima || '23:59:59'
+  
+  // Normalizar a HH:mm:ss
+  const t = timeStr.includes(':') ? (timeStr.split(':').length === 2 ? timeStr + ':00' : timeStr) : timeStr
+  
+  return t >= min && t <= max
+}
+
 // Listas para desplegables
 const clientesList = ref([])
 const mozosList = ref([])
@@ -803,6 +901,8 @@ const form = reactive({
   anticipo_required: 0,
   mesas: [],
   anticipos: [],
+  hora_llegada: null,
+  hora_salida: null,
   modified: null
 })
 
@@ -1067,7 +1167,8 @@ const saveNewCliente = async () => {
     showNewClienteModal.value = false
   } catch (error) {
     console.error("Error creando cliente:", error)
-    showToast("Error", "No se pudo crear el cliente.", "error")
+    const msg = extractErrorMessage(error)
+    showToast("Error", msg || "No se pudo crear el cliente.", "error")
   } finally {
     savingCliente.value = false
   }
@@ -1112,7 +1213,8 @@ const saveNewMozo = async () => {
     showNewMozoModal.value = false
   } catch (error) {
     console.error(error)
-    showToast("Error", "No se pudo crear el mozo.", "error")
+    const msg = extractErrorMessage(error)
+    showToast("Error", msg || "No se pudo crear el mozo.", "error")
   } finally {
     savingMozo.value = false
   }
@@ -1173,7 +1275,8 @@ const saveNewMesa = async () => {
     showNewMesaModal.value = false
   } catch (error) {
     console.error(error)
-    showToast("Error", "No se pudo crear la mesa.", "error")
+    const msg = extractErrorMessage(error)
+    showToast("Error", msg || "No se pudo crear la mesa.", "error")
   } finally {
     savingMesa.value = false
   }
@@ -1199,6 +1302,8 @@ const fetchReservaData = async (id) => {
       form.estado_reserva = doc.estado_reserva || 'Solicitud de reserva'
       form.mozo = doc.mozo || ''
       form.anticipo_required = doc.anticipo_required || 0
+      form.hora_llegada = doc.hora_llegada || null
+      form.hora_salida = doc.hora_salida || null
       form.modified = doc.modified || null
       
       // Auto-rellenar la caja de búsqueda si estamos editando
@@ -1217,6 +1322,32 @@ const fetchReservaData = async (id) => {
   }
 }
 
+const openWhatsApp = () => {
+  if (!form.celular) return
+  
+  const cleanPhone = form.celular.replace(/\D/g, '')
+  const totalPersonas = (form.cant_adultos || 0) + (form.cant_ninos || 0)
+  
+  // Formatear fecha de YYYY-MM-DD a DD-MM-YYYY
+  let displayDate = form.fecha_reserva
+  if (form.fecha_reserva) {
+    const [y, m, d] = form.fecha_reserva.split('-')
+    displayDate = `${d}-${m}-${y}`
+  }
+
+  // Mensaje más limpio y compatible
+  const message = encodeURIComponent(
+    `*INTIMAR - Info Reserva*\n\n` +
+    `Hola *${form.nombre}*, te escribimos sobre tu reserva *${form.name || ''}*.\n\n` +
+    `> Fecha: ${displayDate}\n` +
+    `> Hora: ${form.hora_reserva}\n` +
+    `> Personas: ${totalPersonas}\n` +
+    `> Estado: ${form.estado_reserva}`
+  )
+  
+  window.open(`https://wa.me/${cleanPhone}?text=${message}`, '_blank')
+}
+
 const saveReserva = async () => {
   if (!form.cliente) {
     showToast("Requerido", "Debes seleccionar un cliente.", "warning")
@@ -1227,10 +1358,25 @@ const saveReserva = async () => {
     return
   }
   
-  // Validación de Anticipo Obligatorio
-  if (requireAnticipoAlert.value && !form.anticipo_required) {
-    showToast("Anticipo Requerido", `Para ${configuracion.value.anticipo_persona} o más personas, se requiere marcar anticipo.`, "error")
+  // Validación de Anticipo Obligatorio (REFORZADA)
+  if (requireAnticipoAlert.value && form.anticipos.length === 0) {
+    showToast(
+      "Anticipo Obligatorio", 
+      `Para grupos de ${configuracion.value.anticipo_persona} o más personas es OBLIGATORIO registrar el anticipo antes de guardar.`, 
+      "error"
+    )
+    // Aseguramos que el checkbox esté marcado para que el usuario vea la sección
     form.anticipo_required = 1
+    return
+  }
+
+  // Validación de Horario (NUEVO CANDADO)
+  if (!isTimeInRange(form.hora_reserva)) {
+    showToast(
+      "Horario No Permitido", 
+      `La hora ${form.hora_reserva.substring(0, 5)} está fuera del rango de atención (${configuracion.value.hora_minima.substring(0, 5)} - ${configuracion.value.hora_maxima.substring(0, 5)}).`, 
+      "error"
+    )
     return
   }
 
@@ -1322,11 +1468,57 @@ const saveReserva = async () => {
         "error"
       )
     } else {
-      showToast("Error al guardar", error.message || "Verifica tu conexión y permisos.", "error")
+      const msg = extractErrorMessage(error)
+      showToast("Error al guardar", msg || "Verifica tu conexión y permisos.", "error")
     }
   } finally {
     saving.value = false
   }
+}
+
+/**
+ * Extrae el mensaje de error real enviado por el servidor Frappe
+ */
+const extractErrorMessage = (error) => {
+  if (!error) return null
+
+  // 1. Si frappe-ui ya procesó los mensajes
+  if (error.messages && error.messages.length > 0) {
+    return error.messages.join('\n')
+  }
+
+  // 2. Intentar buscar en _server_messages (formato JSON de Frappe)
+  if (error._server_messages) {
+    try {
+      const messages = JSON.parse(error._server_messages)
+      return messages
+        .map(m => {
+          try {
+            const inner = JSON.parse(m)
+            return inner.message || m
+          } catch (e) {
+            return m
+          }
+        })
+        .join('\n')
+    } catch (e) {}
+  }
+
+  // 3. Fallback al mensaje directo si no es el genérico de ValidationError
+  if (error.message && !error.message.includes('ValidationError') && !error.message.includes('frappe.client')) {
+    return error.message
+  }
+
+  // 4. Si el mensaje es un string que parece JSON
+  if (typeof error.message === 'string' && (error.message.startsWith('[') || error.message.startsWith('{'))) {
+    try {
+      const parsed = JSON.parse(error.message)
+      if (Array.isArray(parsed)) return parsed.join('\n')
+      if (parsed.message) return parsed.message
+    } catch (e) {}
+  }
+
+  return null
 }
 </script>
 

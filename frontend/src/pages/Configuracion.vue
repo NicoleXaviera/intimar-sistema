@@ -43,62 +43,61 @@
           </div>
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <!-- Card: Operación (AHORA PRIMERO Y ANCHO COMPLETO) -->
+            <div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-gray-100 md:col-span-2">
+              <h3 class="text-lg font-black text-gray-900 uppercase tracking-tighter mb-6 flex items-center gap-3">
+                <span class="w-2 h-8 bg-intimar-bordeaux rounded-full"></span>
+                Operación
+              </h3>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div>
+                  <label class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 ml-2 mb-2 block">Aforo Máximo</label>
+                  <input v-model="formData.aforo_maximo" type="number" class="w-full px-6 py-4 bg-gray-50 border-2 border-transparent rounded-2xl focus:bg-white focus:border-intimar-primary outline-none transition-all font-bold">
+                </div>
+                <div>
+                  <label class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 ml-2 mb-2 block">Duración Reserva (Horas)</label>
+                  <input v-model="formData.duracion_reserva" type="number" step="0.5" class="w-full px-6 py-4 bg-gray-50 border-2 border-transparent rounded-2xl focus:bg-white focus:border-intimar-primary outline-none transition-all font-bold">
+                </div>
+              </div>
+            </div>
+
+            <!-- Card: Horarios -->
+            <div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-gray-100">
+              <h3 class="text-lg font-black text-gray-900 uppercase tracking-tighter mb-6 flex items-center gap-3">
+                <span class="w-2 h-8 bg-intimar-orange rounded-full"></span>
+                Horarios
+              </h3>
+              <div class="space-y-6">
+                <div>
+                  <label class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 ml-2 mb-2 block">Hora de Apertura</label>
+                  <input v-model="formData.hora_minima" type="time" class="w-full px-6 py-4 bg-gray-50 border-2 border-transparent rounded-2xl focus:bg-white focus:border-intimar-primary outline-none transition-all font-bold">
+                </div>
+                <div>
+                  <label class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 ml-2 mb-2 block">Hora de Cierre</label>
+                  <input v-model="formData.hora_maxima" type="time" class="w-full px-6 py-4 bg-gray-50 border-2 border-transparent rounded-2xl focus:bg-white focus:border-intimar-primary outline-none transition-all font-bold">
+                </div>
+              </div>
+            </div>
+
             <!-- Card: Anticipos -->
             <div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-gray-100">
-
-            <h3 class="text-lg font-black text-gray-900 uppercase tracking-tighter mb-6 flex items-center gap-3">
-              <span class="w-2 h-8 bg-intimar-gold rounded-full"></span>
-              Anticipos
-            </h3>
-            <div class="space-y-6">
-              <div>
-                <label class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 ml-2 mb-2 block">Límite de Personas</label>
-                <input v-model="formData.anticipo_persona" type="number" class="w-full px-6 py-4 bg-gray-50 border-2 border-transparent rounded-2xl focus:bg-white focus:border-intimar-primary outline-none transition-all font-bold">
-              </div>
-              <div>
-                <label class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 ml-2 mb-2 block">Monto por Persona (S/)</label>
-                <input v-model="formData.monto_anticipo_persona" type="number" class="w-full px-6 py-4 bg-gray-50 border-2 border-transparent rounded-2xl focus:bg-white focus:border-intimar-primary outline-none transition-all font-bold">
-              </div>
-            </div>
-          </div>
-
-          <!-- Card: Horarios -->
-          <div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-gray-100">
-            <h3 class="text-lg font-black text-gray-900 uppercase tracking-tighter mb-6 flex items-center gap-3">
-              <span class="w-2 h-8 bg-intimar-orange rounded-full"></span>
-              Horarios
-            </h3>
-            <div class="space-y-6">
-              <div>
-                <label class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 ml-2 mb-2 block">Hora de Apertura</label>
-                <input v-model="formData.hora_minima" type="time" class="w-full px-6 py-4 bg-gray-50 border-2 border-transparent rounded-2xl focus:bg-white focus:border-intimar-primary outline-none transition-all font-bold">
-              </div>
-              <div>
-                <label class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 ml-2 mb-2 block">Hora de Cierre</label>
-                <input v-model="formData.hora_maxima" type="time" class="w-full px-6 py-4 bg-gray-50 border-2 border-transparent rounded-2xl focus:bg-white focus:border-intimar-primary outline-none transition-all font-bold">
-              </div>
-            </div>
-          </div>
-
-          <!-- Card: Reservas -->
-          <div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-gray-100 md:col-span-2">
-            <h3 class="text-lg font-black text-gray-900 uppercase tracking-tighter mb-6 flex items-center gap-3">
-              <span class="w-2 h-8 bg-intimar-bordeaux rounded-full"></span>
-              Operación
-            </h3>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <div>
-                <label class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 ml-2 mb-2 block">Aforo Máximo</label>
-                <input v-model="formData.aforo_maximo" type="number" class="w-full px-6 py-4 bg-gray-50 border-2 border-transparent rounded-2xl focus:bg-white focus:border-intimar-primary outline-none transition-all font-bold">
-              </div>
-              <div>
-                <label class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 ml-2 mb-2 block">Duración Reserva (Horas)</label>
-                <input v-model="formData.duracion_reserva" type="number" step="0.5" class="w-full px-6 py-4 bg-gray-50 border-2 border-transparent rounded-2xl focus:bg-white focus:border-intimar-primary outline-none transition-all font-bold">
+              <h3 class="text-lg font-black text-gray-900 uppercase tracking-tighter mb-6 flex items-center gap-3">
+                <span class="w-2 h-8 bg-intimar-gold rounded-full"></span>
+                Anticipos
+              </h3>
+              <div class="space-y-6">
+                <div>
+                  <label class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 ml-2 mb-2 block">Límite de Personas</label>
+                  <input v-model="formData.anticipo_persona" type="number" class="w-full px-6 py-4 bg-gray-50 border-2 border-transparent rounded-2xl focus:bg-white focus:border-intimar-primary outline-none transition-all font-bold">
+                </div>
+                <div>
+                  <label class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 ml-2 mb-2 block">Monto por Persona (S/)</label>
+                  <input v-model="formData.monto_anticipo_persona" type="number" class="w-full px-6 py-4 bg-gray-50 border-2 border-transparent rounded-2xl focus:bg-white focus:border-intimar-primary outline-none transition-all font-bold">
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
     </div>
   </div>
 </div>

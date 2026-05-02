@@ -2,8 +2,8 @@
   <div class="min-h-screen bg-gray-50 flex">
     <Sidebar />
 
-    <div class="flex-1 p-6 md:p-12 pb-32 md:pb-12 overflow-y-auto font-sans">
-      <div class="max-w-6xl mx-auto">
+    <div class="flex-1 p-6 md:p-12 pb-32 md:pb-12 overflow-y-auto font-sans overflow-x-hidden">
+      <div class="w-full">
         <!-- Header -->
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10">
           <div class="flex items-center gap-4">

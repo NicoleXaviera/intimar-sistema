@@ -2,15 +2,15 @@
   <div class="min-h-screen bg-gray-50 flex">
     <Sidebar />
 
-    <div class="flex-1 p-6 md:p-12 pb-32 md:pb-12 overflow-y-auto">
-      <div class="max-w-7xl mx-auto">
+    <div class="flex-1 p-6 md:p-12 pb-32 md:pb-12 overflow-y-auto overflow-x-hidden">
+      <div class="w-full">
 
         <!-- Header -->
         <div class="flex flex-col md:flex-row items-start md:items-center justify-between mb-12 gap-6">
           <div class="flex items-center gap-4">
             <img :src="'/files/intimar-logo.png'" alt="Intimar Logo" class="h-12 w-auto" />
             <div>
-              <h1 class="text-4xl font-black text-gray-900 tracking-tight">Mapa de Mesas</h1>
+              <h1 class="text-4xl font-black text-gray-900 tracking-tight italic">Gestión de Mesas</h1>
               <p class="text-gray-500 font-medium uppercase tracking-widest text-xs mt-1">Bay · Paracas · Gestión Real-Time</p>
             </div>
           </div>
@@ -38,6 +38,8 @@
               <span class="text-[9px] opacity-70">Por Llegar</span>
               <span class="text-sm">{{ personasPorLlegar }} PERS.</span>
             </div>
+            
+            <div class="w-px h-8 bg-gray-200 mx-1 hidden sm:block"></div>
             
             <Button icon="refresh-cw" variant="ghost" class="ml-2 text-gray-400 hover:text-gray-900" @click="mesas.fetch(); reservasPendientes.fetch()" />
           </div>
@@ -100,11 +102,31 @@
                 @click="handleMesaClick(mesa)"
                 class="group relative"
               >
+                <!-- Checkbox de Selección Directa (Solo si está libre) -->
                 <div 
+                  v-if="mesa.estado_mesa"
+                  @click.stop="toggleMesaSelection(mesa)"
+                  class="absolute top-5 left-5 z-20 cursor-pointer group/check"
+                >
+                  <div 
+                    :class="[
+                      'w-7 h-7 rounded-lg border-2 transition-all flex items-center justify-center shadow-sm', 
+                      isMesaSelectedForMulti(mesa) 
+                        ? 'bg-intimar-gold border-intimar-gold scale-110 shadow-intimar-gold/40' 
+                        : 'bg-white/80 border-gray-200 hover:border-intimar-gold hover:bg-white'
+                    ]"
+                  >
+                    <svg v-if="isMesaSelectedForMulti(mesa)" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                    <div v-else class="w-2 h-2 rounded-full bg-gray-200 group-hover/check:bg-intimar-gold/30 transition-colors"></div>
+                  </div>
+                </div>
+
+                <div 
+                  @click="handleMesaClick(mesa)"
                   :class="[
                     'min-h-[220px] p-6 flex flex-col items-center justify-center rounded-[2.5rem] border-b-8 transition-all duration-300 shadow-lg hover:shadow-2xl cursor-pointer transform hover:-translate-y-2',
                     mesa.estado_mesa 
-                        ? 'bg-white border-intimar-green text-gray-900 shadow-intimar-green/10' 
+                        ? (isMesaSelectedForMulti(mesa) ? 'bg-intimar-gold/5 border-intimar-gold text-intimar-gold' : 'bg-white border-intimar-green text-gray-900 shadow-intimar-green/10')
                         : 'bg-intimar-red border-[#a00e26] text-white shadow-intimar-red/30'
                   ]"
                 >
@@ -116,7 +138,7 @@
                   <div v-if="!mesa.estado_mesa && mesa.reserva" class="mt-4 w-full text-center space-y-1 bg-white/10 py-2 rounded-2xl">
                     <p class="text-xs font-black truncate px-2">{{ mesa.reserva.cliente_nombre }}</p>
                     <div class="flex items-center justify-center gap-2 text-[10px] opacity-90 font-bold uppercase">
-                      <span>{{ mesa.reserva.hora_llegada }}</span>
+                      <span>{{ formatTime(mesa.reserva.hora_llegada) }}</span>
                       <span>•</span>
                       <span>{{ mesa.reserva.mozo_nombre || 'Sin mozo' }}</span>
                     </div>
@@ -131,6 +153,22 @@
               </div>
             </div>
           </div>
+        </div>
+
+        <!-- Botón Flotante Confirmar Multiselección -->
+        <div v-if="selectedMesasForMulti.length > 0" class="fixed bottom-10 left-1/2 -translate-x-1/2 z-[100] animate-in slide-in-from-bottom-10 flex flex-col items-center gap-4">
+            <div class="bg-gray-900 text-white px-6 py-3 rounded-full text-[10px] font-black uppercase tracking-widest shadow-2xl flex items-center gap-3">
+                <span class="w-2 h-2 bg-intimar-gold rounded-full animate-pulse"></span>
+                {{ selectedMesasForMulti.length }} mesas seleccionadas
+                <button @click="selectedMesasForMulti = []" class="ml-2 text-white/50 hover:text-white transition-colors">Limpiar</button>
+            </div>
+            <button 
+                @click="openMultiAssignModal"
+                class="bg-intimar-primary text-white px-10 py-5 rounded-[2.5rem] font-black uppercase tracking-[0.2em] shadow-[0_20px_50px_rgba(0,147,143,0.3)] hover:scale-105 active:scale-95 transition-all flex items-center gap-4 border-4 border-white"
+            >
+                Asignar a Reserva
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+            </button>
         </div>
     </div>
     <!-- MODALES PERSONALIZADOS (USANDO TELEPORT PARA CONTROL TOTAL) -->
@@ -151,7 +189,12 @@
                     <!-- PASO 1: SELECCIONAR RESERVA -->
                     <div v-if="assignStep === 1" class="space-y-5">
                         <div>
-                            <h3 class="text-3xl font-black text-gray-900 leading-tight italic tracking-tighter text-center">Mesa <span class="text-intimar-primary">{{ selectedMesa?.numero_mesa }}</span></h3>
+                            <h3 v-if="selectedMesasForMulti.length <= 1" class="text-3xl font-black text-gray-900 leading-tight italic tracking-tighter text-center">
+                                Mesa <span class="text-intimar-primary">{{ selectedMesa?.numero_mesa || selectedMesasForMulti[0]?.numero_mesa }}</span>
+                            </h3>
+                            <h3 v-else class="text-3xl font-black text-gray-900 leading-tight italic tracking-tighter text-center">
+                                Asignar <span class="text-intimar-gold">{{ selectedMesasForMulti.length }} Mesas</span>
+                            </h3>
                             <p class="text-gray-400 text-[9px] font-bold uppercase tracking-[0.2em] text-center mt-1">Paso 1: Seleccionar Reserva</p>
                         </div>
 
@@ -255,7 +298,7 @@
                         <div class="flex justify-center gap-10 border-t border-gray-200 pt-6">
                             <div class="text-center">
                                 <p class="text-[10px] uppercase text-gray-400 font-black tracking-[0.2em] mb-1 text-center">Llegada:</p>
-                                <p class="font-black text-xl text-gray-700 tracking-tight text-center">{{ selectedMesa.reserva.hora_llegada }}</p>
+                                <p class="font-black text-xl text-gray-700 tracking-tight text-center">{{ formatTime(selectedMesa.reserva.hora_llegada) }}</p>
                             </div>
                             <div class="text-center">
                                 <p class="text-[10px] uppercase text-gray-400 font-black tracking-[0.2em] mb-1 text-center">Mozo:</p>
@@ -322,6 +365,10 @@
 <script setup>
 import { Button, LoadingIndicator, createResource, call, Dialog } from 'frappe-ui'
 import { computed, ref } from 'vue'
+const formatTime = (timeStr) => {
+  if (!timeStr) return ''
+  return timeStr.split('.')[0]
+}
 import Sidebar from '@/components/Sidebar.vue'
 
 const showAssignModal = ref(false)
@@ -332,6 +379,8 @@ const searchQuery = ref('')
 
 const assignStep = ref(1)
 const selectedReservaForAssign = ref(null)
+const multiSelectMode = ref(false)
+const selectedMesasForMulti = ref([])
 
 // Recurso principal de mesas con datos de reserva
 const mesas = createResource({
@@ -465,6 +514,27 @@ function handleMesaClick(mesa) {
   }
 }
 
+function toggleMesaSelection(mesa) {
+    const index = selectedMesasForMulti.value.findIndex(m => m.name === mesa.name)
+    if (index === -1) {
+      selectedMesasForMulti.value.push(mesa)
+    } else {
+      selectedMesasForMulti.value.splice(index, 1)
+    }
+}
+
+function isMesaSelectedForMulti(mesa) {
+    return selectedMesasForMulti.value.some(m => m.name === mesa.name)
+}
+
+function openMultiAssignModal() {
+    searchQuery.value = ''
+    assignStep.value = 1
+    selectedReservaForAssign.value = null
+    reservasPendientes.fetch()
+    showAssignModal.value = true
+}
+
 function selectReservaForAssign(reserva) {
   selectedReservaForAssign.value = reserva
   assignStep.value = 2
@@ -472,15 +542,23 @@ function selectReservaForAssign(reserva) {
 
 async function confirmarAsignacionFinal(mozo) {
   try {
+    const mesaIds = selectedMesasForMulti.value.length > 0
+        ? selectedMesasForMulti.value.map(m => m.name)
+        : [selectedMesa.value.name]
+
     await call('intimar_erp.api.asignar_mesa_a_reserva', {
       reserva_id: selectedReservaForAssign.value.name,
-      mesa_id: selectedMesa.value.name,
+      mesa_id: mesaIds,
       mozo_id: mozo.name
     })
+    
     showAssignModal.value = false
+    selectedMesasForMulti.value = []
     mesas.fetch()
+    showToast('Asignación Exitosa', 'Mesa(s) vinculada(s) correctamente.', 'success')
   } catch (e) {
     console.error(e)
+    showToast('Error', 'No se pudo completar la asignación.', 'error')
   }
 }
 

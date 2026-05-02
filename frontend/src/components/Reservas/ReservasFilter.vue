@@ -12,7 +12,15 @@
     </div>
 
     <!-- Grid de Filtros -->
-    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-4">
+    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-6 gap-4">
+      
+      <!-- Buscar por ID -->
+      <div class="relative">
+        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-400">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9h16"/><path d="M4 15h16"/><path d="M10 3 8 21"/><path d="M16 3l-2 18"/></svg>
+        </div>
+        <input v-model="filters.id" type="text" placeholder="ID Reserva..." class="w-full pl-10 pr-4 py-3 bg-gray-50 border border-transparent rounded-2xl text-xs font-bold text-gray-700 focus:border-intimar-gold/30 focus:bg-white focus:ring-4 focus:ring-intimar-gold/10 transition-all placeholder:text-gray-400">
+      </div>
       
       <!-- Fecha Específica -->
       <div class="relative w-full">
@@ -91,6 +99,7 @@ const today = new Date().toISOString().split('T')[0]
 const initialDate = route.query.fecha || today
 
 const filters = reactive({
+  id: '',
   nombre: '',
   celular: '',
   fecha: initialDate, // Fecha del calendario o hoy
@@ -104,6 +113,7 @@ watch(filters, (newFilters) => {
 }, { deep: true, immediate: true })
 
 const clearFilters = () => {
+  filters.id = ''
   filters.nombre = ''
   filters.celular = ''
   filters.fecha = ''
