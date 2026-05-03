@@ -51,6 +51,7 @@ export default defineConfig({
     ],
   },
   build: {
+    cssCodeSplit: false,
     rollupOptions: {
       external: [
         /^~icons\//,
