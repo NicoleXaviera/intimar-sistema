@@ -51,6 +51,8 @@ export default defineConfig({
     ],
   },
   build: {
+    outDir: '../intimar_erp/public/frontend',
+    emptyOutDir: true,
     rollupOptions: {
       external: [
         /^~icons\//,
