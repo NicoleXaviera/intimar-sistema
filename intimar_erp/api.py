@@ -454,3 +454,39 @@ def get_recent_activity():
             })
             
     return activities
+
+@frappe.whitelist()
+def get_occupancy_alerts():
+    duracion_maxima_horas = frappe.db.get_single_value("Configuracion Intimar", "duracion_reserva") or 2
+    
+    reservas = frappe.get_all("Reserva Intimar", 
+        filters={"estado_reserva": "En proceso", "fecha_reserva": frappe.utils.today()},
+        fields=["name", "cliente", "hora_llegada"]
+    )
+    
+    alerts = []
+    now = frappe.utils.now_datetime()
+    
+    for r in reservas:
+        if not r.hora_llegada: continue
+        
+        # Combinar fecha de hoy con hora de llegada
+        llegada_dt = frappe.utils.get_datetime(f"{frappe.utils.today()} {r.hora_llegada}")
+        diff = (now - llegada_dt).total_seconds() / 60 # en minutos
+        
+        if diff > (duracion_maxima_horas * 60):
+            cliente_nombre = frappe.db.get_value("Cliente Intimar", r.cliente, "nombre_y_apellido_completo")
+            
+            # Obtener la mesa asignada (puede ser más de una, tomamos la primera para el alert)
+            mesa_id = frappe.db.get_value("Mesa Reserva Intimar", {"parent": r.name}, "mesa")
+            mesa_numero = frappe.db.get_value("Mesa Intimar", mesa_id, "numero_mesa") if mesa_id else "S/N"
+            
+            alerts.append({
+                "reserva_id": r.name,
+                "cliente": cliente_nombre,
+                "duracion_minutos": int(diff),
+                "mesa_id": mesa_id,
+                "mesa_numero": mesa_numero
+            })
+            
+    return alerts

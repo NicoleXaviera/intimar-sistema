@@ -193,16 +193,20 @@ const addNotification = (data) => {
   if (!isOpen.value) unreadCount.value++
   if (notifications.value.length > 50) notifications.value.pop()
   
-  try {
-    const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3') // Snappy Digital Ding
-    audio.volume = 0.5
-    audio.play()
-    // Forzamos que se corte a los 250ms para eliminar cualquier eco residual
-    setTimeout(() => {
-      audio.pause()
-      audio.currentTime = 0
-    }, 250)
-  } catch(e) {}
+  const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3')
+  audio.volume = 0.5
+  
+  const playPromise = audio.play()
+  if (playPromise !== undefined) {
+    playPromise.catch(() => {
+      console.log("Audio play prevented")
+    })
+  }
+
+  setTimeout(() => {
+    audio.pause()
+    audio.currentTime = 0
+  }, 250)
 }
 
 const removeNotification = (id) => {
@@ -306,7 +310,7 @@ onMounted(() => {
 
   // 2. RADAR DE RESPALDO (Polling) - Cada 10 segundos
   fetchRecentActivity() // Carga inicial
-  const pollInterval = setInterval(fetchRecentActivity, 600000)
+  const pollInterval = setInterval(fetchRecentActivity, 10000)
 
   onUnmounted(() => {
     clearInterval(pollInterval)
