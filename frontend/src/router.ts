@@ -85,7 +85,7 @@ const routes = [
 ]
 
 let router = createRouter({
-  history: createWebHistory('/frontend'),
+  history: createWebHistory(import.meta.env.DEV ? '/frontend' : '/intimar'),
   routes,
 })
 

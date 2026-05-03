@@ -30,7 +30,7 @@ export default defineConfig({
       lucideIcons: true,
       jinjaBootData: true,
       buildConfig: {
-        indexHtmlPath: `../${getAppName()}/www/${getAppName()}.html`,
+        indexHtmlPath: `../${getAppName()}/www/intimar.html`,
       },
     }),
   ],
@@ -60,5 +60,5 @@ export default defineConfig({
 })
 
 function getAppName() {
-  return path.basename(path.resolve(__dirname, '../..'))
+  return path.basename(path.resolve(__dirname, '..'))
 }
