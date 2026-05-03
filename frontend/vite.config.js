@@ -54,6 +54,11 @@ export default defineConfig({
     outDir: '../intimar_erp/public/frontend',
     emptyOutDir: true,
     rollupOptions: {
+      output: {
+        entryFileNames: `assets/[name].js`,
+        chunkFileNames: `assets/[name].js`,
+        assetFileNames: `assets/[name].[ext]`
+      },
       external: [
         /^~icons\//,
       ],
