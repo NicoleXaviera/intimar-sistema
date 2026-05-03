@@ -1,0 +1,1 @@
+Hola Nicole, si lees esto, la ruta de assets funciona.
