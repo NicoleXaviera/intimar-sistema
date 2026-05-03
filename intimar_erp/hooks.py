@@ -34,3 +34,9 @@ scheduler_events = {
 # 		"on_trash": "method"
 # 	}
 # }
+
+# Website Route Rules
+# --------------------
+website_route_rules = [
+	{"from_route": "/intimar/<path:app_path>", "to_route": "intimar"},
+]
