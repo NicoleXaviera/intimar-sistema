@@ -958,7 +958,7 @@ const fetchClientes = async () => {
     const res = await call('frappe.client.get_list', {
       doctype: 'Cliente Intimar',
       fields: ['name', 'nombre_y_apellido_completo', 'phone'],
-      limit: 1000 // Para el MVP. En un real esto debería ser un buscador autocompletable.
+      limit: 20000 
     })
     clientesList.value = res || []
   } catch (e) { console.error(e) }
@@ -1305,11 +1305,28 @@ const fetchReservaData = async (id) => {
       name: id
     })
     if (doc) {
-      originalDoc.value = doc // Guardamos doc intacto
+      originalDoc.value = doc 
 
       form.cliente = doc.cliente || ''
       form.nombre = doc.nombre || ''
       form.celular = doc.celular || ''
+      
+      // Si hay un cliente enlazado, forzamos traer su nombre completo real
+      if (form.cliente) {
+        try {
+          const clienteDoc = await call('frappe.client.get_value', {
+            doctype: 'Cliente Intimar',
+            filters: { name: form.cliente },
+            fieldname: ['name1', 'lastname', 'nombre_y_apellido_completo', 'phone']
+          })
+          if (clienteDoc) {
+            const nombreCalculado = `${clienteDoc.name1 || ''} ${clienteDoc.lastname || ''}`.trim()
+            form.nombre = clienteDoc.nombre_y_apellido_completo || nombreCalculado || form.nombre
+            form.celular = clienteDoc.phone || form.celular
+          }
+        } catch (e) { console.error("Error al traer datos reales del cliente", e) }
+      }
+
       form.cant_adultos = doc.cant_adultos || 0
       form.cant_ninos = doc.cant_ninos || 0
       form.fecha_reserva = doc.fecha_reserva || today
@@ -1321,8 +1338,7 @@ const fetchReservaData = async (id) => {
       form.hora_salida = doc.hora_salida || null
       form.modified = doc.modified || null
       
-      // Auto-rellenar la caja de búsqueda si estamos editando
-      clienteSearch.value = doc.nombre || ''
+      clienteSearch.value = form.nombre
       
       // Mapeo de tablas hijas
       form.mesas = (doc.mesas || []).map(m => ({ mesa: m.mesa }))

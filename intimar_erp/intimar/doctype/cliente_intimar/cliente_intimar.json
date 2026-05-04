@@ -23,12 +23,15 @@
    "fieldname": "name1",
    "fieldtype": "Data",
    "in_list_view": 1,
+   "in_standard_filter": 1,
    "label": "Nombre",
    "reqd": 1
   },
   {
    "fieldname": "lastname",
    "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
    "label": "Apellido"
   },
   {
@@ -46,6 +49,8 @@
   {
    "fieldname": "phone",
    "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
    "label": "Celular"
   },
   {
@@ -77,7 +82,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-05-02 14:35:12.637332",
+ "modified": "2026-05-03 20:19:47.734406",
  "modified_by": "Administrator",
  "module": "intimar",
  "name": "Cliente Intimar",
@@ -98,6 +103,7 @@
   }
  ],
  "row_format": "Dynamic",
+ "search_fields": "nombre_y_apellido_completo,phone,dni_ruc",
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": []
