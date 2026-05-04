@@ -77,7 +77,7 @@ def get_reservas_pendientes_hoy():
             "estado_reserva": ["in", ["Confirmada", "Pendiente a confirmar", "Solicitud de reserva", "Lista de espera"]],
             "fecha_reserva": frappe.utils.today()
         },
-        fields=["name", "cliente", "hora_reserva", "cant_adultos", "cant_ninos", "mozo"],
+        fields=["name", "cliente", "hora_reserva", "cant_adultos", "cant_ninos", "mozo", "requerimientos", "necesidades", "alergias"],
         order_by="hora_reserva asc"
     )
     
@@ -89,6 +89,22 @@ def get_reservas_pendientes_hoy():
         else:
             r.cliente_nombre = "Cliente sin nombre"
             r.cliente_telefono = ""
+            
+        # Sumar anticipos pagados por moneda
+        anticipos = frappe.get_all("Anticipo Reserva Intimar", 
+            filters={"parent": r.name, "estado_anticipo": "Pagado"},
+            fields=["monto_anticipo", "moneda"]
+        )
+        
+        resumen = []
+        total_pen = sum(a.monto_anticipo for a in anticipos if a.moneda == "PEN")
+        total_usd = sum(a.monto_anticipo for a in anticipos if a.moneda == "USD")
+        
+        if total_pen > 0: resumen.append(f"S/ {total_pen}")
+        if total_usd > 0: resumen.append(f"$ {total_usd}")
+        
+        r.total_pagado_txt = " + ".join(resumen) if resumen else ""
+        r.total_pagado = total_pen + (total_usd * 3.7) # Solo para lógica de aviso, no para mostrar
     return reservas
 
 @frappe.whitelist()
@@ -97,11 +113,22 @@ def get_mozos():
 
 @frappe.whitelist()
 def asignar_mesa_a_reserva(reserva_id, mesa_id, mozo_id=None):
-    frappe.db.set_value("Mesa Intimar", mesa_id, "estado_mesa", 0)
+    # mesa_id puede venir como string o como lista desde el mapa de mesas
+    mesas_ids = mesa_id if isinstance(mesa_id, list) else [mesa_id]
+    
     reserva = frappe.get_doc("Reserva Intimar", reserva_id)
     
-    if not any(m.mesa == mesa_id for m in reserva.mesas):
-        reserva.append("mesas", {"mesa": mesa_id})
+    # Validar estado: Solo permitir asignación a reservas Confirmadas
+    if reserva.estado_reserva != "Confirmada":
+        frappe.throw(f"No se puede asignar mesa. La reserva debe estar en estado 'Confirmada' (Estado actual: {reserva.estado_reserva})")
+    
+    for m_id in mesas_ids:
+        # 1. Marcar mesa como ocupada (0)
+        frappe.db.set_value("Mesa Intimar", m_id, "estado_mesa", 0)
+        
+        # 2. Agregar a la sub-tabla de la reserva si no existe ya
+        if not any(m.mesa == m_id for m in reserva.mesas):
+            reserva.append("mesas", {"mesa": m_id})
     
     reserva.estado_reserva = "En proceso"
     reserva.hora_llegada = frappe.utils.nowtime()
@@ -148,10 +175,8 @@ def get_reservas_list(filters=None, limit_start=0, limit_page_length=20, order_b
         SELECT 
             r.name, r.cliente, r.nombre, r.celular, r.fecha_reserva, r.hora_reserva, 
             r.cant_adultos, r.cant_ninos, r.estado_reserva, r.anticipo_required, 
-            r.mozo, r.hora_llegada, r.hora_salida, r.am_pm,
-            (SELECT SUM(monto_anticipo) 
-             FROM `tabAnticipo Reserva Intimar` 
-             WHERE parent = r.name AND estado_anticipo = 'Pagado') as total_pagado
+            r.mozo, r.hora_llegada, r.hora_salida, r.am_pm, r.requerimientos, r.necesidades, r.alergias,
+            r.mozo, r.hora_llegada, r.hora_salida, r.am_pm, r.requerimientos, r.necesidades, r.alergias
         FROM 
             `tabReserva Intimar` r
         WHERE 
@@ -162,6 +187,23 @@ def get_reservas_list(filters=None, limit_start=0, limit_page_length=20, order_b
     
     data = frappe.db.sql(query, tuple(reserva_names), as_dict=1)
     
+    for r in data:
+        # Sumar anticipos pagados por moneda
+        anticipos = frappe.get_all("Anticipo Reserva Intimar", 
+            filters={"parent": r.name, "estado_anticipo": "Pagado"},
+            fields=["monto_anticipo", "moneda"]
+        )
+        
+        resumen = []
+        total_pen = sum(a.monto_anticipo for a in anticipos if a.moneda == "PEN")
+        total_usd = sum(a.monto_anticipo for a in anticipos if a.moneda == "USD")
+        
+        if total_pen > 0: resumen.append(f"S/ {total_pen}")
+        if total_usd > 0: resumen.append(f"$ {total_usd}")
+        
+        r["total_pagado_txt"] = " + ".join(resumen) if resumen else ""
+        r["total_pagado"] = total_pen + (total_usd * 3.7) # Para lógica de aviso
+
     return data
 
 

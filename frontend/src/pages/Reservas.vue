@@ -153,6 +153,23 @@
             </div>
 
             <div class="space-y-4">
+              <!-- Aviso Notas Especiales -->
+              <div v-if="hasSpecialNotes" class="mb-4 bg-red-50 border-2 border-red-100 rounded-2xl p-4 animate-pulse">
+                <div class="flex items-center gap-2 text-red-600 mb-2">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+                  <span class="text-[10px] font-black uppercase tracking-widest">¡Notas Especiales Detectadas!</span>
+                </div>
+                <div class="space-y-1">
+                  <p v-if="reservaToAssign.alergias" class="text-[10px] text-gray-700 font-bold"><span class="text-red-500">ALERGIAS:</span> {{ reservaToAssign.alergias }}</p>
+                  <p v-if="reservaToAssign.necesidades" class="text-[10px] text-gray-700 font-bold"><span class="text-amber-600">NECESIDADES:</span> {{ reservaToAssign.necesidades }}</p>
+                  <p v-if="reservaToAssign.requerimientos" class="text-[10px] text-gray-700 font-bold"><span class="text-blue-600">REQUERIMIENTOS:</span> {{ reservaToAssign.requerimientos }}</p>
+                  <div v-if="reservaToAssign.total_pagado > 0" class="mt-2 pt-2 border-t border-red-100 flex justify-between items-center">
+                    <span class="text-[10px] font-black text-green-600 uppercase tracking-widest">Anticipo Pagado:</span>
+                    <span class="text-sm font-black text-green-700 italic">{{ reservaToAssign.total_pagado_txt }}</span>
+                  </div>
+                </div>
+              </div>
+
               <!-- Detalles Reserva -->
               <div class="p-4 bg-gray-50 rounded-2xl border border-gray-100">
                 <p class="text-xs font-black text-gray-500 uppercase tracking-widest mb-1">Reserva Seleccionada</p>
@@ -538,6 +555,11 @@ const mesasLibres = ref([])
 const mozos = ref([])
 const asignarForm = ref({ mesa: '', mozo: '' })
 
+const hasSpecialNotes = computed(() => {
+  if (!reservaToAssign.value) return false
+  return !!(reservaToAssign.value.alergias || reservaToAssign.value.necesidades || reservaToAssign.value.requerimientos || (reservaToAssign.value.total_pagado > 0))
+})
+
 const fetchMesasYMozos = async () => {
   try {
     const [m, mz] = await Promise.all([
@@ -595,7 +617,8 @@ const submitAsignar = async () => {
     }, 1500)
   } catch (error) {
     console.error('Error al asignar mesa:', error)
-    showToast('Error', 'Hubo un problema al asignar la mesa.', 'error')
+    const msg = error.messages ? error.messages.join('\n') : (error.message || 'Hubo un problema al asignar la mesa.')
+    showToast('Error', msg, 'error')
   } finally {
     isSubmitting.value = false
   }

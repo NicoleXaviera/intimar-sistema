@@ -222,6 +222,7 @@
           </div>
         </div>
 
+
         <!-- Tarjeta: Fecha, Hora y Asistentes -->
         <div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-gray-100 relative">
           <div class="flex items-center gap-3 mb-6 border-b border-gray-100 pb-4">
@@ -327,7 +328,7 @@
 
           <div class="space-y-5">
             <!-- Mozo -->
-            <div>
+            <div class="border-b border-gray-50 pb-5">
               <label class="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2 pl-1">Mozo Asignado</label>
               <div class="relative">
                 <select v-model="form.mozo" @change="onMozoChange" :disabled="!canEditOperativa" class="w-full pl-4 pr-10 py-3.5 bg-gray-50 border border-transparent rounded-2xl text-sm font-bold text-gray-700 focus:border-purple-500/30 focus:bg-white focus:ring-4 focus:ring-purple-500/10 transition-all appearance-none cursor-pointer disabled:cursor-not-allowed">
@@ -339,63 +340,44 @@
                 <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none text-gray-400"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></div>
               </div>
             </div>
-          </div>
-        </div>
 
-        <!-- Tarjeta: Mesas Asignadas (NUEVO DISEÑO CON TIEMPOS) -->
-        <div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-gray-100 relative" :class="{'opacity-60': !canEditOperativa}">
-          <div class="flex items-center justify-between mb-6 border-b border-gray-100 pb-4">
-            <div class="flex items-center gap-3">
-              <div class="w-10 h-10 bg-green-600/10 rounded-xl flex items-center justify-center text-green-600">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3h18v18H3zM21 9H3M21 15H3M12 3v18"/></svg>
+            <!-- Mesas Asignadas (INTEGRADO AQUÍ) -->
+            <div>
+              <div class="flex items-center justify-between mb-4">
+                <label class="block text-[10px] font-black uppercase tracking-widest text-gray-400 pl-1">Mesas Asignadas</label>
+                <button @click="addMesaRow" type="button" :disabled="!canEditOperativa" class="flex items-center gap-1.5 px-3 py-1.5 bg-intimar-gold/10 text-intimar-gold rounded-lg hover:bg-intimar-gold/20 transition-all disabled:opacity-50">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                  <span class="text-[9px] font-black uppercase">Añadir</span>
+                </button>
               </div>
-              <div>
-                <h3 class="font-black text-gray-900 tracking-wide">Mesas Asignadas</h3>
-                <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-0.5">Sub-tabla (Mesa Reserva)</p>
-              </div>
-            </div>
-            <button @click="addMesaRow" type="button" :disabled="!canEditOperativa" class="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed">
-              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-              <span class="text-[10px] font-black uppercase tracking-widest">Mesa</span>
-            </button>
-          </div>
 
-          <div class="space-y-4">
-            <div v-for="(m, index) in form.mesas" :key="index" class="flex gap-3 group">
-              <div class="flex-1 relative">
-                <select v-model="m.mesa" :disabled="!canEditOperativa" class="w-full pl-4 pr-10 py-3.5 bg-gray-50 border border-transparent rounded-2xl text-sm font-bold text-gray-700 focus:border-green-600/30 focus:bg-white focus:ring-4 focus:ring-green-600/10 transition-all appearance-none cursor-pointer disabled:cursor-not-allowed">
-                  <option value="">Selecciona mesa...</option>
-                  <option v-for="mesa in mesasList" :key="mesa.name" :value="mesa.name">{{ mesa.name }}</option>
-                </select>
-                <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none text-gray-400"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></div>
-              </div>
-              <button v-if="canEditOperativa" @click="removeMesaRow(index)" type="button" class="p-3.5 text-red-400 hover:text-red-600 bg-red-50 hover:bg-red-100 rounded-2xl transition-all">
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
-              </button>
-            </div>
-
-            <!-- CUADRO DE TIEMPOS (REUBICADO AQUÍ) -->
-            <div v-if="form.hora_llegada || form.hora_salida" class="mt-8 p-6 bg-gray-50 rounded-[2rem] border-2 border-dashed border-gray-200">
-              <h4 class="text-[9px] font-black uppercase tracking-[0.2em] text-gray-400 mb-4 flex items-center gap-2">
-                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                Tiempos de Ocupación
-              </h4>
-              <div class="grid grid-cols-2 gap-4">
-                <div v-if="form.hora_llegada">
-                  <label class="block text-[8px] font-black uppercase tracking-widest text-blue-500 mb-1">Entrada</label>
-                  <p class="text-sm font-black text-gray-800">{{ formatTimeDisplay(form.hora_llegada) }}</p>
+              <div class="space-y-3">
+                <div v-for="(m, index) in form.mesas" :key="index" class="flex gap-2">
+                  <div class="flex-1 relative">
+                    <select v-model="m.mesa" :disabled="!canEditOperativa" class="w-full pl-4 pr-10 py-3 bg-gray-50 border border-transparent rounded-xl text-xs font-bold text-gray-700 focus:border-green-600 focus:bg-white transition-all appearance-none cursor-pointer">
+                      <option value="">Elegir mesa...</option>
+                      <option v-for="mesa in mesasList" :key="mesa.name" :value="mesa.name">
+                        {{ mesa.numero_mesa }} - {{ mesa.ubicacion_mesa || 'Principal' }}
+                      </option>
+                    </select>
+                    <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-gray-300"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="m6 9 6 6 6-6"/></svg></div>
+                  </div>
+                  <button v-if="canEditOperativa" @click="removeMesaRow(index)" type="button" class="p-3 text-red-400 hover:text-red-600 bg-red-50 rounded-xl transition-all">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+                  </button>
                 </div>
-                <div v-if="form.hora_salida">
-                  <label class="block text-[8px] font-black uppercase tracking-widest text-green-500 mb-1">Salida</label>
-                  <p class="text-sm font-black text-gray-800">{{ formatTimeDisplay(form.hora_salida) }}</p>
+
+                <!-- Tiempos de Ocupación -->
+                <div v-if="form.hora_llegada || form.hora_salida" class="mt-4 p-4 bg-gray-50 rounded-2xl border-2 border-dashed border-gray-100 grid grid-cols-2 gap-4">
+                    <div>
+                      <label class="block text-[8px] font-black uppercase tracking-widest text-blue-500 mb-0.5">Llegada</label>
+                      <p class="text-xs font-black text-gray-800">{{ formatTimeDisplay(form.hora_llegada) }}</p>
+                    </div>
+                    <div>
+                      <label class="block text-[8px] font-black uppercase tracking-widest text-green-500 mb-0.5">Salida</label>
+                      <p class="text-xs font-black text-gray-800">{{ formatTimeDisplay(form.hora_salida) || '--:--' }}</p>
+                    </div>
                 </div>
-              </div>
-              <div v-if="form.hora_llegada && !form.hora_salida" class="mt-4 pt-4 border-t border-gray-100 flex items-center justify-between">
-                <span class="text-[9px] font-black text-blue-600 uppercase tracking-widest flex items-center gap-2">
-                  <span class="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></span>
-                  En Mesa
-                </span>
-                <span class="text-[9px] font-bold text-gray-400">Desde hace {{ calcularTiempoTranscurrido(form.hora_llegada) }}</span>
               </div>
             </div>
           </div>
@@ -456,6 +438,34 @@
                   <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
                 </button>
               </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tarjeta: Personalización y Notas -->
+        <div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-gray-100 relative">
+          <div class="flex items-center gap-3 mb-6 border-b border-gray-100 pb-4">
+            <div class="w-10 h-10 bg-purple-100 rounded-xl flex items-center justify-center text-purple-600">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+            </div>
+            <div>
+              <h3 class="font-black text-gray-900 tracking-wide">Personalización y Notas</h3>
+              <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-0.5">Peticiones especiales del cliente</p>
+            </div>
+          </div>
+
+          <div class="space-y-6">
+            <div>
+              <label class="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2 pl-1">Requerimientos Especiales</label>
+              <textarea v-model="form.requerimientos" rows="2" class="w-full px-4 py-3 bg-gray-50 border border-transparent rounded-2xl text-sm font-bold text-gray-700 focus:border-purple-500/30 focus:bg-white focus:ring-4 focus:ring-purple-500/10 transition-all outline-none" placeholder="Sin requerimientos..."></textarea>
+            </div>
+            <div>
+              <label class="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2 pl-1">Necesidades Especiales</label>
+              <textarea v-model="form.necesidades" rows="2" class="w-full px-4 py-3 bg-gray-50 border border-transparent rounded-2xl text-sm font-bold text-gray-700 focus:border-purple-500/30 focus:bg-white focus:ring-4 focus:ring-purple-500/10 transition-all outline-none" placeholder="Sin necesidades especiales..."></textarea>
+            </div>
+            <div>
+              <label class="block text-[10px] font-black uppercase tracking-widest text-red-400 mb-2 pl-1">Alergias o Intolerancias</label>
+              <textarea v-model="form.alergias" rows="2" class="w-full px-4 py-3 bg-red-50 border border-transparent rounded-2xl text-sm font-bold text-red-900 focus:border-red-500/30 focus:bg-white focus:ring-4 focus:ring-red-500/10 transition-all outline-none" placeholder="Sin alergias reportadas..."></textarea>
             </div>
           </div>
         </div>
@@ -788,7 +798,7 @@ const isImage = (url) => {
 }
 
 const canEditOperativa = computed(() => {
-  return ['Confirmada', 'En proceso', 'Finalizada'].includes(form.estado_reserva)
+  return ['Pendiente a confirmar', 'Confirmada', 'En proceso', 'Finalizada'].includes(form.estado_reserva)
 })
 
 const formatDateDisplay = (dateStr) => {
@@ -929,12 +939,10 @@ onMounted(async () => {
   try {
     // 1. Cargar datos base para los selects
     await Promise.all([
-      fetchClientes(),
       fetchMozos(),
       fetchMesas(),
       fetchConfiguracion()
     ])
-
     // 2. Determinar si es nueva o edición
     if (id && id !== 'nueva') {
       isEditing.value = true
@@ -952,18 +960,6 @@ onMounted(async () => {
   }
 })
 
-// === FETCH DATA FOR SELECTS ===
-const fetchClientes = async () => {
-  try {
-    const res = await call('frappe.client.get_list', {
-      doctype: 'Cliente Intimar',
-      fields: ['name', 'nombre_y_apellido_completo', 'phone'],
-      limit: 20000 
-    })
-    clientesList.value = res || []
-  } catch (e) { console.error(e) }
-}
-
 const fetchMozos = async () => {
   try {
     const res = await call('frappe.client.get_list', {
@@ -979,8 +975,8 @@ const fetchMesas = async () => {
   try {
     const res = await call('frappe.client.get_list', {
       doctype: 'Mesa Intimar',
-      fields: ['name'],
-      limit: 100
+      fields: ['name', 'numero_mesa', 'ubicacion_mesa'],
+      limit: 500
     })
     mesasList.value = res || []
   } catch (e) { console.error(e) }
@@ -996,17 +992,42 @@ const fetchConfiguracion = async () => {
   } catch (e) { console.error("Configuración general no encontrada", e) }
 }
 
-// === AUTOCOMPLETADO DE CLIENTE ===
+// === BÚSQUEDA DE CLIENTE EN SERVIDOR ===
 const clienteSearch = ref('')
 const showClienteDropdown = ref(false)
+const filteredClientes = ref([])
+const searchingCliente = ref(false)
+let searchTimeout = null
 
-const filteredClientes = computed(() => {
-  if (!clienteSearch.value) return clientesList.value
-  const query = clienteSearch.value.toLowerCase()
-  return clientesList.value.filter(c => 
-    (c.nombre_y_apellido_completo || '').toLowerCase().includes(query) ||
-    (c.phone || '').includes(query)
-  )
+watch(clienteSearch, (query) => {
+  if (!query || query.length < 3) {
+    filteredClientes.value = []
+    return
+  }
+
+  // Debounce para no saturar el servidor
+  clearTimeout(searchTimeout)
+  searchTimeout = setTimeout(async () => {
+    searchingCliente.value = true
+    try {
+      const res = await call('frappe.client.get_list', {
+        doctype: 'Cliente Intimar',
+        or_filters: [
+          ['nombre_y_apellido_completo', 'like', `%${query}%`],
+          ['phone', 'like', `%${query}%`],
+          ['name1', 'like', `%${query}%`],
+          ['lastname', 'like', `%${query}%`]
+        ],
+        fields: ['name', 'nombre_y_apellido_completo', 'phone'],
+        limit: 20
+      })
+      filteredClientes.value = res || []
+    } catch (e) {
+      console.error("Error buscando clientes:", e)
+    } finally {
+      searchingCliente.value = false
+    }
+  }, 300)
 })
 
 const selectCliente = (c) => {
@@ -1336,6 +1357,9 @@ const fetchReservaData = async (id) => {
       form.anticipo_required = doc.anticipo_required || 0
       form.hora_llegada = doc.hora_llegada || null
       form.hora_salida = doc.hora_salida || null
+      form.requerimientos = doc.requerimientos || ''
+      form.necesidades = doc.necesidades || ''
+      form.alergias = doc.alergias || ''
       form.modified = doc.modified || null
       
       clienteSearch.value = form.nombre
@@ -1427,6 +1451,9 @@ const saveReserva = async () => {
       estado_reserva: form.estado_reserva,
       mozo: form.mozo,
       anticipo_required: form.anticipo_required,
+      requerimientos: form.requerimientos || '',
+      necesidades: form.necesidades || '',
+      alergias: form.alergias || '',
     }
     // Para tablas hijas, conservamos el ID 'name' si ya existía para que Frappe lo actualice en lugar de recrearlo
     payload.mesas = form.mesas.filter(m => m.mesa).map((m, idx) => {
@@ -1449,6 +1476,9 @@ const saveReserva = async () => {
       estado_reserva: form.estado_reserva,
       mozo: form.mozo,
       anticipo_required: form.anticipo_required,
+      requerimientos: form.requerimientos || '',
+      necesidades: form.necesidades || '',
+      alergias: form.alergias || '',
       mesas: form.mesas.filter(m => m.mesa),
       anticipos: form.anticipos.map(a => ({
         monto_anticipo: a.monto_anticipo,

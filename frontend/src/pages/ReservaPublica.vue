@@ -2,17 +2,16 @@
   <div class="min-h-screen bg-white flex flex-col md:flex-row font-sans selection:bg-intimar-primary selection:text-white md:h-screen md:overflow-hidden relative">
     
     <!-- LATERAL IZQUIERDO: VISUAL (46%) -->
-    <div class="h-[15vh] md:h-full md:w-[46%] relative overflow-hidden bg-intimar-dark shrink-0">
+    <div class="h-[35vh] md:h-full md:w-[46%] relative overflow-hidden bg-intimar-dark shrink-0 shadow-2xl z-0">
       <div class="absolute inset-0 z-0">
         <TransitionGroup name="fade">
           <img v-for="(img, idx) in heroImages" :key="img" v-show="currentHeroIdx === idx" :src="img" class="absolute inset-0 w-full h-full object-cover transition-all duration-[3000ms]"/>
         </TransitionGroup>
         <div class="absolute inset-0 bg-gradient-to-t from-intimar-dark/60 via-transparent to-transparent"></div>
       </div>
-      <div class="absolute bottom-2 left-4 z-10 md:hidden"><p class="text-[7px] font-bold uppercase tracking-[0.4em] text-intimar-gold">Inti-Mar Paracas</p></div>
-      <div class="absolute inset-x-0 bottom-0 z-10 p-12 text-white animate-fade-in hidden md:block text-shadow">
-        <p class="text-[10px] font-bold uppercase tracking-[0.6em] text-intimar-gold mb-3">Desde 1995</p>
-        <p class="text-xl font-light italic opacity-90 leading-relaxed serif-font max-w-sm mb-8">«{{ t.welcomeQuote }}»</p>
+      <div class="absolute inset-x-0 bottom-0 z-10 p-6 md:p-12 text-white animate-fade-in text-shadow">
+        <p class="text-[8px] md:text-[10px] font-bold uppercase tracking-[0.4em] md:tracking-[0.6em] text-intimar-gold mb-1 md:mb-3">Desde 1995</p>
+        <p class="text-xs md:text-xl font-light italic opacity-90 leading-relaxed serif-font max-w-[300px] md:max-w-sm mb-4 md:mb-8">«{{ t.welcomeQuote }}»</p>
       </div>
     </div>
 
@@ -20,32 +19,47 @@
     <div class="flex-1 md:w-[54%] flex flex-col bg-white overflow-y-auto scrollbar-hide relative">
       
       <!-- Top Bar -->
-      <div class="sticky top-0 z-30 bg-white/95 backdrop-blur-md px-5 py-4 md:px-10 md:py-6 border-b border-gray-50 flex items-center justify-between shrink-0">
-        <img :src="'/files/intimar-logo.png'" class="h-8 md:h-10 w-auto" />
-        <div class="flex items-center gap-4">
-            <div class="flex gap-2">
-                <button @click="lang = 'es'" :class="['text-[10px] font-bold tracking-widest px-2 py-1 rounded transition-all', lang === 'es' ? 'text-intimar-primary bg-intimar-primary/5' : 'text-gray-300 hover:text-gray-400']">ES</button>
-                <button @click="lang = 'en'" :class="['text-[10px] font-bold tracking-widest px-2 py-1 rounded transition-all', lang === 'en' ? 'text-intimar-primary bg-intimar-primary/5' : 'text-gray-300 hover:text-gray-400']">EN</button>
+      <div class="sticky top-0 z-30 bg-white/95 backdrop-blur-md px-4 py-3 md:px-10 md:py-6 border-b border-gray-50 flex items-center justify-between shrink-0 md:rounded-none">
+        <div class="flex items-center gap-2 md:gap-3">
+            <img :src="'/files/intimar-logo.png'" class="h-6 md:h-10 w-auto" />
+            <div class="flex gap-3 md:gap-4 ml-2 md:ml-4">
+                <a href="https://www.inti-mar.com/wp-content/uploads/2023/03/CARTA_ESPANOLvsINGLES_5.pdf" target="_blank" class="text-[8px] md:text-[9px] font-black uppercase tracking-widest text-gray-400 hover:text-intimar-primary flex items-center gap-1.5">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>
+                    <span class="inline">{{ lang === 'es' ? 'Carta' : 'Menu' }}</span>
+                </a>
+                <a href="https://maps.app.goo.gl/B6V8iT3gZTCuRfxbA" target="_blank" class="text-[9px] font-black uppercase tracking-widest text-gray-400 hover:text-intimar-primary flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+                    <span class="hidden sm:inline">{{ lang === 'es' ? 'Cómo llegar' : 'Directions' }}</span>
+                </a>
+                <a href="https://www.instagram.com/intimarparacas/" target="_blank" class="text-[9px] font-black uppercase tracking-widest text-gray-400 hover:text-pink-600 flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg>
+                    <span class="hidden sm:inline">IG</span>
+                </a>
             </div>
-            <button v-if="step > 1 && step < 5" @click="step--" class="ml-1 text-gray-400 flex items-center gap-1 text-[9px] font-bold uppercase tracking-widest hover:text-intimar-primary border border-gray-100 px-2 py-1 rounded-lg">
-                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
-                {{ t.btnBack }}
+        </div>
+        <div class="flex items-center gap-2">
+            <div class="flex gap-1 md:gap-2 mr-0.5">
+                <button @click="lang = 'es'" :class="['text-[9px] md:text-[10px] font-bold tracking-widest px-1.5 py-1 rounded transition-all', lang === 'es' ? 'text-intimar-primary bg-intimar-primary/5' : 'text-gray-300 hover:text-gray-400']">ES</button>
+                <button @click="lang = 'en'" :class="['text-[9px] md:text-[10px] font-bold tracking-widest px-1.5 py-1 rounded transition-all', lang === 'en' ? 'text-intimar-primary bg-intimar-primary/5' : 'text-gray-300 hover:text-gray-400']">EN</button>
+            </div>
+            <button v-if="step > 1 && step < 5" @click="step--" class="text-gray-400 flex items-center justify-center h-8 w-8 hover:text-intimar-primary border border-gray-100 rounded-lg">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
             </button>
         </div>
       </div>
 
       <!-- Flow Content -->
-      <div :class="['flex-1 flex flex-col', step === 4 ? 'p-5 md:p-8' : 'p-6 md:p-12 lg:p-20']">
-        <div :class="['w-full mx-auto space-y-8', step === 4 ? 'max-w-4xl' : 'max-w-md']">
+      <div :class="['flex-1 flex flex-col relative z-10 -mt-8 md:mt-0 bg-white rounded-t-[2.5rem] md:rounded-none', step === 4 ? 'p-6 md:p-8' : 'p-8 md:p-12 lg:p-20']">
+        <div :class="['w-full mx-auto space-y-6 md:space-y-8', step === 4 ? 'max-w-4xl' : 'max-w-md']">
           
-          <div v-if="step < 5" class="flex items-center gap-4">
+          <div v-if="step < 5" class="flex items-center gap-4 mb-2">
             <div class="flex-1 flex gap-1"><div v-for="i in 4" :key="i" :class="['h-1 flex-1 rounded-full transition-all duration-500', step >= i ? 'bg-intimar-primary' : 'bg-gray-100']"></div></div>
-            <span class="text-[8px] font-bold text-gray-400 uppercase tracking-widest shrink-0">{{ step }} / 4</span>
+            <span class="text-[8px] font-black text-gray-400 uppercase tracking-widest shrink-0">{{ step }} / 4</span>
           </div>
 
-          <!-- PASO 1, 2, 3 (Sin cambios) -->
-          <div v-if="step === 1" class="space-y-8 animate-fade-in">
-            <div class="space-y-1.5"><h2 class="text-3xl md:text-5xl font-light tracking-tighter text-gray-900 leading-none uppercase">{{ t.title1 }}</h2><p class="text-gray-400 text-[9px] font-bold uppercase tracking-[0.2em]">{{ t.subtitle1 }}</p></div>
+          <!-- PASO 1 -->
+          <div v-if="step === 1" class="space-y-6 md:space-y-8 animate-fade-in">
+            <div class="space-y-2"><h2 class="text-4xl md:text-5xl font-light tracking-tighter text-gray-900 leading-none uppercase">{{ t.title1 }}</h2><p class="text-gray-400 text-[9px] font-bold uppercase tracking-[0.2em]">{{ t.subtitle1 }}</p></div>
             <div class="flex flex-wrap gap-2.5">
                 <button v-for="p in [1,2,3,4,5,6,7,8]" :key="p" @click="form.adultos = p; showManualPax = false" :class="['h-10 w-10 rounded-full font-medium text-xs transition-all border', form.adultos === p && !showManualPax ? 'bg-intimar-primary border-intimar-primary text-white shadow-md' : 'bg-white border-gray-100 text-gray-400']">{{ p }}</button>
                 <button @click="showManualPax = !showManualPax" :class="['h-10 w-10 rounded-full font-medium text-xs transition-all border', showManualPax ? 'bg-intimar-primary border-intimar-primary text-white' : 'bg-white border-gray-100 text-gray-400']">8+</button>
@@ -102,6 +116,16 @@
                     <label class="flex gap-3 cursor-pointer group"><input type="checkbox" v-model="form.acepta_legal1" class="mt-0.5 w-4 h-4 rounded border-gray-300 text-intimar-primary transition-all"><span class="text-[9px] font-bold text-gray-500 uppercase tracking-tight leading-snug">{{ t.legal1 }}</span></label>
                     <label class="flex gap-3 cursor-pointer group"><input type="checkbox" v-model="form.acepta_legal3" class="mt-0.5 w-4 h-4 rounded border-gray-300 text-intimar-primary transition-all"><span :class="['text-[9px] font-bold uppercase tracking-tight leading-snug transition-all', errors.acepta_legal3 ? 'text-red-500' : 'text-gray-500']">{{ t.legal3 }} *</span></label>
                 </div>
+                <div class="p-5 bg-gray-50 rounded-3xl border border-gray-100 space-y-3">
+                    <div class="flex items-center gap-2 text-intimar-gold">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                        <span class="text-[9px] font-black uppercase tracking-widest">{{ lang === 'es' ? 'Políticas de Reserva' : 'Booking Policies' }}</span>
+                    </div>
+                    <p class="text-[10px] font-medium text-gray-500 leading-relaxed uppercase">
+                        {{ t.generalPolicy }}
+                    </p>
+                </div>
+
                 <div class="space-y-4">
                     <!-- Mensaje de Error del Servidor -->
                     <div v-if="apiError" class="p-4 bg-red-50 border border-red-100 rounded-2xl animate-in fade-in zoom-in duration-300">
@@ -125,8 +149,22 @@
                     </div>
                 </div>
                 <div class="bg-gray-50 rounded-3xl p-5 space-y-4 text-[9px] border border-gray-100">
-                    <div class="space-y-1.5 border-b border-gray-100/50 pb-3"><div class="flex gap-2 items-center text-intimar-primary"><svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg><span class="font-bold uppercase tracking-widest text-gray-400 text-[7px]">Info & Contacto</span></div><p class="font-bold text-gray-900 uppercase leading-tight text-[8px]">Km 38 Carr. Pisco – Pto San Martín, Paracas</p><p class="font-bold text-intimar-primary tracking-widest">+51 981 318 866</p></div>
-                    <div class="space-y-3 border-b border-gray-100/50 pb-3"><div class="flex justify-between items-center"><span class="font-bold uppercase tracking-widest text-gray-400 text-[7px]">Horarios</span><span class="text-[5px] bg-red-100 text-red-600 px-1 py-0.5 rounded-full font-bold">CERRADO MIÉ</span></div><div class="flex justify-between uppercase text-[7px]"><div class="space-y-0.5"><p class="text-gray-400 font-bold">ALM.</p><p class="font-bold text-gray-900">11 AM–4 PM</p></div><div class="space-y-0.5 text-right"><p class="text-gray-400 font-bold">CENA</p><p class="font-bold text-gray-900">7–8:30 PM</p></div></div></div>
+                    <div class="space-y-1.5 border-b border-gray-100/50 pb-3">
+                        <div class="flex gap-2 items-center text-intimar-primary">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+                            <span class="font-bold uppercase tracking-widest text-gray-400 text-[7px]">Info & Contacto</span>
+                        </div>
+                        <a href="https://maps.app.goo.gl/B6V8iT3gZTCuRfxbA" target="_blank" class="block font-bold text-gray-900 uppercase leading-tight text-[8px] hover:text-intimar-primary transition-colors">Km 38 Carr. Pisco – Pto San Martín, Paracas</a>
+                        <a href="tel:+51981318866" class="block font-bold text-intimar-primary tracking-widest hover:underline">+51 981 318 866</a>
+                    </div>
+                    <div class="space-y-3 border-b border-gray-100/50 pb-3">
+                        <div class="flex justify-between items-center"><span class="font-bold uppercase tracking-widest text-gray-400 text-[7px]">Horarios</span><span class="text-[5px] bg-red-100 text-red-600 px-1 py-0.5 rounded-full font-bold">CERRADO MIÉ</span></div>
+                        <div class="flex justify-between uppercase text-[7px]"><div class="space-y-0.5"><p class="text-gray-400 font-bold">ALM.</p><p class="font-bold text-gray-900">11 AM–4 PM</p></div><div class="space-y-0.5 text-right"><p class="text-gray-400 font-bold">CENA</p><p class="font-bold text-gray-900">7–8:30 PM</p></div></div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2 pt-2">
+                        <a href="https://www.inti-mar.com/wp-content/uploads/2023/03/CARTA_ESPANOLvsINGLES_5.pdf" target="_blank" class="bg-white border border-gray-100 py-2 rounded-xl text-[7px] font-black uppercase text-center text-gray-400 hover:text-intimar-primary transition-all">Ver Carta</a>
+                        <a href="https://maps.app.goo.gl/B6V8iT3gZTCuRfxbA" target="_blank" class="bg-white border border-gray-100 py-2 rounded-xl text-[7px] font-black uppercase text-center text-gray-400 hover:text-intimar-primary transition-all">Ubicación</a>
+                    </div>
                     <p class="text-gray-400 leading-snug uppercase italic text-[7px] font-medium">{{ t.infoText }}</p>
                 </div>
               </div>
@@ -148,9 +186,37 @@
                 <p class="text-[8px] text-gray-400 uppercase font-bold tracking-widest pt-2">{{ t.idHint }}</p>
             </div>
 
+            <!-- Aviso de Correo y Botón de Verificación WhatsApp -->
+            <div class="space-y-6 pt-4">
+                <div class="p-4 bg-red-50 border border-red-100 rounded-2xl">
+                    <p class="text-[10px] font-black text-red-600 uppercase tracking-widest leading-relaxed">
+                        {{ t.emailCheck1 }}<br/>
+                        <span class="text-[8px] opacity-70">{{ t.emailCheck2 }}</span>
+                    </p>
+                </div>
+
+                <div class="space-y-3">
+                    <p class="text-[9px] font-bold text-gray-400 uppercase tracking-[0.2em]">{{ t.verifyText }}</p>
+                    <a 
+                        :href="whatsappUrl" 
+                        target="_blank"
+                        class="inline-flex items-center gap-3 px-8 py-5 bg-[#25D366] text-white rounded-full font-black uppercase tracking-[0.2em] text-[10px] shadow-xl shadow-green-500/20 transition-all hover:scale-[1.03] active:scale-95"
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 448 512" fill="currentColor"><path d="M380.9 97.1C339 55.1 283.2 32 223.9 32c-122.4 0-222 99.6-222 222 0 39.1 10.2 77.3 29.6 111L0 480l117.7-30.9c32.4 17.7 68.9 27 106.1 27h.1c122.3 0 224.1-99.6 224.1-222 0-59.3-25.2-115-67.1-157zm-157 341.6c-33.2 0-65.7-8.9-94-25.7l-6.7-4-69.8 18.3L72 359.2l-4.4-7c-18.5-29.4-28.2-63.3-28.2-98.2 0-101.7 82.8-184.5 184.6-184.5 49.3 0 95.6 19.2 130.4 54.1 34.8 34.9 56.2 81.2 56.1 130.5 0 101.8-84.9 184.6-186.6 184.6zm101.2-138.2c-5.5-2.8-32.8-16.2-37.9-18-5.1-1.9-8.8-2.8-12.5 2.8-3.7 5.6-14.3 18-17.6 21.8-3.2 3.7-6.5 4.2-12 1.4-5.5-2.8-23.2-8.5-44.2-27.1-16.4-14.6-27.4-32.7-30.6-38.2-3.2-5.6-.3-8.6 2.5-11.3 2.5-2.5 5.6-6.5 8.3-9.7 2.8-3.3 3.7-5.6 5.6-9.3 1.9-3.7 0.9-6.9-0.5-9.7-1.4-2.8-12.5-30.1-17.1-41.2-4.5-10.8-9.1-9.3-12.5-9.5-3.2-0.2-6.9-0.2-10.6-0.2-3.7 0-9.7 1.4-14.8 6.9-5.1 5.6-19.4 19-19.4 46.3 0 27.3 19.9 53.7 22.6 57.4 2.8 3.7 39.1 59.7 94.8 83.8 13.2 5.8 23.5 9.2 31.5 11.8 13.3 4.2 25.4 3.6 35 2.2 10.7-1.6 32.8-13.4 37.4-26.4 4.6-13 4.6-24.1 3.2-26.4-1.3-2.5-5-3.9-10.5-6.6z"/></svg>
+                        {{ t.btnVerifyWsp }}
+                    </a>
+                </div>
+            </div>
+
             <button @click="resetForm" class="text-[9px] font-bold uppercase tracking-[0.4em] text-intimar-primary border-b border-intimar-primary/20 pb-1 transition-all hover:border-intimar-primary">{{ t.btnBackHome }}</button>
           </div>
 
+          <footer class="mt-20 pb-10 border-t border-gray-50 pt-8 text-center space-y-2">
+            <p class="text-gray-400 text-[10px] md:text-xs leading-relaxed font-medium">
+              © {{ new Date().getFullYear() }} Inti-Mar Paracas. {{ lang === 'es' ? 'Todos los derechos reservados.' : 'All rights reserved.' }}
+            </p>
+            <p class="text-[9px] font-black uppercase tracking-[0.3em] text-gray-300">Desarrollado por NicoleXaviera</p>
+          </footer>
         </div>
       </div>
     </div>
@@ -178,7 +244,7 @@
 
     <!-- BOTÓN WHATSAPP -->
     <a href="https://wa.me/51981318866?text=Hola%20Intimar,%20tengo%20una%20consulta%20sobre%20mi%20reserva." target="_blank" class="fixed bottom-6 right-6 z-50 w-14 h-14 bg-[#25D366] text-white rounded-full flex items-center justify-center shadow-2xl hover:scale-110 transition-all active:scale-95 group">
-      <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 1 1-7.6-7.6 8.38 8.38 0 0 1 3.8.9L22 2l-1.5 5.5Z"/></svg>
+      <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 448 512" fill="currentColor"><path d="M380.9 97.1C339 55.1 283.2 32 223.9 32c-122.4 0-222 99.6-222 222 0 39.1 10.2 77.3 29.6 111L0 480l117.7-30.9c32.4 17.7 68.9 27 106.1 27h.1c122.3 0 224.1-99.6 224.1-222 0-59.3-25.2-115-67.1-157zm-157 341.6c-33.2 0-65.7-8.9-94-25.7l-6.7-4-69.8 18.3L72 359.2l-4.4-7c-18.5-29.4-28.2-63.3-28.2-98.2 0-101.7 82.8-184.5 184.6-184.5 49.3 0 95.6 19.2 130.4 54.1 34.8 34.9 56.2 81.2 56.1 130.5 0 101.8-84.9 184.6-186.6 184.6zm101.2-138.2c-5.5-2.8-32.8-16.2-37.9-18-5.1-1.9-8.8-2.8-12.5 2.8-3.7 5.6-14.3 18-17.6 21.8-3.2 3.7-6.5 4.2-12 1.4-5.5-2.8-23.2-8.5-44.2-27.1-16.4-14.6-27.4-32.7-30.6-38.2-3.2-5.6-.3-8.6 2.5-11.3 2.5-2.5 5.6-6.5 8.3-9.7 2.8-3.3 3.7-5.6 5.6-9.3 1.9-3.7 0.9-6.9-0.5-9.7-1.4-2.8-12.5-30.1-17.1-41.2-4.5-10.8-9.1-9.3-12.5-9.5-3.2-0.2-6.9-0.2-10.6-0.2-3.7 0-9.7 1.4-14.8 6.9-5.1 5.6-19.4 19-19.4 46.3 0 27.3 19.9 53.7 22.6 57.4 2.8 3.7 39.1 59.7 94.8 83.8 13.2 5.8 23.5 9.2 31.5 11.8 13.3 4.2 25.4 3.6 35 2.2 10.7-1.6 32.8-13.4 37.4-26.4 4.6-13 4.6-24.1 3.2-26.4-1.3-2.5-5-3.9-10.5-6.6z"/></svg>
       <span class="absolute right-16 bg-white text-gray-900 text-[10px] font-bold px-3 py-2 rounded-xl shadow-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none uppercase tracking-widest border border-gray-100">{{ lang === 'es' ? '¿Consultas?' : 'Questions?' }}</span>
     </a>
   </div>
@@ -225,11 +291,11 @@ const translations = {
     title2: 'Horarios Disponibles', subtitle2: 'Sujeto a disponibilidad del día',
     policyTitle: 'Tolerancia', policyDesc: '15 minutos. Pasado este tiempo, su mesa podría ser reasignada.',
     assignmentNote: 'Las mesas se asignan según disponibilidad por orden de llegada.',
-    title3: 'Confirma tus Datos', subtitle3: 'Solo falta un paso para asegurar tu mesa',
+    title3: 'Confirma tus Datos', subtitle3: 'Solo falta un paso para registrar tu reserva',
     labelName: 'Nombre', labelLastname: 'Apellido', labelPhone: 'Teléfono',
     title4: 'Personalizar', subtitle4: 'Ayúdanos a que tu visita sea única',
-    labelSpecialReq: '¿Algún requerimiento especial?', placeholderReq: 'Ej: Mesa cerca al mar...',
-    labelNeeds: '¿Alguna necesidad especial?', placeholderNeeds: 'Ej: Silla de bebé...',
+    labelSpecialReq: '¿Algún requerimiento especial?', placeholderReq: 'Indícanos si tienes alguna petición especial...',
+    labelNeeds: '¿Alguna necesidad especial?', placeholderNeeds: 'Voy con mi bebe canino...',
     labelAllergies: '¿Alguna alergia o intolerancia?', placeholderAllergies: 'Ej: Mariscos, gluten...',
     optional: 'Opcional',
     btnGoLast: 'Ir al último paso',
@@ -244,7 +310,11 @@ const translations = {
     waitlistTitle: 'Sin Disponibilidad',
     waitlistDesc: 'Lo sentimos, ya no tenemos mesas libres para este horario. ¿Deseas ingresar a nuestra lista de espera o prefieres buscar otro horario?',
     btnWaitlist: 'Pasar a lista de espera',
-    btnChangeTime: 'Elegir otro horario'
+    btnChangeTime: 'Elegir otro horario',
+    btnVerifyWsp: 'Verificar mi reserva',
+    verifyText: '¿No te llegó el correo? Verifica aquí:',
+    emailCheck1: 'Por favor, revisa tu correo electrónico',
+    generalPolicy: 'Nuestro horario de atención es de 11:30 a.m. a 4:00 p.m, la asignación de mesas es por orden de llegada y la zona sujeta a disponibilidad. Para reservas grupales de 8 a más personas, se requiere un pago de consumo anticipado.'
   },
   en: {
     welcomeQuote: 'Welcome to this place of respect for nature, taste for good food, and Passion for the sea.',
@@ -273,11 +343,32 @@ const translations = {
     waitlistTitle: 'No Availability',
     waitlistDesc: 'Sorry, we are fully booked for this time. Would you like to join our waitlist or choose a different time?',
     btnWaitlist: 'Join waitlist',
-    btnChangeTime: 'Choose another time'
+    btnChangeTime: 'Choose another time',
+    btnVerifyWsp: 'Verify via WhatsApp',
+    verifyText: 'Didn\'t get the email? Verify here:',
+    emailCheck1: 'Please, check your email inbox',
+    emailCheck2: 'If you didn\'t receive the confirmation, contact reception:',
+    generalPolicy: 'Our service hours are from 11:30 a.m. to 4:00 p.m. Table assignment is on a first-come, first-served basis. For groups of 8 or more, a pre-payment is required.'
   }
 }
 
 const t = computed(() => translations[lang.value])
+const whatsappUrl = computed(() => {
+  const phone = '51981318866' // Número de recepción
+  
+  // Formatear fecha a DD-MM-YYYY
+  let fechaFormat = form.fecha
+  if (form.fecha && form.fecha.includes('-')) {
+    const [y, m, d] = form.fecha.split('-')
+    fechaFormat = `${d}-${m}-${y}`
+  }
+
+  const msg = lang.value === 'es' 
+    ? `¡Hola! Acabo de solicitar una reserva pero no me llegó el correo. Mi código es *${reservationId.value}* a nombre de *${form.nombre} ${form.apellido}* para el día *${fechaFormat}* a las *${form.hora}* para *${form.adultos}* personas.`
+    : `Hi! I just requested a reservation but I didn't get the email. My code is *${reservationId.value}* for *${form.nombre} ${form.apellido}* on *${fechaFormat}* at *${form.hora}* for *${form.adultos}* people.`
+  
+  return `https://wa.me/${phone}?text=${encodeURIComponent(msg)}`
+})
 const formatDate = (dateStr) => { if (!dateStr) return ''; const date = new Date(dateStr + 'T12:00:00'); return date.toLocaleDateString(lang.value === 'es' ? 'es-ES' : 'en-US', { weekday: 'short', day: 'numeric', month: 'short' }).toUpperCase(); }
 const calendarData = computed(() => { const months = []; let curr = new Date(); curr.setMonth(curr.getMonth() + currentMonthOffset.value); curr.setDate(1); for (let i = 0; i < 2; i++) { const month = curr.getMonth(); const year = curr.getFullYear(); let firstDay = new Date(year, month, 1).getDay(); let padding = firstDay === 0 ? 6 : firstDay - 1; const daysInMonth = new Date(year, month + 1, 0).getDate(); const days = []; for (let d = 1; d <= daysInMonth; d++) { const date = new Date(year, month, d); const dateStr = date.toISOString().split('T')[0]; const today = new Date(); today.setHours(0,0,0,0); days.push({ day: d, dateStr, disabled: date < today }) } months.push({ month, year, padding, days }); curr.setMonth(curr.getMonth() + 1); } return months })
 const nextMonth = () => currentMonthOffset.value++; const prevMonth = () => { if (currentMonthOffset.value > 0) currentMonthOffset.value-- };

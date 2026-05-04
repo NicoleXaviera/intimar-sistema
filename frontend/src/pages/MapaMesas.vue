@@ -189,13 +189,13 @@
                     <!-- PASO 1: SELECCIONAR RESERVA -->
                     <div v-if="assignStep === 1" class="space-y-5">
                         <div>
-                            <h3 v-if="selectedMesasForMulti.length <= 1" class="text-3xl font-black text-gray-900 leading-tight italic tracking-tighter text-center">
+                            <h3 v-if="selectedMesasForMulti.length <= 1" class="text-xl font-black text-gray-900 leading-tight italic tracking-tighter text-center">
                                 Mesa <span class="text-intimar-primary">{{ selectedMesa?.numero_mesa || selectedMesasForMulti[0]?.numero_mesa }}</span>
                             </h3>
-                            <h3 v-else class="text-3xl font-black text-gray-900 leading-tight italic tracking-tighter text-center">
+                            <h3 v-else class="text-xl font-black text-gray-900 leading-tight italic tracking-tighter text-center">
                                 Asignar <span class="text-intimar-gold">{{ selectedMesasForMulti.length }} Mesas</span>
                             </h3>
-                            <p class="text-gray-400 text-[9px] font-bold uppercase tracking-[0.2em] text-center mt-1">Paso 1: Seleccionar Reserva</p>
+                            <p class="text-gray-400 text-[8px] font-bold uppercase tracking-[0.2em] text-center mt-0.5">Seleccionar Reserva</p>
                         </div>
 
                         <!-- Buscador Compacto -->
@@ -215,52 +215,97 @@
                         <div v-else-if="!filteredReservas.length" class="py-12 text-center bg-gray-50 rounded-[2rem] border-2 border-dashed border-gray-200">
                             <p class="text-gray-400 font-bold italic text-sm">No hay reservas</p>
                         </div>
-                        <div v-else class="max-h-[350px] overflow-y-auto pr-1 space-y-3 custom-scrollbar">
+                        <div v-else class="max-h-[300px] overflow-y-auto pr-1 space-y-2 custom-scrollbar">
                             <div 
                                 v-for="res in filteredReservas" 
                                 :key="res.name"
                                 @click="selectReservaForAssign(res)"
-                                class="p-5 bg-white border-2 border-gray-50 rounded-[1.8rem] hover:border-intimar-primary hover:shadow-xl hover:shadow-intimar-primary/5 cursor-pointer transition-all flex justify-between items-center group relative overflow-hidden"
+                                class="p-3.5 bg-white border-2 border-gray-50 rounded-2xl hover:border-intimar-primary hover:shadow-lg transition-all flex justify-between items-center group relative overflow-hidden"
                             >
                                 <div class="flex-1">
-                                    <div class="font-black text-lg text-gray-900 group-hover:text-intimar-primary transition-colors flex items-center gap-3">
+                                    <div class="font-black text-sm text-gray-900 group-hover:text-intimar-primary transition-colors flex items-center gap-2">
                                         {{ res.cliente_nombre }}
+                                        <span class="text-[8px] opacity-40 font-bold tracking-widest">{{ res.name.split('-').pop() }}</span>
                                     </div>
-                                    <div class="flex items-center gap-3 mt-1">
-                                        <span class="text-[9px] bg-gray-100 px-3 py-1 rounded-full font-black text-gray-500 uppercase tracking-widest">{{ res.hora_reserva }}</span>
-                                        <span class="text-[9px] bg-intimar-gold/10 px-3 py-1 rounded-full font-black text-intimar-gold uppercase tracking-widest">{{ res.cant_adultos + res.cant_ninos }} PERS.</span>
+                                    <div class="flex items-center gap-2 mt-0.5">
+                                        <span class="text-[8px] bg-gray-100 px-2 py-0.5 rounded-lg font-black text-gray-500 uppercase tracking-widest">{{ res.hora_reserva }}</span>
+                                        <span class="text-[8px] bg-intimar-gold/10 px-2 py-0.5 rounded-lg font-black text-intimar-gold uppercase tracking-widest">{{ res.cant_adultos + res.cant_ninos }}P</span>
                                     </div>
                                 </div>
-                                <div class="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center group-hover:bg-intimar-primary group-hover:text-white transition-all text-gray-300">
-                                     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+                                <div class="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center group-hover:bg-intimar-primary group-hover:text-white transition-all text-gray-300">
+                                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
                                 </div>
                             </div>
                         </div>
+                    </div>
+                    
+                    <!-- PASO 1.5: NOTAS ESPECIALES (ALERGIAS/NECESIDADES) -->
+                    <div v-if="assignStep === 1.5" class="space-y-6">
+                        <div class="text-center">
+                            <div class="w-16 h-16 bg-red-100 text-red-600 rounded-2xl flex items-center justify-center mx-auto mb-4 animate-pulse">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+                            </div>
+                            <h3 class="text-2xl font-black text-red-600 leading-tight italic tracking-tighter uppercase">¡Aviso Importante!</h3>
+                            <p class="text-gray-400 text-[8px] font-bold uppercase tracking-[0.2em] mt-0.5">{{ selectedReservaForAssign?.cliente_nombre }} tiene notas especiales</p>
+                        </div>
+                        
+                        <div class="bg-red-50 p-6 rounded-[2rem] border-2 border-red-100 space-y-4 shadow-inner">
+                            <div v-if="selectedReservaForAssign?.alergias" class="border-b border-red-100 pb-3">
+                                <label class="text-[8px] font-black uppercase text-red-500 tracking-widest">Alergias / Restricciones</label>
+                                <p class="text-sm font-black text-gray-900 mt-1 leading-tight italic">"{{ selectedReservaForAssign.alergias }}"</p>
+                            </div>
+                            <div v-if="selectedReservaForAssign?.necesidades" class="border-b border-red-100 pb-3">
+                                <label class="text-[8px] font-black uppercase text-amber-600 tracking-widest">Necesidades Especiales</label>
+                                <p class="text-sm font-black text-gray-900 mt-1 leading-tight italic">"{{ selectedReservaForAssign.necesidades }}"</p>
+                            </div>
+                            <div v-if="selectedReservaForAssign?.requerimientos">
+                                <label class="text-[8px] font-black uppercase text-blue-600 tracking-widest">Otros Requerimientos</label>
+                                <p class="text-sm font-black text-gray-900 mt-1 leading-tight italic">"{{ selectedReservaForAssign.requerimientos }}"</p>
+                            </div>
+                            
+                            <!-- Monto de Anticipo (NUEVO) -->
+                            <div v-if="selectedReservaForAssign?.total_pagado > 0" class="pt-3 border-t-2 border-dashed border-red-200">
+                                <div class="flex items-center justify-between">
+                                    <label class="text-[8px] font-black uppercase text-green-600 tracking-widest">Anticipo Confirmado</label>
+                                    <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-black italic">
+                                        {{ selectedReservaForAssign.total_pagado_txt }}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button 
+                            @click="assignStep = 2" 
+                            class="w-full bg-red-600 hover:bg-red-700 text-white py-5 rounded-[1.8rem] font-black uppercase text-[11px] tracking-[0.2em] shadow-xl shadow-red-200 transition-all flex items-center justify-center gap-3 border-4 border-white"
+                        >
+                            HE LEÍDO LAS NOTAS, CONTINUAR
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+                        </button>
                     </div>
 
                     <!-- PASO 2: SELECCIONAR MOZO -->
                     <div v-if="assignStep === 2" class="space-y-6">
                         <div class="text-center">
-                            <button @click="assignStep = 1" class="text-intimar-primary text-[9px] font-black uppercase tracking-[0.2em] mb-2 flex items-center justify-center gap-2 hover:translate-x-[-4px] transition-transform mx-auto">
-                                 <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+                            <button @click="assignStep = (selectedReservaForAssign?.alergias || selectedReservaForAssign?.necesidades || selectedReservaForAssign?.requerimientos) ? 1.5 : 1" class="text-intimar-primary text-[8px] font-black uppercase tracking-[0.2em] mb-1 flex items-center justify-center gap-2 hover:translate-x-[-2px] transition-transform mx-auto">
+                                 <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
                                  VOLVER
                             </button>
-                            <h3 class="text-3xl font-black text-gray-900 leading-tight italic tracking-tighter">Asignar <span class="text-intimar-primary">Mozo</span></h3>
-                            <p class="text-gray-400 text-[10px] font-bold uppercase tracking-[0.2em] mt-1">{{ selectedReservaForAssign?.cliente_nombre }}</p>
+                            <h3 class="text-xl font-black text-gray-900 leading-tight italic tracking-tighter">Asignar <span class="text-intimar-primary">Mozo</span></h3>
+                            <p class="text-gray-400 text-[8px] font-bold uppercase tracking-[0.2em] mt-0.5">{{ selectedReservaForAssign?.cliente_nombre }}</p>
                         </div>
 
                         <div v-if="mozos.loading" class="py-10 flex justify-center"><LoadingIndicator class="w-8 h-8 text-intimar-primary" /></div>
-                        <div v-else class="grid grid-cols-2 gap-4 max-h-[350px] overflow-y-auto pr-1 custom-scrollbar">
+                        <div v-else class="grid grid-cols-2 gap-3 max-h-[300px] overflow-y-auto pr-1 custom-scrollbar">
                             <div 
                                 v-for="mozo in mozos.data" 
                                 :key="mozo.name"
                                 @click="confirmarAsignacionFinal(mozo)"
-                                class="p-5 bg-gray-50 border-2 border-transparent rounded-[2rem] hover:border-intimar-primary hover:bg-white hover:shadow-xl transition-all cursor-pointer text-center group"
+                                class="p-4 bg-gray-50 border-2 border-transparent rounded-2xl hover:border-intimar-primary hover:bg-white hover:shadow-lg transition-all cursor-pointer text-center group"
                             >
-                                <div class="w-14 h-14 bg-white shadow-md text-intimar-primary rounded-[1.2rem] flex items-center justify-center mx-auto mb-3 text-xl font-black italic group-hover:bg-intimar-primary group-hover:text-white transition-all">
+                                <div class="w-10 h-10 bg-white shadow-md text-intimar-primary rounded-xl flex items-center justify-center mx-auto mb-2 text-base font-black italic group-hover:bg-intimar-primary group-hover:text-white transition-all">
                                     {{ mozo.nombre[0] }}
                                 </div>
-                                <p class="font-black text-gray-900 text-sm uppercase tracking-tight">{{ mozo.nombre }}</p>
+                                <p class="font-black text-gray-900 text-xs uppercase tracking-tight">{{ mozo.nombre }}</p>
                             </div>
                         </div>
                     </div>
@@ -497,7 +542,8 @@ const filteredReservas = computed(() => {
   const q = searchQuery.value.toLowerCase()
   return reservasHoy.value.filter(res => 
     res.cliente_nombre.toLowerCase().includes(q) || 
-    (res.cliente_telefono && res.cliente_telefono.includes(q))
+    (res.cliente_telefono && res.cliente_telefono.includes(q)) ||
+    res.name.toLowerCase().includes(q)
   )
 })
 
@@ -537,7 +583,12 @@ function openMultiAssignModal() {
 
 function selectReservaForAssign(reserva) {
   selectedReservaForAssign.value = reserva
-  assignStep.value = 2
+  const hasNotes = reserva.alergias || reserva.necesidades || reserva.requerimientos || (reserva.total_pagado > 0)
+  if (hasNotes) {
+    assignStep.value = 1.5
+  } else {
+    assignStep.value = 2
+  }
 }
 
 async function confirmarAsignacionFinal(mozo) {
@@ -558,7 +609,8 @@ async function confirmarAsignacionFinal(mozo) {
     showToast('Asignación Exitosa', 'Mesa(s) vinculada(s) correctamente.', 'success')
   } catch (e) {
     console.error(e)
-    showToast('Error', 'No se pudo completar la asignación.', 'error')
+    const msg = e.messages ? e.messages.join('\n') : (e.message || 'No se pudo completar la asignación.')
+    showToast('Error', msg, 'error')
   }
 }
 

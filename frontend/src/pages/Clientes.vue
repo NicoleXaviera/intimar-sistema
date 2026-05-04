@@ -76,18 +76,6 @@
                     <th class="p-6 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Contacto</th>
                     <th class="p-6 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Acciones</th>
                   </tr>
-                  <!-- Fila de Filtros por Columna -->
-                  <tr class="bg-white border-b border-gray-50">
-                    <td class="px-6 py-2">
-                      <input v-model="colFilters.name" type="text" placeholder="Filtrar nombre..." class="w-full bg-gray-50 border-none rounded-lg px-3 py-2 text-[10px] font-bold focus:ring-1 focus:ring-intimar-primary outline-none">
-                    </td>
-                    <td class="px-6 py-2">
-                      <input v-model="colFilters.phone" type="text" placeholder="Filtrar contacto..." class="w-full bg-gray-50 border-none rounded-lg px-3 py-2 text-[10px] font-bold focus:ring-1 focus:ring-intimar-primary outline-none">
-                    </td>
-                    <td class="px-6 py-2 text-center text-gray-300">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="mx-auto"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="2" y1="14" x2="6" y2="14"/><line x1="10" y1="12" x2="14" y2="12"/><line x1="18" y1="16" x2="22" y2="16"/></svg>
-                    </td>
-                  </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-50">
                   <tr v-for="cliente in filteredClientes" :key="cliente.name" class="hover:bg-intimar-primary/[0.02] transition-colors group">
@@ -197,8 +185,8 @@
 
         <!-- Paginación Compacta -->
         <div v-if="!clientes.loading && filteredClientes && filteredClientes.length > 0" class="mt-4 flex flex-col sm:flex-row justify-between items-center gap-4 px-2">
-          <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
-            Mostrando {{ filteredClientes.length }} registros
+          <p class="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">
+            Mostrando <span class="text-intimar-primary">{{ filteredClientes.length }}</span> de <span class="text-gray-900">{{ totalClientes }}</span> clientes
           </p>
           <div class="flex items-center gap-4 bg-white px-3 py-1.5 rounded-xl shadow-sm border border-gray-100">
             <button 
@@ -377,6 +365,7 @@ const editingCliente = ref(null)
 const saving = ref(false)
 const deleting = ref(false)
 const notification = ref({ show: false, message: '', type: 'success' })
+const totalClientes = ref(0)
 
 const showNotification = (message, type = 'success') => {
   notification.value = { show: true, message, type }
@@ -449,7 +438,7 @@ const clientes = createResource({
   auto: false
 })
 
-const fetchClientes = () => {
+const fetchClientes = async () => {
   clientes.fetch({
     doctype: 'Cliente Intimar',
     fields: ['name', 'name1', 'lastname', 'phone', 'email', 'nombre_y_apellido_completo', 'dni_ruc', 'direccion', 'fecha_nacimiento', 'alergias', 'observaciones'],
@@ -459,6 +448,14 @@ const fetchClientes = () => {
     filters: buildFilters(),
     or_filters: buildOrFilters()
   })
+  
+  // Obtener el total real para el pie de página
+  try {
+    totalClientes.value = await call('frappe.client.get_count', {
+      doctype: 'Cliente Intimar',
+      filters: buildFilters()
+    })
+  } catch (e) { console.error(e) }
 }
 
 onMounted(() => fetchClientes())
