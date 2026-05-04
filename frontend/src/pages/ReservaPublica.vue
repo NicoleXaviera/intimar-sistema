@@ -62,7 +62,18 @@
             <div class="space-y-2"><h2 class="text-4xl md:text-5xl font-light tracking-tighter text-gray-900 leading-none uppercase">{{ t.title1 }}</h2><p class="text-gray-400 text-[9px] font-bold uppercase tracking-[0.2em]">{{ t.subtitle1 }}</p></div>
             <div class="flex flex-wrap gap-2.5">
                 <button v-for="p in [1,2,3,4,5,6,7,8]" :key="p" @click="form.adultos = p; showManualPax = false" :class="['h-10 w-10 rounded-full font-medium text-xs transition-all border', form.adultos === p && !showManualPax ? 'bg-intimar-primary border-intimar-primary text-white shadow-md' : 'bg-white border-gray-100 text-gray-400']">{{ p }}</button>
-                <button @click="showManualPax = !showManualPax" :class="['h-10 w-10 rounded-full font-medium text-xs transition-all border', showManualPax ? 'bg-intimar-primary border-intimar-primary text-white' : 'bg-white border-gray-100 text-gray-400']">8+</button>
+                <button @click="showManualPax = !showManualPax; if(showManualPax && form.adultos <= 8) form.adultos = 9" :class="['h-10 w-10 rounded-full font-medium text-xs transition-all border', showManualPax ? 'bg-intimar-primary border-intimar-primary text-white' : 'bg-white border-gray-100 text-gray-400']">8+</button>
+            </div>
+            <div v-if="showManualPax" class="animate-fade-in pt-2">
+                <div class="space-y-1.5 max-w-[140px]">
+                    <label class="text-[9px] font-bold uppercase tracking-widest text-intimar-primary ml-0.5">{{ t.labelManualPax }}</label>
+                    <input 
+                        v-model.number="form.adultos" 
+                        type="number" 
+                        min="1"
+                        class="w-full border-b border-gray-200 focus:border-intimar-primary outline-none py-1 text-xl font-light tracking-tight transition-all"
+                    >
+                </div>
             </div>
             <div class="space-y-5 pt-6 border-t border-gray-50">
                 <div class="flex items-center justify-between"><h3 class="text-[10px] font-bold uppercase tracking-[0.3em] text-gray-900">{{ t.labelDate }}</h3><div class="flex gap-4"><button @click="prevMonth" :disabled="currentMonthOffset <= 0" class="text-gray-200 disabled:opacity-0 transition-all"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg></button><button @click="nextMonth" class="text-gray-200 transition-all"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></button></div></div>
@@ -287,6 +298,7 @@ const translations = {
     welcomeQuote: 'Bienvenidos a este lugar de respeto por la naturaleza, gusto por la buena mesa y Pasión por el mar.',
     summaryTitle: 'Resumen de Reserva', summaryPax: 'Personas',
     title1: 'Experiencia', subtitle1: '¿Cuántas personas nos visitan?',
+    labelManualPax: 'Especifique cantidad',
     labelDate: 'Selecciona una Fecha', btnSearch: 'Buscar Disponibilidad',
     title2: 'Horarios Disponibles', subtitle2: 'Sujeto a disponibilidad del día',
     policyTitle: 'Tolerancia', policyDesc: '15 minutos. Pasado este tiempo, su mesa podría ser reasignada.',
@@ -320,6 +332,7 @@ const translations = {
     welcomeQuote: 'Welcome to this place of respect for nature, taste for good food, and Passion for the sea.',
     summaryTitle: 'Booking Summary', summaryPax: 'People',
     title1: 'Experience', subtitle1: 'How many people will visit us?',
+    labelManualPax: 'Specify amount',
     labelDate: 'Select a Date', btnSearch: 'Search Availability',
     title2: 'Available Slots', subtitle2: 'Times subject to availability',
     policyTitle: 'Grace Period', policyDesc: '15-minute tolerance. After this time, your table may be reassigned.',
@@ -383,6 +396,7 @@ const validateForm = () => {
     if (!form.apellido) errors.apellido = true
     if (!form.email || !emailRegex.test(form.email)) errors.email = true
     if (!form.celular) errors.celular = true
+    if (!form.adultos || form.adultos < 1) errors.adultos = true
     if (!form.acepta_legal3) errors.acepta_legal3 = true
     return Object.keys(errors).length === 0
 }

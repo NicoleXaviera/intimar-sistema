@@ -109,7 +109,30 @@ def get_reservas_pendientes_hoy():
 
 @frappe.whitelist()
 def get_mozos():
-    return frappe.get_all("Mozo Intimar", fields=["name", "nombre", "apellido"])
+    return frappe.get_all("Mozo Intimar", fields=["name", "nombre", "apellido", "telefono", "email"])
+
+@frappe.whitelist()
+def save_mozo(name=None, nombre=None, apellido=None, telefono=None, email=None):
+    if not name:
+        # Check if mozo with same name/lastname already exists if it's new
+        existing = frappe.db.exists("Mozo Intimar", f"{nombre} {apellido}")
+        if existing:
+            frappe.throw(_("Ya existe un mozo registrado como {0} {1}").format(nombre, apellido))
+        doc = frappe.new_doc("Mozo Intimar")
+    else:
+        doc = frappe.get_doc("Mozo Intimar", name)
+        
+    doc.nombre = nombre
+    doc.apellido = apellido
+    doc.telefono = telefono
+    doc.email = email
+    doc.save(ignore_permissions=True)
+    return {"status": "success", "name": doc.name}
+
+@frappe.whitelist()
+def delete_mozo(name):
+    frappe.delete_doc("Mozo Intimar", name, ignore_permissions=True)
+    return {"status": "success"}
 
 @frappe.whitelist()
 def asignar_mesa_a_reserva(reserva_id, mesa_id, mozo_id=None):
@@ -334,6 +357,9 @@ def update_user_details(user_id, full_name=None, enabled=None, roles=None, passw
 def create_new_user(email, full_name, password, roles=None):
     if "System Manager" not in frappe.get_roles() and frappe.session.user != "Administrator":
         frappe.throw(_("No tienes permiso para crear usuarios"))
+        
+    if frappe.db.exists("User", email):
+        frappe.throw(_("El usuario con el correo {0} ya existe").format(email))
         
     doc = frappe.get_new_doc("User")
     doc.email = email
