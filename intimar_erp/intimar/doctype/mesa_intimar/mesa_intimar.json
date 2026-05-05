@@ -2,11 +2,10 @@
  "actions": [],
  "allow_import": 1,
  "autoname": "Expression",
- "creation": "2023-11-20 00:00:00.000000",
+ "creation": "2023-11-20 00:00:00",
  "doctype": "DocType",
  "editable_grid": 1,
  "engine": "InnoDB",
- "naming_rule": "Expression",
  "field_order": [
   "numero_mesa",
   "ubicacion_mesa",
@@ -17,12 +16,14 @@
   {
    "fieldname": "numero_mesa",
    "fieldtype": "Int",
+   "in_list_view": 1,
    "label": "N\u00famero de Mesa",
    "reqd": 1
   },
   {
    "fieldname": "ubicacion_mesa",
    "fieldtype": "Link",
+   "in_list_view": 1,
    "label": "Ubicaci\u00f3n",
    "options": "Ubicacion Mesa Intimar",
    "reqd": 1
@@ -43,10 +44,11 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-04-26 10:00:00.000000",
+ "modified": "2026-05-04 21:55:37.689692",
  "modified_by": "Administrator",
- "module": "Intimar",
+ "module": "intimar",
  "name": "Mesa Intimar",
+ "naming_rule": "Expression",
  "owner": "Administrator",
  "permissions": [
   {
@@ -60,8 +62,51 @@
    "role": "System Manager",
    "share": 1,
    "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Anfitriona",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Recepcionista",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Mozo",
+   "share": 1
+  },
+  {
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Vigilante",
+   "share": 1
   }
  ],
+ "row_format": "Dynamic",
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": []

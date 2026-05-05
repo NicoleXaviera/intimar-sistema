@@ -65,7 +65,8 @@ class ReservaIntimar(Document):
 	def validate_past_date(self):
 		if self.is_new():
 			res_datetime = get_datetime(f"{self.fecha_reserva} {self.hora_reserva}")
-			if res_datetime < now_datetime():
+			# Allow 10 minutes buffer to avoid issues with reservations created "right now"
+			if res_datetime < add_to_date(now_datetime(), minutes=-10):
 				frappe.throw(_("La fecha y hora de reserva deben ser posteriores a la actual."))
 
 	def validate_wednesday(self):
@@ -198,12 +199,12 @@ class ReservaIntimar(Document):
 			now = now_datetime()
 			if self.estado_reserva == "En proceso":
 				if not self.hora_llegada:
-					self.hora_llegada = now.strftime("%H:%M:%S")
+					self.hora_llegada = now.strftime("%H:%M")
 					self.am_pm = now.strftime("%p")
 					self.notify_event("cliente_llego", _("El cliente {0} ha llegado al restaurante").format(self.nombre))
 			elif self.estado_reserva == "Finalizada":
 				if not self.hora_salida:
-					self.hora_salida = now.strftime("%H:%M:%S")
+					self.hora_salida = now.strftime("%H:%M")
 					self.notify_event("mesa_liberada", _("Mesa liberada por {0}").format(self.nombre))
 
 	def handle_table_states(self):

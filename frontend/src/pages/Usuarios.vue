@@ -128,14 +128,14 @@
       <div v-if="showAddModal" class="fixed inset-0 z-[200] flex items-center justify-center p-4">
         <div class="absolute inset-0 bg-gray-900/40 backdrop-blur-md" @click="showAddModal = false"></div>
         
-        <div class="relative bg-white w-full max-w-xl rounded-[3rem] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300">
+        <div class="relative bg-white w-full max-w-xl rounded-[3rem] shadow-2xl overflow-y-auto max-h-[85vh] animate-in zoom-in-95 duration-300 mb-20 md:mb-0">
           <div class="bg-intimar-primary p-8 text-white relative">
             <div class="absolute right-0 top-0 w-32 h-32 bg-white/10 rounded-full -mr-10 -mt-10 blur-2xl"></div>
             <h2 class="text-2xl font-black italic tracking-tight">{{ editingUser ? 'Editar Usuario' : 'Nuevo Usuario' }}</h2>
             <p class="text-[10px] font-black uppercase tracking-[0.2em] opacity-60">Configuración de acceso al sistema</p>
           </div>
           
-          <form @submit.prevent="saveUser" class="p-8 space-y-6">
+          <form @submit.prevent="saveUser" class="p-8 pb-24 md:pb-8 space-y-6">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div class="space-y-2">
                 <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Nombre Completo</label>
@@ -186,14 +186,14 @@
       <div v-if="showMozoModal" class="fixed inset-0 z-[200] flex items-center justify-center p-4">
         <div class="absolute inset-0 bg-gray-900/40 backdrop-blur-md" @click="showMozoModal = false"></div>
         
-        <div class="relative bg-white w-full max-w-xl rounded-[3rem] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300">
+        <div class="relative bg-white w-full max-w-xl rounded-[3rem] shadow-2xl overflow-y-auto max-h-[85vh] animate-in zoom-in-95 duration-300 mb-20 md:mb-0">
           <div class="bg-intimar-dark p-8 text-white relative">
             <div class="absolute right-0 top-0 w-32 h-32 bg-white/10 rounded-full -mr-10 -mt-10 blur-2xl"></div>
             <h2 class="text-2xl font-black italic tracking-tight">{{ editingMozo ? 'Editar Mozo' : 'Nuevo Mozo' }}</h2>
             <p class="text-[10px] font-black uppercase tracking-[0.2em] opacity-60">Personal de atención en sala</p>
           </div>
           
-          <form @submit.prevent="saveMozo" class="p-8 space-y-6">
+          <form @submit.prevent="saveMozo" class="p-8 pb-24 md:pb-8 space-y-6">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div class="space-y-2">
                 <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Nombre</label>

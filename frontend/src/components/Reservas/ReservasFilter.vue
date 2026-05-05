@@ -1,18 +1,19 @@
 <template>
-  <div class="bg-white p-6 rounded-[2rem] shadow-sm border border-gray-100 relative z-20">
+  <div class="bg-white p-3 md:p-6 rounded-[1.2rem] md:rounded-[2rem] shadow-sm border border-gray-100 relative z-20">
     <!-- Header del Filtro -->
-    <div class="flex items-center justify-between mb-5">
-      <h3 class="text-xs font-black text-gray-900 uppercase tracking-widest flex items-center gap-2">
+    <div class="flex items-center justify-between mb-3 md:mb-5">
+      <h3 class="text-[10px] md:text-xs font-black text-gray-900 uppercase tracking-widest flex items-center gap-2">
         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="text-intimar-gold"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
-        Filtros Rápidos
+        <span class="hidden sm:inline">Filtros Rápidos</span>
+        <span class="sm:hidden">Filtros</span>
       </h3>
-      <button @click="clearFilters" class="text-[10px] font-black uppercase tracking-widest text-red-500 hover:text-red-700 bg-red-50 hover:bg-red-100 px-4 py-2 rounded-xl transition-all flex items-center gap-2">
-        Limpiar Filtros
+      <button @click="clearFilters" class="text-[8px] md:text-[10px] font-black uppercase tracking-widest text-red-500 hover:text-red-700 bg-red-50 hover:bg-red-100 px-3 py-1.5 md:px-4 md:py-2 rounded-lg md:rounded-xl transition-all flex items-center gap-1.5">
+        Limpiar
       </button>
     </div>
 
     <!-- Grid de Filtros -->
-    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-6 gap-4">
+    <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3 md:gap-4">
       
       <!-- Buscar por ID -->
       <div class="relative">

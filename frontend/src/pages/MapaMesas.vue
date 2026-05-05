@@ -6,42 +6,44 @@
       <div class="w-full">
 
         <!-- Header -->
-        <div class="flex flex-col md:flex-row items-start md:items-center justify-between mb-12 gap-6">
-          <div class="flex items-center gap-4">
-            <img :src="'/files/intimar-logo.png'" alt="Intimar Logo" class="h-12 w-auto" />
+        <div class="flex flex-col md:flex-row items-center md:items-center justify-between mb-4 md:mb-10 gap-4 md:gap-6">
+          <div class="flex flex-col md:flex-row items-center gap-3 text-center md:text-left">
+            <img :src="'/files/intimar-logo.png'" alt="Intimar Logo" class="h-8 md:h-12 w-auto" />
             <div>
-              <h1 class="text-4xl font-black text-gray-900 tracking-tight italic">Gestión de Mesas</h1>
-              <p class="text-gray-500 font-medium uppercase tracking-widest text-xs mt-1">Bay · Paracas · Gestión Real-Time</p>
+              <h1 class="text-2xl md:text-4xl font-black text-gray-900 tracking-tight italic leading-tight">Gestión de Mesas</h1>
+              <p class="text-gray-500 font-medium uppercase tracking-widest text-[8px] md:text-[10px] mt-0.5">Bay · Paracas · Real-Time</p>
             </div>
           </div>
 
 
-          <div class="flex flex-wrap items-center gap-3 bg-white p-2 rounded-2xl shadow-sm border border-gray-100">
+          <div class="grid grid-cols-2 md:flex md:flex-wrap items-center gap-1.5 md:gap-3 bg-white p-1 md:p-2 rounded-2xl md:rounded-2xl shadow-sm border border-gray-100 w-full md:w-auto">
             <!-- Mesas -->
-            <div class="px-4 py-2 bg-intimar-green/10 text-intimar-green rounded-xl text-xs font-black uppercase tracking-tight flex flex-col items-center">
-              <span class="text-[9px] opacity-70">Mesas Libres</span>
-              <span class="text-sm">{{ libres }}</span>
+            <div class="px-2 py-1.5 md:py-3 bg-intimar-green/10 text-intimar-green rounded-xl text-[10px] md:text-xs font-black uppercase tracking-tight flex flex-col items-center justify-center min-w-0">
+              <span class="text-[7px] md:text-[8px] opacity-70 whitespace-nowrap">Libres</span>
+              <span class="text-xs md:text-sm font-black">{{ libres }}</span>
             </div>
-            <div class="px-4 py-2 bg-intimar-red/10 text-intimar-red rounded-xl text-xs font-black uppercase tracking-tight flex flex-col items-center">
-              <span class="text-[9px] opacity-70">Mesas Ocupadas</span>
-              <span class="text-sm">{{ ocupadas }}</span>
+            <div class="px-2 py-1.5 md:py-3 bg-intimar-red/10 text-intimar-red rounded-xl text-[10px] md:text-xs font-black uppercase tracking-tight flex flex-col items-center justify-center min-w-0">
+              <span class="text-[7px] md:text-[8px] opacity-70 whitespace-nowrap">Ocupadas</span>
+              <span class="text-xs md:text-sm font-black">{{ ocupadas }}</span>
             </div>
             
-            <div class="w-px h-8 bg-gray-200 mx-1 hidden sm:block"></div>
-
+            <div class="w-px h-6 md:h-8 bg-gray-200 mx-1 hidden md:block"></div>
+ 
             <!-- Personas -->
-            <div class="px-4 py-2 bg-intimar-primary/10 text-intimar-primary rounded-xl text-xs font-black uppercase tracking-tight flex flex-col items-center">
-              <span class="text-[9px] opacity-70">En Restaurante</span>
-              <span class="text-sm">{{ personasEnRestaurante }} PERS.</span>
+            <div class="px-2 py-1.5 md:py-3 bg-intimar-primary/10 text-intimar-primary rounded-xl text-[10px] md:text-xs font-black uppercase tracking-tight flex flex-col items-center justify-center min-w-0">
+              <span class="text-[7px] md:text-[8px] opacity-70 whitespace-nowrap">En Sala</span>
+              <span class="text-xs md:text-sm font-black">{{ personasEnRestaurante }}</span>
             </div>
-            <div class="px-4 py-2 bg-intimar-gold/10 text-intimar-gold rounded-xl text-xs font-black uppercase tracking-tight flex flex-col items-center">
-              <span class="text-[9px] opacity-70">Por Llegar</span>
-              <span class="text-sm">{{ personasPorLlegar }} PERS.</span>
+            <div class="px-2 py-1.5 md:py-3 bg-intimar-gold/10 text-intimar-gold rounded-xl text-[10px] md:text-xs font-black uppercase tracking-tight flex flex-col items-center justify-center min-w-0">
+              <span class="text-[7px] md:text-[8px] opacity-70 whitespace-nowrap">Llegando</span>
+              <span class="text-xs md:text-sm font-black">{{ personasPorLlegar }}</span>
             </div>
             
-            <div class="w-px h-8 bg-gray-200 mx-1 hidden sm:block"></div>
+            <div class="w-px h-6 md:h-8 bg-gray-200 mx-1 hidden md:block"></div>
             
-            <Button icon="refresh-cw" variant="ghost" class="ml-2 text-gray-400 hover:text-gray-900" @click="mesas.fetch(); reservasPendientes.fetch()" />
+            <div class="col-span-2 md:col-span-1 flex justify-center border-t md:border-t-0 pt-1 md:pt-0 border-gray-50">
+              <Button icon="refresh-cw" variant="ghost" class="text-gray-400 hover:text-gray-900 w-full md:w-auto h-8 md:h-auto" @click="mesas.fetch(); reservasPendientes.fetch()" />
+            </div>
           </div>
         </div>
 
@@ -163,6 +165,7 @@
                 <button @click="selectedMesasForMulti = []" class="ml-2 text-white/50 hover:text-white transition-colors">Limpiar</button>
             </div>
             <button 
+                v-if="session.isAdmin || session.hasRole('Anfitriona')"
                 @click="openMultiAssignModal"
                 class="bg-intimar-primary text-white px-10 py-5 rounded-[2.5rem] font-black uppercase tracking-[0.2em] shadow-[0_20px_50px_rgba(0,147,143,0.3)] hover:scale-105 active:scale-95 transition-all flex items-center gap-4 border-4 border-white"
             >
@@ -211,6 +214,16 @@
                             </div>
                         </div>
 
+                        <!-- Botón Reserva Rápida (NUEVO) -->
+                        <button 
+                            v-if="session.isAdmin || session.hasRole('Anfitriona')"
+                            @click="assignStep = 1.3; resetQuickForm()"
+                            class="w-full py-4 border-2 border-dashed border-intimar-primary/30 text-intimar-primary rounded-[1.2rem] font-black uppercase text-[10px] tracking-[0.2em] hover:bg-intimar-primary hover:text-white hover:border-intimar-primary transition-all flex items-center justify-center gap-2"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+                            Nueva Reserva Rápida
+                        </button>
+
                         <div v-if="reservasPendientes.loading" class="py-8 flex justify-center"><LoadingIndicator class="w-8 h-8 text-intimar-primary" /></div>
                         <div v-else-if="!filteredReservas.length" class="py-12 text-center bg-gray-50 rounded-[2rem] border-2 border-dashed border-gray-200">
                             <p class="text-gray-400 font-bold italic text-sm">No hay reservas</p>
@@ -238,47 +251,150 @@
                             </div>
                         </div>
                     </div>
-                    
-                    <!-- PASO 1.5: NOTAS ESPECIALES (ALERGIAS/NECESIDADES) -->
-                    <div v-if="assignStep === 1.5" class="space-y-6">
+
+                    <!-- PASO 1.3: FORMULARIO RESERVA RÁPIDA (NUEVO) -->
+                    <div v-if="assignStep === 1.3" class="space-y-6">
                         <div class="text-center">
-                            <div class="w-16 h-16 bg-red-100 text-red-600 rounded-2xl flex items-center justify-center mx-auto mb-4 animate-pulse">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
-                            </div>
-                            <h3 class="text-2xl font-black text-red-600 leading-tight italic tracking-tighter uppercase">¡Aviso Importante!</h3>
-                            <p class="text-gray-400 text-[8px] font-bold uppercase tracking-[0.2em] mt-0.5">{{ selectedReservaForAssign?.cliente_nombre }} tiene notas especiales</p>
+                            <button @click="assignStep = 1" class="text-intimar-primary text-[8px] font-black uppercase tracking-[0.2em] mb-1 flex items-center justify-center gap-2 hover:translate-x-[-2px] transition-transform mx-auto">
+                                 <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+                                 VOLVER
+                            </button>
+                            <h3 class="text-2xl font-black text-gray-900 leading-tight italic tracking-tighter uppercase">Reserva Rápida</h3>
+                            <p class="text-gray-400 text-[10px] font-bold uppercase tracking-[0.2em] mt-0.5">Crear y ocupar mesa</p>
                         </div>
-                        
-                        <div class="bg-red-50 p-6 rounded-[2rem] border-2 border-red-100 space-y-4 shadow-inner">
-                            <div v-if="selectedReservaForAssign?.alergias" class="border-b border-red-100 pb-3">
-                                <label class="text-[8px] font-black uppercase text-red-500 tracking-widest">Alergias / Restricciones</label>
-                                <p class="text-sm font-black text-gray-900 mt-1 leading-tight italic">"{{ selectedReservaForAssign.alergias }}"</p>
+
+                        <div class="space-y-4">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <div class="space-y-1">
+                                    <label class="text-[8px] font-black uppercase text-gray-400 tracking-widest ml-4">Nombre</label>
+                                    <input v-model="quickReservaForm.nombre" type="text" class="w-full px-5 py-4 bg-gray-50 border-2 border-transparent rounded-2xl focus:bg-white focus:border-intimar-primary outline-none font-bold text-base md:text-sm">
+                                </div>
+                                <div class="space-y-1">
+                                    <label class="text-[8px] font-black uppercase text-gray-400 tracking-widest ml-4">Apellido</label>
+                                    <input v-model="quickReservaForm.apellido" type="text" class="w-full px-5 py-4 bg-gray-50 border-2 border-transparent rounded-2xl focus:bg-white focus:border-intimar-primary outline-none font-bold text-base md:text-sm">
+                                </div>
                             </div>
-                            <div v-if="selectedReservaForAssign?.necesidades" class="border-b border-red-100 pb-3">
-                                <label class="text-[8px] font-black uppercase text-amber-600 tracking-widest">Necesidades Especiales</label>
-                                <p class="text-sm font-black text-gray-900 mt-1 leading-tight italic">"{{ selectedReservaForAssign.necesidades }}"</p>
+                            <div class="space-y-1">
+                                <label class="text-[8px] font-black uppercase text-gray-400 tracking-widest ml-4 flex justify-between">
+                                    Celular
+                                </label>
+                                <vue-tel-input
+                                    v-model="quickReservaForm.celular"
+                                    v-bind="telInputOptions"
+                                    @on-input="onPhoneInput"
+                                    class="quick-tel-input"
+                                ></vue-tel-input>
                             </div>
-                            <div v-if="selectedReservaForAssign?.requerimientos">
-                                <label class="text-[8px] font-black uppercase text-blue-600 tracking-widest">Otros Requerimientos</label>
-                                <p class="text-sm font-black text-gray-900 mt-1 leading-tight italic">"{{ selectedReservaForAssign.requerimientos }}"</p>
+                            <div class="space-y-1">
+                                <label class="text-[8px] font-black uppercase text-gray-400 tracking-widest ml-4">Correo (Opcional)</label>
+                                <input v-model="quickReservaForm.email" type="email" class="w-full px-5 py-4 bg-gray-50 border-2 border-transparent rounded-2xl focus:bg-white focus:border-intimar-primary outline-none font-bold text-base md:text-sm">
                             </div>
                             
-                            <!-- Monto de Anticipo (NUEVO) -->
-                            <div v-if="selectedReservaForAssign?.total_pagado > 0" class="pt-3 border-t-2 border-dashed border-red-200">
-                                <div class="flex items-center justify-between">
-                                    <label class="text-[8px] font-black uppercase text-green-600 tracking-widest">Anticipo Confirmado</label>
-                                    <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-black italic">
-                                        {{ selectedReservaForAssign.total_pagado_txt }}
-                                    </span>
+                            <div class="bg-gray-50 p-6 rounded-[2rem] border-2 border-gray-100 space-y-4">
+                                <p class="text-center text-[10px] font-black uppercase tracking-widest text-gray-400">Cantidad de PERS.</p>
+                                <div class="flex items-center justify-center gap-8">
+                                    <div class="text-center space-y-2">
+                                        <label class="text-[8px] font-black uppercase text-gray-500 tracking-widest block">Adultos</label>
+                                        <div class="flex items-center gap-3">
+                                            <button @click="quickReservaForm.adultos = Math.max(1, quickReservaForm.adultos - 1)" class="w-10 h-10 rounded-xl bg-white shadow-sm border border-gray-200 flex items-center justify-center text-gray-500">-</button>
+                                            <span class="text-3xl font-black italic text-gray-900 w-8 text-center">{{ quickReservaForm.adultos }}</span>
+                                            <button @click="quickReservaForm.adultos++" class="w-10 h-10 rounded-xl bg-white shadow-sm border border-gray-200 flex items-center justify-center text-gray-500">+</button>
+                                        </div>
+                                    </div>
+                                    <div class="text-center space-y-2">
+                                        <label class="text-[8px] font-black uppercase text-gray-500 tracking-widest block">Niños</label>
+                                        <div class="flex items-center gap-3">
+                                            <button @click="quickReservaForm.ninos = Math.max(0, quickReservaForm.ninos - 1)" class="w-10 h-10 rounded-xl bg-white shadow-sm border border-gray-200 flex items-center justify-center text-gray-500">-</button>
+                                            <span class="text-3xl font-black italic text-gray-900 w-8 text-center">{{ quickReservaForm.ninos }}</span>
+                                            <button @click="quickReservaForm.ninos++" class="w-10 h-10 rounded-xl bg-white shadow-sm border border-gray-200 flex items-center justify-center text-gray-500">+</button>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
 
                         <button 
-                            @click="assignStep = 2" 
-                            class="w-full bg-red-600 hover:bg-red-700 text-white py-5 rounded-[1.8rem] font-black uppercase text-[11px] tracking-[0.2em] shadow-xl shadow-red-200 transition-all flex items-center justify-center gap-3 border-4 border-white"
+                            @click="confirmarReservaRapida" 
+                            :disabled="!quickReservaForm.nombre || !quickReservaForm.celular || creatingQuickReserva"
+                            class="w-full bg-intimar-gold text-white py-5 rounded-[1.8rem] font-black uppercase text-[11px] tracking-[0.2em] shadow-xl shadow-intimar-gold/20 transition-all flex items-center justify-center gap-3 border-4 border-white disabled:opacity-50"
                         >
-                            HE LEÍDO LAS NOTAS, CONTINUAR
+                            <LoadingIndicator v-if="creatingQuickReserva" class="w-4 h-4 text-white" />
+                            <span v-else>CREAR Y CONTINUAR</span>
+                            <svg v-if="!creatingQuickReserva" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+                        </button>
+                    </div>
+
+                    <!-- PASO 1.2: RESUMEN DE CLIENTE Y PERS. (NUEVO) -->
+                    <div v-if="assignStep === 1.2" class="space-y-6">
+                        <div class="text-center">
+                            <button @click="assignStep = 1" class="text-intimar-primary text-[8px] font-black uppercase tracking-[0.2em] mb-1 flex items-center justify-center gap-2 hover:translate-x-[-2px] transition-transform mx-auto">
+                                 <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+                                 VOLVER
+                            </button>
+                            <h3 class="text-2xl font-black text-gray-900 leading-tight italic tracking-tighter uppercase">Resumen de Cliente</h3>
+                            <p class="text-gray-400 text-[10px] font-bold uppercase tracking-[0.2em] mt-0.5">{{ selectedReservaForAssign?.cliente_nombre }}</p>
+                        </div>
+
+                        <!-- Info Especial (Solo si existe) -->
+                        <div v-if="selectedReservaForAssign?.alergias || selectedReservaForAssign?.necesidades || selectedReservaForAssign?.requerimientos" class="bg-red-50 p-5 rounded-[1.5rem] border-2 border-red-100 space-y-3">
+                            <div v-if="selectedReservaForAssign?.alergias">
+                                <label class="text-[8px] font-black uppercase text-red-500 tracking-widest">Alergias</label>
+                                <p class="text-xs font-black text-gray-900 leading-tight italic">"{{ selectedReservaForAssign.alergias }}"</p>
+                            </div>
+                            <div v-if="selectedReservaForAssign?.necesidades">
+                                <label class="text-[8px] font-black uppercase text-amber-600 tracking-widest">Necesidades</label>
+                                <p class="text-xs font-black text-gray-900 leading-tight italic">"{{ selectedReservaForAssign.necesidades }}"</p>
+                            </div>
+                            <div v-if="selectedReservaForAssign?.requerimientos">
+                                <label class="text-[8px] font-black uppercase text-blue-600 tracking-widest">Requerimientos</label>
+                                <p class="text-xs font-black text-gray-900 leading-tight italic">"{{ selectedReservaForAssign.requerimientos }}"</p>
+                            </div>
+                            
+                            <!-- Monto de Anticipo (NUEVO en resumen) -->
+                            <div v-if="selectedReservaForAssign?.total_pagado > 0" class="pt-2 border-t border-red-100 flex items-center justify-between">
+                                <label class="text-[8px] font-black uppercase text-green-600 tracking-widest">Anticipo Pagado</label>
+                                <span class="bg-green-100 text-green-700 px-2 py-0.5 rounded-lg text-[10px] font-black italic">
+                                    {{ selectedReservaForAssign.total_pagado_txt }}
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Edición de PERS. -->
+                        <div class="bg-gray-50 p-6 rounded-[2rem] border-2 border-gray-100 space-y-4">
+                            <p class="text-center text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Cantidad de PERS.</p>
+                            <div class="flex items-center justify-center gap-8">
+                                <div class="text-center space-y-2">
+                                    <label class="text-[8px] font-black uppercase text-gray-500 tracking-widest block">Adultos</label>
+                                    <div class="flex items-center gap-3">
+                                        <button @click="paxAdultos = Math.max(1, paxAdultos - 1)" class="w-10 h-10 rounded-xl bg-white shadow-sm border border-gray-200 flex items-center justify-center text-gray-500 hover:text-intimar-primary hover:border-intimar-primary transition-all">-</button>
+                                        <span class="text-3xl font-black italic text-gray-900 w-8 text-center">{{ paxAdultos }}</span>
+                                        <button @click="paxAdultos++" class="w-10 h-10 rounded-xl bg-white shadow-sm border border-gray-200 flex items-center justify-center text-gray-500 hover:text-intimar-primary hover:border-intimar-primary transition-all">+</button>
+                                    </div>
+                                </div>
+                                <div class="text-center space-y-2">
+                                    <label class="text-[8px] font-black uppercase text-gray-500 tracking-widest block">Niños</label>
+                                    <div class="flex items-center gap-3">
+                                        <button @click="paxNinos = Math.max(0, paxNinos - 1)" class="w-10 h-10 rounded-xl bg-white shadow-sm border border-gray-200 flex items-center justify-center text-gray-500 hover:text-intimar-primary hover:border-intimar-primary transition-all">-</button>
+                                        <span class="text-3xl font-black italic text-gray-900 w-8 text-center">{{ paxNinos }}</span>
+                                        <button @click="paxNinos++" class="w-10 h-10 rounded-xl bg-white shadow-sm border border-gray-200 flex items-center justify-center text-gray-500 hover:text-intimar-primary hover:border-intimar-primary transition-all">+</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Alerta de Cambio -->
+                            <div v-if="paxAdultos !== selectedReservaForAssign?.cant_adultos || paxNinos !== selectedReservaForAssign?.cant_ninos" class="mt-4 animate-in fade-in slide-in-from-top-2">
+                                <div class="bg-intimar-gold/10 text-intimar-gold p-3 rounded-xl border border-intimar-gold/20 flex items-center gap-3">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+                                    <p class="text-[9px] font-black uppercase tracking-tight leading-none">¡Atención! Cantidad de PERS. modificada</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button 
+                            @click="proceedFromSummary" 
+                            class="w-full bg-intimar-primary text-white py-5 rounded-[1.8rem] font-black uppercase text-[11px] tracking-[0.2em] shadow-xl shadow-intimar-primary/20 transition-all flex items-center justify-center gap-3 border-4 border-white"
+                        >
+                            CONTINUAR A MOZO
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
                         </button>
                     </div>
@@ -286,7 +402,7 @@
                     <!-- PASO 2: SELECCIONAR MOZO -->
                     <div v-if="assignStep === 2" class="space-y-6">
                         <div class="text-center">
-                            <button @click="assignStep = (selectedReservaForAssign?.alergias || selectedReservaForAssign?.necesidades || selectedReservaForAssign?.requerimientos) ? 1.5 : 1" class="text-intimar-primary text-[8px] font-black uppercase tracking-[0.2em] mb-1 flex items-center justify-center gap-2 hover:translate-x-[-2px] transition-transform mx-auto">
+                            <button @click="assignStep = 1.2" class="text-intimar-primary text-[8px] font-black uppercase tracking-[0.2em] mb-1 flex items-center justify-center gap-2 hover:translate-x-[-2px] transition-transform mx-auto">
                                  <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
                                  VOLVER
                             </button>
@@ -360,6 +476,7 @@
 
                 <div class="p-6 flex gap-4 w-full bg-gray-50 border-t border-gray-100">
                     <Button 
+                        v-if="session.isAdmin || session.hasRole(['Anfitriona', 'Mozo'])"
                         class="flex-[2] py-7 bg-intimar-red hover:bg-[#a00e26] text-white font-black rounded-2xl shadow-xl uppercase tracking-[0.2em] text-xs transition-all"
                         @click="confirmarLiberacion" 
                         :loading="releasing"
@@ -408,8 +525,12 @@
 
 
 <script setup>
-import { Button, LoadingIndicator, createResource, call, Dialog } from 'frappe-ui'
-import { computed, ref } from 'vue'
+import { Button, LoadingIndicator, createResource, call } from 'frappe-ui'
+import { computed, ref, watch, onMounted } from 'vue'
+import { VueTelInput } from 'vue-tel-input'
+import 'vue-tel-input/vue-tel-input.css'
+import { session } from '@/data/session'
+
 const formatTime = (timeStr) => {
   if (!timeStr) return ''
   return timeStr.split('.')[0]
@@ -424,8 +545,48 @@ const searchQuery = ref('')
 
 const assignStep = ref(1)
 const selectedReservaForAssign = ref(null)
+const paxAdultos = ref(0)
+const paxNinos = ref(0)
 const multiSelectMode = ref(false)
 const selectedMesasForMulti = ref([])
+
+const telInputOptions = {
+  mode: 'international',
+  dropdownOptions: { showFlags: true, showDialCodeInSelection: true },
+  inputOptions: { placeholder: '987 654 321', showDialCode: false },
+  autoDefaultCountry: true
+}
+
+const quickReservaForm = ref({
+    nombre: '',
+    apellido: '',
+    celular: '',
+    codigo_pais: '',
+    fullPhone: '',
+    email: '',
+    adultos: 2,
+    ninos: 0
+})
+
+const onPhoneInput = (phone, phoneObject) => {
+  if (phoneObject && phoneObject.number) {
+    quickReservaForm.value.fullPhone = phoneObject.number
+    quickReservaForm.value.codigo_pais = phoneObject.countryCallingCode
+  }
+}
+
+const resetQuickForm = () => {
+    quickReservaForm.value = {
+        nombre: '',
+        apellido: '',
+        celular: '',
+        codigo_pais: '',
+        fullPhone: '',
+        email: '',
+        adultos: 2,
+        ninos: 0
+    }
+}
 
 // Recurso principal de mesas con datos de reserva
 const mesas = createResource({
@@ -528,7 +689,7 @@ const mesasAgrupadas = computed(() => {
   return orderedGrupos
 })
 
-import { watch } from 'vue'
+
 watch(() => mesas.data, (newData) => {
   console.log('MESAS DATA:', newData)
 }, { deep: true })
@@ -548,14 +709,16 @@ const filteredReservas = computed(() => {
 })
 
 function handleMesaClick(mesa) {
-  selectedMesa.value = mesa
-  searchQuery.value = '' 
-  assignStep.value = 1
-  selectedReservaForAssign.value = null
   if (mesa.estado_mesa) {
+    if (!(session.isAdmin || session.hasRole('Anfitriona'))) return
+    selectedMesa.value = mesa
+    searchQuery.value = '' 
+    assignStep.value = 1
+    selectedReservaForAssign.value = null
     reservasPendientes.fetch()
     showAssignModal.value = true
   } else {
+    selectedMesa.value = mesa
     showReleaseModal.value = true
   }
 }
@@ -583,12 +746,50 @@ function openMultiAssignModal() {
 
 function selectReservaForAssign(reserva) {
   selectedReservaForAssign.value = reserva
-  const hasNotes = reserva.alergias || reserva.necesidades || reserva.requerimientos || (reserva.total_pagado > 0)
-  if (hasNotes) {
-    assignStep.value = 1.5
-  } else {
-    assignStep.value = 2
-  }
+  paxAdultos.value = reserva.cant_adultos || 0
+  paxNinos.value = reserva.cant_ninos || 0
+  assignStep.value = 1.2
+}
+
+const creatingQuickReserva = ref(false)
+async function confirmarReservaRapida() {
+    if (!quickReservaForm.value.nombre || !quickReservaForm.value.celular) return
+    
+    creatingQuickReserva.value = true
+    try {
+        const res = await call('intimar_erp.api.crear_reserva_rapida', {
+            nombre: quickReservaForm.value.nombre,
+            apellido: quickReservaForm.value.apellido,
+            celular: quickReservaForm.value.fullPhone || quickReservaForm.value.celular,
+            codigo_pais: quickReservaForm.value.codigo_pais,
+            email: quickReservaForm.value.email,
+            adultos: quickReservaForm.value.adultos,
+            ninos: quickReservaForm.value.ninos
+        })
+        
+        selectedReservaForAssign.value = res
+        paxAdultos.value = res.cant_adultos
+        paxNinos.value = res.cant_ninos
+        assignStep.value = 2 // Ir directo a mozo
+        
+        if (res.cliente_reconocido) {
+            showToast('Cliente Reconocido', `Se usaron los datos registrados de ${res.cliente_nombre}`, 'success')
+        } else {
+            showToast('Reserva Creada', 'Proceda a asignar mozo.', 'success')
+        }
+    } catch (e) {
+        console.error(e)
+        showToast('Error', 'No se pudo crear la reserva rápida.', 'error')
+    } finally {
+        creatingQuickReserva.value = false
+    }
+}
+
+function proceedFromSummary() {
+  // Si hay anticipo pagado, podríamos mostrar un aviso extra, pero el usuario pidió resumen integrado.
+  // Por seguridad, si hay anticipo mostramos el paso 1.5 o simplemente avanzamos? 
+  // Integraré el anticipo en el 1.2 también para limpiar el flujo.
+  assignStep.value = 2
 }
 
 async function confirmarAsignacionFinal(mozo) {
@@ -600,7 +801,9 @@ async function confirmarAsignacionFinal(mozo) {
     await call('intimar_erp.api.asignar_mesa_a_reserva', {
       reserva_id: selectedReservaForAssign.value.name,
       mesa_id: mesaIds,
-      mozo_id: mozo.name
+      mozo_id: mozo.name,
+      adultos: paxAdultos.value,
+      ninos: paxNinos.value
     })
     
     showAssignModal.value = false
@@ -667,5 +870,39 @@ const showToast = (title, message = '', type = 'success') => {
 .toast-slide-leave-to {
   opacity: 0;
   transform: translateX(100%) scale(0.9);
+}
+</style>
+
+<style scoped>
+.quick-tel-input {
+  border: 2px solid transparent !important;
+  background-color: #f9fafb !important;
+  border-radius: 1rem !important;
+  padding: 0.5rem 0.75rem !important;
+  transition: all 0.2s !important;
+  font-family: inherit !important;
+}
+
+.quick-tel-input:focus-within {
+  background-color: white !important;
+  border-color: #00938F !important;
+  box-shadow: 0 0 0 4px rgba(0, 147, 143, 0.1) !important;
+}
+
+:deep(.vti__input) {
+  background: transparent !important;
+  border: none !important;
+  font-weight: 700 !important;
+  font-size: 1rem !important;
+  color: #111827 !important;
+}
+
+:deep(.vti__dropdown) {
+  border-radius: 0.8rem !important;
+  transition: background 0.2s !important;
+}
+
+:deep(.vti__dropdown:hover) {
+  background-color: rgba(0, 0, 0, 0.05) !important;
 }
 </style>

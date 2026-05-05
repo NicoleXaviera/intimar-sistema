@@ -1,0 +1,33 @@
+yarn run v1.22.22
+$ vite build
+vite v4.5.14 building for production...
+transforming...
+✓ 2087 modules transformed.
+rendering chunks...
+[frappeui-build-config-plugin] Successfully copied index.html to ../intimar_erp/www/intimar.html
+computing gzip size...
+../intimar_erp/public/frontend/index.html                                1.07 kB │ gzip:   0.54 kB
+../intimar_erp/public/frontend/assets/Inter.var-d30c3bd0.woff2         264.24 kB
+../intimar_erp/public/frontend/assets/Inter-Italic.var-d9f448e3.woff2  297.27 kB
+../intimar_erp/public/frontend/assets/style-3e326e64.css               210.23 kB │ gzip:  90.99 kB
+../intimar_erp/public/frontend/assets/Login-0d681bb7.js                  3.29 kB │ gzip:   1.43 kB │ map:     5.64 kB
+../intimar_erp/public/frontend/assets/Notifications-2d8c243b.js          6.19 kB │ gzip:   2.48 kB │ map:    12.07 kB
+../intimar_erp/public/frontend/assets/Dashboard-97857614.js              7.18 kB │ gzip:   2.26 kB │ map:    10.93 kB
+../intimar_erp/public/frontend/assets/Configuracion-4b176bb7.js          7.75 kB │ gzip:   2.42 kB │ map:    13.99 kB
+../intimar_erp/public/frontend/assets/Perfil-41836445.js                 9.61 kB │ gzip:   3.18 kB │ map:    16.02 kB
+../intimar_erp/public/frontend/assets/GestionMesas-faf64307.js          10.97 kB │ gzip:   3.61 kB │ map:    21.80 kB
+../intimar_erp/public/frontend/assets/Sidebar-166f5829.js               17.12 kB │ gzip:   3.12 kB │ map:    30.24 kB
+../intimar_erp/public/frontend/assets/Usuarios-0260673d.js              18.32 kB │ gzip:   4.80 kB │ map:    34.91 kB
+../intimar_erp/public/frontend/assets/Home-89c5b39e.js                  19.56 kB │ gzip:   6.63 kB │ map:    90.18 kB
+../intimar_erp/public/frontend/assets/CalendarioReservas-c08fc87a.js    21.96 kB │ gzip:   5.86 kB │ map:    48.01 kB
+../intimar_erp/public/frontend/assets/ClienteDetalle-15bb9eef.js        23.38 kB │ gzip:   6.43 kB │ map:    44.19 kB
+../intimar_erp/public/frontend/assets/Clientes-ad33fbf4.js              26.45 kB │ gzip:   6.86 kB │ map:    50.28 kB
+../intimar_erp/public/frontend/assets/MapaMesas-53b4bbc3.js             36.42 kB │ gzip:   8.86 kB │ map:    76.80 kB
+../intimar_erp/public/frontend/assets/ReservaPublica-ad47db67.js        38.28 kB │ gzip:  11.56 kB │ map:    65.21 kB
+../intimar_erp/public/frontend/assets/Reservas-48774c8b.js              43.97 kB │ gzip:  11.19 kB │ map:    82.58 kB
+../intimar_erp/public/frontend/assets/ReservaForm-ebec867f.js           65.39 kB │ gzip:  14.59 kB │ map:   130.48 kB
+../intimar_erp/public/frontend/assets/vue-tel-input-6a9bbfc9.js        147.68 kB │ gzip:  40.21 kB │ map:   436.92 kB
+../intimar_erp/public/frontend/assets/index-z9l8C72U-f1c4fa3a.js       254.78 kB │ gzip:  65.22 kB │ map:   542.66 kB
+../intimar_erp/public/frontend/assets/index-e31146bb.js                337.74 kB │ gzip: 112.35 kB │ map: 2,089.09 kB
+✓ built in 50.62s
+Done in 52.62s.

@@ -1106,6 +1106,9 @@ const onComprobanteChange = async (event) => {
   try {
     const res = await fetch('/api/method/upload_file', {
       method: 'POST',
+      headers: {
+        'X-Frappe-CSRF-Token': window.csrf_token || window.frappe?.csrf_token
+      },
       body: formData,
       credentials: 'include' // Necesario para que Frappe acepte la petición autenticada
     })

@@ -10,6 +10,7 @@
     <nav class="flex-1 flex flex-col gap-6 w-full px-2">
     <!-- Insights (Dashboard) -->
       <router-link 
+        v-if="session.isAdmin"
         to="/insights" 
         class="w-full aspect-square flex flex-col items-center justify-center rounded-2xl transition-all group relative"
         :class="[isRouteActive('/insights') ? 'bg-white/15 text-white shadow-lg' : 'text-white/40 hover:bg-white/5 hover:text-white/70']"
@@ -32,6 +33,7 @@
 
       <!-- Calendario -->
       <router-link 
+        v-if="session.isAdmin"
         to="/calendario" 
         class="w-full aspect-square flex flex-col items-center justify-center rounded-2xl transition-all group relative"
         :class="[isRouteActive('/calendario') ? 'bg-white/15 text-white shadow-lg' : 'text-white/40 hover:bg-white/5 hover:text-white/70']"
@@ -44,6 +46,7 @@
 
       <!-- Reservas -->
       <router-link 
+        v-if="session.isAdmin || session.hasRole(['Anfitriona', 'Vigilante'])"
         to="/reservas" 
         class="w-full aspect-square flex flex-col items-center justify-center rounded-2xl transition-all group relative"
         :class="[isRouteActive('/reservas') || isRouteActive('/reservas/nueva') ? 'bg-white/15 text-white shadow-lg' : 'text-white/40 hover:bg-white/5 hover:text-white/70']"
@@ -55,6 +58,7 @@
 
       <!-- Clientes -->
       <router-link 
+        v-if="session.isAdmin"
         to="/clientes" 
         class="w-full aspect-square flex flex-col items-center justify-center rounded-2xl transition-all group relative"
         :class="[isRouteActive('/clientes') ? 'bg-white/15 text-white shadow-lg' : 'text-white/40 hover:bg-white/5 hover:text-white/70']"
@@ -66,6 +70,7 @@
 
       <!-- Gestión de Mesas -->
       <router-link 
+        v-if="session.isAdmin || session.hasRole('Anfitriona')"
         to="/gestion-mesas" 
         class="w-full aspect-square flex flex-col items-center justify-center rounded-2xl transition-all group relative"
         :class="[isRouteActive('/gestion-mesas') ? 'bg-white/15 text-white shadow-lg' : 'text-white/40 hover:bg-white/5 hover:text-white/70']"
@@ -76,6 +81,7 @@
       </router-link>
       <!-- Usuarios (Admin) -->
       <router-link 
+        v-if="session.isAdmin"
         to="/usuarios" 
         class="w-full aspect-square flex flex-col items-center justify-center rounded-2xl transition-all group relative"
         :class="[isRouteActive('/usuarios') ? 'bg-white/15 text-white shadow-lg' : 'text-white/40 hover:bg-white/5 hover:text-white/70']"
@@ -87,6 +93,7 @@
       
     <!-- Configuración -->
       <router-link 
+        v-if="session.isAdmin"
         to="/configuracion" 
         class="w-full aspect-square flex flex-col items-center justify-center rounded-2xl transition-all group relative"
         :class="[isRouteActive('/configuracion') ? 'bg-white/15 text-white shadow-lg' : 'text-white/40 hover:bg-white/5 hover:text-white/70']"
@@ -133,85 +140,71 @@
   </div>
 
   <!-- Barra de Navegación Inferior para Móvil -->
-  <div class="md:hidden fixed bottom-6 left-6 right-6 h-20 bg-intimar-primary rounded-[2rem] shadow-2xl z-[1000] flex items-center justify-around px-6">
-    <router-link 
-      to="/mapa" 
-      class="flex flex-col items-center gap-1 transition-all"
-      :class="[isRouteActive('/mapa') ? 'text-white' : 'text-white/40']"
-    >
-      <div class="w-10 h-10 flex items-center justify-center rounded-xl" :class="[isRouteActive('/mapa') ? 'bg-white/15 shadow-lg' : '']">
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg>
-      </div>
-      <span class="text-[7px] font-black uppercase tracking-widest">Asignadas</span>
+  <div class="md:hidden fixed bottom-5 left-4 right-4 h-16 bg-intimar-primary rounded-full shadow-[0_15px_40px_rgba(0,147,143,0.3)] z-[1000] flex items-center justify-around px-2">
+    <!-- Mapa -->
+    <router-link to="/mapa" 
+      class="flex flex-col items-center justify-center transition-all duration-300 w-12 h-12 rounded-2xl" 
+      :class="[isRouteActive('/mapa') ? 'bg-white text-intimar-primary shadow-lg scale-110' : 'text-white/40']">
+      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/>
+      </svg>
     </router-link>
 
-    <router-link 
-      to="/calendario" 
-      class="flex flex-col items-center gap-1 transition-all"
-      :class="[isRouteActive('/calendario') ? 'text-white' : 'text-white/40']"
-    >
-      <div class="w-10 h-10 flex items-center justify-center rounded-xl" :class="[isRouteActive('/calendario') ? 'bg-white/15 shadow-lg' : '']">
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
-      </div>
-      <span class="text-[7px] font-black uppercase tracking-widest">Calendario</span>
+    <!-- Calendario -->
+    <router-link v-if="session.isAdmin" to="/calendario" 
+      class="flex flex-col items-center justify-center transition-all duration-300 w-12 h-12 rounded-2xl" 
+      :class="[isRouteActive('/calendario') ? 'bg-white text-intimar-primary shadow-lg scale-110' : 'text-white/40']">
+      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/>
+      </svg>
     </router-link>
 
-    <!-- Insights Mobile -->
-    <router-link 
-      to="/insights" 
-      class="flex flex-col items-center gap-1 transition-all"
-      :class="[isRouteActive('/insights') ? 'text-white' : 'text-white/40']"
-    >
-      <div class="w-10 h-10 flex items-center justify-center rounded-xl" :class="[isRouteActive('/insights') ? 'bg-white/15 shadow-lg' : '']">
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-      </div>
-      <span class="text-[7px] font-black uppercase tracking-widest">Insights</span>
+    <!-- Insights -->
+    <router-link v-if="session.isAdmin" to="/insights" 
+      class="flex flex-col items-center justify-center transition-all duration-300 w-12 h-12 rounded-2xl" 
+      :class="[isRouteActive('/insights') ? 'bg-white text-intimar-primary shadow-lg scale-110' : 'text-white/40']">
+      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="18" y1="20" x2="18" y2="10"/>
+        <line x1="12" y1="20" x2="12" y2="4"/>
+        <line x1="6" y1="20" x2="6" y2="14"/>
+      </svg>
     </router-link>
 
-    <router-link 
-      to="/reservas" 
-      class="flex flex-col items-center gap-1 transition-all"
-      :class="[isRouteActive('/reservas') || isRouteActive('/reservas/nueva') ? 'text-white' : 'text-white/40']"
-    >
-      <div class="w-10 h-10 flex items-center justify-center rounded-xl" :class="[isRouteActive('/reservas') || isRouteActive('/reservas/nueva') ? 'bg-white/15 shadow-lg' : '']">
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/><path d="M8 7h6"/><path d="M8 11h8"/></svg>
-      </div>
-      <span class="text-[7px] font-black uppercase tracking-widest">Reservas</span>
+    <!-- Reservas -->
+    <router-link v-if="session.isAdmin || session.hasRole(['Anfitriona', 'Vigilante'])" to="/reservas" 
+      class="flex flex-col items-center justify-center transition-all duration-300 w-12 h-12 rounded-2xl" 
+      :class="[isRouteActive('/reservas') || isRouteActive('/reservas/nueva') ? 'bg-white text-intimar-primary shadow-lg scale-110' : 'text-white/40']">
+      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/><path d="M8 7h6"/><path d="M8 11h8"/>
+      </svg>
     </router-link>
 
-    <router-link 
-      to="/clientes" 
-      class="flex flex-col items-center gap-1 transition-all"
-      :class="[isRouteActive('/clientes') ? 'text-white' : 'text-white/40']"
-    >
-      <div class="w-10 h-10 flex items-center justify-center rounded-xl" :class="[isRouteActive('/clientes') ? 'bg-white/15 shadow-lg' : '']">
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-      </div>
-      <span class="text-[7px] font-black uppercase tracking-widest">Clientes</span>
+    <!-- Clientes -->
+    <router-link v-if="session.isAdmin" to="/clientes" 
+      class="flex flex-col items-center justify-center transition-all duration-300 w-12 h-12 rounded-2xl" 
+      :class="[isRouteActive('/clientes') ? 'bg-white text-intimar-primary shadow-lg scale-110' : 'text-white/40']">
+      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+      </svg>
     </router-link>
 
-    <router-link 
-      to="/gestion-mesas" 
-      class="flex flex-col items-center gap-1 transition-all"
-      :class="[isRouteActive('/gestion-mesas') ? 'text-white' : 'text-white/40']"
-    >
-      <div class="w-10 h-10 flex items-center justify-center rounded-xl" :class="[isRouteActive('/gestion-mesas') ? 'bg-white/15 shadow-lg' : '']">
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
-      </div>
-      <span class="text-[7px] font-black uppercase tracking-widest">Mesas</span>
+    <!-- Mesas -->
+    <router-link v-if="session.isAdmin || session.hasRole('Anfitriona')" to="/gestion-mesas" 
+      class="flex flex-col items-center justify-center transition-all duration-300 w-12 h-12 rounded-2xl" 
+      :class="[isRouteActive('/gestion-mesas') ? 'bg-white text-intimar-primary shadow-lg scale-110' : 'text-white/40']">
+      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/>
+      </svg>
     </router-link>
 
-    <router-link 
-      to="/configuracion" 
-      class="flex flex-col items-center gap-1 transition-all"
-      :class="[isRouteActive('/configuracion') ? 'text-white' : 'text-white/40']"
-    >
-      <div class="w-10 h-10 flex items-center justify-center rounded-xl" :class="[isRouteActive('/configuracion') ? 'bg-white/15 shadow-lg' : '']">
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.1a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
-      </div>
-      <span class="text-[7px] font-black uppercase tracking-widest">Ajustes</span>
+    <!-- Ajustes -->
+    <router-link v-if="session.isAdmin" to="/configuracion" 
+      class="flex flex-col items-center justify-center transition-all duration-300 w-12 h-12 rounded-2xl" 
+      :class="[isRouteActive('/configuracion') ? 'bg-white text-intimar-primary shadow-lg scale-110' : 'text-white/40']">
+      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.1a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/>
+      </svg>
     </router-link>
-
   </div>
 
 </template>

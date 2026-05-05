@@ -1,0 +1,22 @@
+yarn run v1.22.22
+$ vite build
+vite v4.5.14 building for production...
+transforming...
+✓ 236 modules transformed.
+✓ built in 22.32s
+[vite:vue] Duplicate attribute.
+file: /home/ubuntu/frappe-bench/apps/intimar_erp/frontend/src/components/Sidebar.vue:156:288
+error during build:
+SyntaxError: Duplicate attribute.
+    at createCompilerError (/home/ubuntu/frappe-bench/apps/intimar_erp/frontend/node_modules/@vue/compiler-core/dist/compiler-core.cjs.prod.js:1374:17)
+    at emitError (/home/ubuntu/frappe-bench/apps/intimar_erp/frontend/node_modules/@vue/compiler-core/dist/compiler-core.cjs.prod.js:2980:5)
+    at Object.onattribnameend (/home/ubuntu/frappe-bench/apps/intimar_erp/frontend/node_modules/@vue/compiler-core/dist/compiler-core.cjs.prod.js:2495:7)
+    at Tokenizer.handleAttrNameEnd (/home/ubuntu/frappe-bench/apps/intimar_erp/frontend/node_modules/@vue/compiler-core/dist/compiler-core.cjs.prod.js:926:14)
+    at Tokenizer.stateInAttrName (/home/ubuntu/frappe-bench/apps/intimar_erp/frontend/node_modules/@vue/compiler-core/dist/compiler-core.cjs.prod.js:866:12)
+    at Tokenizer.parse (/home/ubuntu/frappe-bench/apps/intimar_erp/frontend/node_modules/@vue/compiler-core/dist/compiler-core.cjs.prod.js:1117:16)
+    at Object.baseParse (/home/ubuntu/frappe-bench/apps/intimar_erp/frontend/node_modules/@vue/compiler-core/dist/compiler-core.cjs.prod.js:3012:13)
+    at Object.parse (/home/ubuntu/frappe-bench/apps/intimar_erp/frontend/node_modules/@vue/compiler-dom/dist/compiler-dom.cjs.prod.js:665:23)
+    at Object.parse$1 [as parse] (/home/ubuntu/frappe-bench/apps/intimar_erp/frontend/node_modules/@vue/compiler-sfc/dist/compiler-sfc.cjs.js:1824:24)
+    at createDescriptor (file:///home/ubuntu/frappe-bench/apps/intimar_erp/frontend/node_modules/@vitejs/plugin-vue/dist/index.mjs:74:43)
+error Command failed with exit code 1.
+info Visit https://yarnpkg.com/en/docs/cli/run for documentation about this command.

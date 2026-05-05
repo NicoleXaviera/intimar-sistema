@@ -42,7 +42,7 @@
                   <h4 class="font-black text-gray-900 text-[13px] mb-0.5">{{ reserva.nombre }}</h4>
                   <p class="text-[10px] font-bold text-gray-400 flex items-center gap-1">
                     <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
-                    {{ reserva.celular || 'Sin teléfono' }}
+                    {{ (session.hasRole(['Anfitriona', 'Vigilante']) && !session.isAdmin) ? '********' : (reserva.celular || 'Sin teléfono') }}
                   </p>
                 </div>
               </div>
@@ -116,6 +116,7 @@
               <div class="flex justify-end gap-2">
                 <!-- WhatsApp -->
                 <button 
+                  v-if="session.isAdmin"
                   @click="openWhatsApp(reserva)"
                   class="p-2 bg-white text-emerald-500 hover:text-emerald-600 border border-gray-100 hover:border-emerald-200 rounded-lg shadow-sm hover:shadow-md transition-all"
                   title="Enviar WhatsApp"
@@ -125,7 +126,7 @@
 
                 <!-- Asignar Mesa -->
                 <button 
-                  v-if="!reserva.mesas?.length" 
+                  v-if="!reserva.mesas?.length && (session.isAdmin || session.hasRole('Anfitriona'))" 
                   @click="$emit('asignar', reserva)"
                   class="p-2 bg-white text-gray-400 hover:text-intimar-primary border border-gray-100 hover:border-intimar-primary/30 rounded-lg shadow-sm hover:shadow-md transition-all"
                   title="Asignar Mesa"
@@ -135,6 +136,7 @@
                 
                 <!-- Editar -->
                 <router-link 
+                  v-if="session.isAdmin"
                   :to="`/reservas/${reserva.name}`"
                   class="p-2 bg-white text-gray-400 hover:text-intimar-gold border border-gray-100 hover:border-intimar-gold/30 rounded-lg shadow-sm hover:shadow-md transition-all"
                   title="Gestionar"
@@ -144,6 +146,7 @@
 
                 <!-- Eliminar -->
                 <button 
+                  v-if="session.isAdmin"
                   @click="$emit('delete', reserva)"
                   class="p-2 bg-white text-gray-400 hover:text-red-500 border border-gray-100 hover:border-red-200 rounded-lg shadow-sm hover:shadow-md transition-all"
                   title="Eliminar Reserva"
@@ -161,6 +164,7 @@
 
 <script setup>
 import { defineProps, defineEmits } from 'vue'
+import { session } from '@/data/session'
 
 const props = defineProps({
   reservas: {

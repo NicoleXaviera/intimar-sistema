@@ -226,7 +226,7 @@
             <p class="text-gray-400 text-[10px] md:text-xs leading-relaxed font-medium">
               © {{ new Date().getFullYear() }} Inti-Mar Paracas. {{ lang === 'es' ? 'Todos los derechos reservados.' : 'All rights reserved.' }}
             </p>
-            <p class="text-[9px] font-black uppercase tracking-[0.3em] text-gray-300">Desarrollado por NicoleXaviera</p>
+            <p class="text-[9px] font-black uppercase tracking-[0.3em] text-gray-300">Desarrollado por NicoleXaviera y JackoTinoco</p>
           </footer>
         </div>
       </div>

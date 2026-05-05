@@ -10,6 +10,7 @@ import { createResource, call } from 'frappe-ui'
 import { watch, onMounted, onUnmounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import NotificationPanel from '@/components/NotificationPanel.vue'
+import { session } from '@/data/session'
 
 const router = useRouter()
 const route = useRoute()
@@ -27,6 +28,19 @@ const user = createResource({
     if (route.name !== 'Login' && !route.meta.isPublic) {
       router.push({ name: 'Login' })
     }
+  }
+})
+
+const roles = createResource({
+  url: 'intimar_erp.api.get_current_user_roles',
+  onSuccess: (data) => {
+    session.roles = data || []
+  }
+})
+
+watch(() => user.data, (newUser) => {
+  if (newUser) {
+    roles.fetch()
   }
 })
 

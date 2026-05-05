@@ -108,6 +108,73 @@ def get_reservas_pendientes_hoy():
     return reservas
 
 @frappe.whitelist()
+def get_cliente_by_phone(phone):
+    phone = clean_phone(phone)
+    if not phone: return None
+    cliente = frappe.db.get_value("Cliente Intimar", {"phone": phone}, 
+        ["name", "name1", "lastname", "email", "dni_ruc"], as_dict=1)
+    return cliente
+
+@frappe.whitelist()
+def crear_reserva_rapida(nombre, apellido, celular, adultos, ninos=0, email=None, codigo_pais=None):
+    try:
+        celular = clean_phone(celular)
+        
+        # 1. Buscar o crear cliente
+        cliente = frappe.db.get_value('Cliente Intimar', {'phone': celular}, 
+            ['name', 'name1', 'lastname', 'email'], as_dict=1)
+        
+        if cliente:
+            # SI EXISTE: "Jalamos" la data registrada y NO creamos nada nuevo
+            cliente_id = cliente.name
+            nombre = cliente.name1 # Prioridad absoluta a la data registrada
+            apellido = cliente.lastname
+            email = cliente.email or email
+        else:
+            nuevo_cliente = frappe.get_doc({
+                'doctype': 'Cliente Intimar',
+                'name1': nombre,
+                'lastname': apellido,
+                'nombre_y_apellido_completo': f"{nombre} {apellido if apellido else ''}".strip(),
+                'phone': celular,
+                'email': email
+            })
+            nuevo_cliente.insert(ignore_permissions=True)
+            cliente_id = nuevo_cliente.name
+        
+        # 2. Crear la reserva hoy, ahora, estado Confirmada
+        reserva = frappe.get_doc({
+            'doctype': 'Reserva Intimar',
+            'cliente': cliente_id,
+            'nombre': nombre,
+            'apellido': apellido,
+            'celular': celular,
+            'codigo_pais': codigo_pais,
+            'email': email,
+            'fecha_reserva': frappe.utils.today(),
+            'hora_reserva': frappe.utils.now_datetime().strftime("%H:%M"),
+            'cant_adultos': int(adultos),
+            'cant_ninos': int(ninos),
+            'estado_reserva': 'Confirmada'
+        })
+        
+        reserva.insert(ignore_permissions=True)
+        
+        # Devolvemos el doc con los datos necesarios para el frontend
+        res_data = reserva.as_dict()
+        res_data.cliente_nombre = f"{nombre} {apellido if apellido else ''}".strip()
+        res_data.total_pagado = 0
+        res_data.total_pagado_txt = ""
+        res_data.cliente_reconocido = True if cliente else False
+        
+        return res_data
+    except frappe.ValidationError as e:
+        frappe.throw(e)
+    except Exception as e:
+        frappe.log_error(frappe.get_traceback(), "Error en crear_reserva_rapida")
+        frappe.throw(_("No se pudo crear la reserva rápida: {0}").format(str(e)))
+
+@frappe.whitelist()
 def get_mozos():
     return frappe.get_all("Mozo Intimar", fields=["name", "nombre", "apellido", "telefono", "email"])
 
@@ -135,7 +202,15 @@ def delete_mozo(name):
     return {"status": "success"}
 
 @frappe.whitelist()
-def asignar_mesa_a_reserva(reserva_id, mesa_id, mozo_id=None):
+def delete_reserva(name):
+    if "System Manager" not in frappe.get_roles() and frappe.session.user != "Administrator":
+        frappe.throw(_("No tienes permiso para eliminar reservas"))
+    
+    frappe.delete_doc("Reserva Intimar", name, ignore_permissions=True)
+    return {"status": "success"}
+
+@frappe.whitelist()
+def asignar_mesa_a_reserva(reserva_id, mesa_id, mozo_id=None, adultos=None, ninos=None):
     # mesa_id puede venir como string o como lista desde el mapa de mesas
     mesas_ids = mesa_id if isinstance(mesa_id, list) else [mesa_id]
     
@@ -145,6 +220,16 @@ def asignar_mesa_a_reserva(reserva_id, mesa_id, mozo_id=None):
     if reserva.estado_reserva != "Confirmada":
         frappe.throw(f"No se puede asignar mesa. La reserva debe estar en estado 'Confirmada' (Estado actual: {reserva.estado_reserva})")
     
+    # Actualizar PERS. si han cambiado
+    if adultos is not None or ninos is not None:
+        adultos = int(adultos) if adultos is not None else reserva.cant_adultos
+        ninos = int(ninos) if ninos is not None else reserva.cant_ninos
+        
+        if adultos != reserva.cant_adultos or ninos != reserva.cant_ninos:
+            reserva.add_comment("Comment", text=f"PERS. actualizadas por Anfitriona en asignación: {reserva.cant_adultos}+{reserva.cant_ninos} -> {adultos}+{ninos}")
+            reserva.cant_adultos = adultos
+            reserva.cant_ninos = ninos
+
     for m_id in mesas_ids:
         # 1. Marcar mesa como ocupada (0)
         frappe.db.set_value("Mesa Intimar", m_id, "estado_mesa", 0)
@@ -303,6 +388,10 @@ def crear_reserva_publica(cliente_nombre, cliente_celular, fecha, hora, adultos,
 
 
 @frappe.whitelist()
+def get_current_user_roles():
+    return frappe.get_roles(frappe.session.user)
+
+@frappe.whitelist()
 def get_user_details(user_id):
     # Verificación de permisos básica: solo System Manager o el propio usuario
     if "System Manager" not in frappe.get_roles() and frappe.session.user != "Administrator" and frappe.session.user != user_id:
@@ -361,7 +450,7 @@ def create_new_user(email, full_name, password, roles=None):
     if frappe.db.exists("User", email):
         frappe.throw(_("El usuario con el correo {0} ya existe").format(email))
         
-    doc = frappe.get_new_doc("User")
+    doc = frappe.new_doc("User")
     doc.email = email
     doc.first_name = full_name
     doc.enabled = 1
