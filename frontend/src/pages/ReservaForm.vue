@@ -23,7 +23,7 @@
           
           <div class="flex-1">
             <h4 class="text-sm tracking-wide">{{ toast.title }}</h4>
-            <p v-if="toast.message" class="text-[11px] opacity-80 font-medium mt-0.5">{{ toast.message }}</p>
+            <p v-if="toast.message" class="text-[11px] opacity-80 font-medium mt-0.5" v-html="toast.message"></p>
           </div>
           
           <button @click="removeToast(toast.id)" class="opacity-50 hover:opacity-100 transition-opacity">
@@ -331,8 +331,9 @@
             <div class="border-b border-gray-50 pb-5">
               <label class="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2 pl-1">Mozo Asignado</label>
               <div class="relative">
-                <select v-model="form.mozo" @change="onMozoChange" :disabled="!canEditOperativa" class="w-full pl-4 pr-10 py-3.5 bg-gray-50 border border-transparent rounded-2xl text-sm font-bold text-gray-700 focus:border-purple-500/30 focus:bg-white focus:ring-4 focus:ring-purple-500/10 transition-all appearance-none cursor-pointer disabled:cursor-not-allowed">
+                <select v-model="form.mozo" @change="onMozoChange" class="w-full pl-4 pr-10 py-3.5 bg-gray-50 border border-transparent rounded-2xl text-sm font-bold text-gray-700 focus:border-purple-500/30 focus:bg-white focus:ring-4 focus:ring-purple-500/10 transition-all appearance-none cursor-pointer">
                   <option value="">-- Ninguno asignado todavía --</option>
+                  <option value="CREAR_NUEVO" class="text-purple-600 font-bold">+ Añadir nuevo mozo...</option>
                   <option v-for="m in mozosList" :key="m.name" :value="m.name">
                     {{ m.name }}
                   </option>
@@ -907,7 +908,8 @@ const removeToast = (id) => {
 }
 
 // Form State
-const today = new Date().toISOString().split('T')[0]
+const now = new Date()
+const today = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0')
 
 // Documento original desde Frappe para evitar CannotChangeConstantError
 const originalDoc = ref(null)
@@ -962,11 +964,7 @@ onMounted(async () => {
 
 const fetchMozos = async () => {
   try {
-    const res = await call('frappe.client.get_list', {
-      doctype: 'Mozo Intimar',
-      fields: ['name'],
-      limit: 100
-    })
+    const res = await call('intimar_erp.api.get_mozos')
     mozosList.value = res || []
   } catch (e) { console.error(e) }
 }
@@ -1383,7 +1381,8 @@ const fetchReservaData = async (id) => {
 const openWhatsApp = () => {
   if (!form.celular) return
   
-  const cleanPhone = form.celular.replace(/\D/g, '')
+  let cleanPhone = form.celular.replace(/\D/g, '')
+  if (cleanPhone.length === 9) cleanPhone = '51' + cleanPhone
   const totalPersonas = (form.cant_adultos || 0) + (form.cant_ninos || 0)
   
   // Formatear fecha de YYYY-MM-DD a DD-MM-YYYY

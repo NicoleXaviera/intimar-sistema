@@ -95,8 +95,9 @@ import { useRoute } from 'vue-router'
 const emit = defineEmits(['filter'])
 const route = useRoute()
 
-// Obtener fecha de hoy en formato YYYY-MM-DD para el filtro inicial
-const today = new Date().toISOString().split('T')[0]
+// Obtener fecha de hoy en formato YYYY-MM-DD (Local) para el filtro inicial
+const now = new Date()
+const today = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0')
 const initialDate = route.query.fecha || today
 
 const filters = reactive({

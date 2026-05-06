@@ -513,7 +513,7 @@
             <svg v-if="toast.type === 'error'" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
             <div class="flex-1">
               <h4 class="text-sm tracking-wide">{{ toast.title }}</h4>
-              <p v-if="toast.message" class="text-[11px] opacity-80 font-medium mt-0.5">{{ toast.message }}</p>
+              <p class="text-[10px] opacity-90 leading-relaxed font-medium" v-if="toast.message" v-html="toast.message"></p>
             </div>
           </div>
         </TransitionGroup>
@@ -779,7 +779,8 @@ async function confirmarReservaRapida() {
         }
     } catch (e) {
         console.error(e)
-        showToast('Error', 'No se pudo crear la reserva rápida.', 'error')
+        const msg = e.messages ? e.messages.join('\n') : (e.message || 'No se pudo crear la reserva rápida.')
+        showToast('Error', msg, 'error')
     } finally {
         creatingQuickReserva.value = false
     }
@@ -798,6 +799,9 @@ async function confirmarAsignacionFinal(mozo) {
         ? selectedMesasForMulti.value.map(m => m.name)
         : [selectedMesa.value.name]
 
+    const paxCambiado = (paxAdultos.value !== selectedReservaForAssign.value.cant_adultos || 
+                        paxNinos.value !== selectedReservaForAssign.value.cant_ninos)
+
     await call('intimar_erp.api.asignar_mesa_a_reserva', {
       reserva_id: selectedReservaForAssign.value.name,
       mesa_id: mesaIds,
@@ -809,7 +813,12 @@ async function confirmarAsignacionFinal(mozo) {
     showAssignModal.value = false
     selectedMesasForMulti.value = []
     mesas.fetch()
-    showToast('Asignación Exitosa', 'Mesa(s) vinculada(s) correctamente.', 'success')
+    
+    if (paxCambiado) {
+        showToast('Asignación con Ajuste', `Mesa vinculada. Se notificó el cambio a ${paxAdultos.value + paxNinos.value} personas.`, 'warning')
+    } else {
+        showToast('Asignación Exitosa', 'Mesa(s) vinculada(s) correctamente.', 'success')
+    }
   } catch (e) {
     console.error(e)
     const msg = e.messages ? e.messages.join('\n') : (e.message || 'No se pudo completar la asignación.')

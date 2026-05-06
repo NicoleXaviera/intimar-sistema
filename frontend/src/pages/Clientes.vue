@@ -16,7 +16,7 @@
           <Button 
             variant="solid" 
             class="bg-intimar-primary hover:bg-[#007a77] text-white px-8 py-6 rounded-2xl shadow-xl shadow-intimar-primary/20 font-black uppercase tracking-widest text-xs transition-all transform hover:scale-[1.03] flex items-center gap-3"
-            @click="showCreateModal = true"
+            @click="prepareCreate"
           >
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
             NUEVO CLIENTE
@@ -472,6 +472,11 @@ watch(currentPage, () => {
 const filteredClientes = computed(() => {
   return clientes.data || []
 })
+
+const prepareCreate = () => {
+  resetForm()
+  showCreateModal.value = true
+}
 
 const editCliente = (cliente) => {
   editingCliente.value = cliente

@@ -265,18 +265,16 @@
             </div>
             <div>
               <label class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 ml-2 mb-2 block">Teléfono</label>
-              <div class="flex gap-2">
-                <select v-model="form.country_code" class="w-24 px-4 py-4 bg-gray-50 border-2 border-transparent rounded-2xl focus:bg-white focus:border-intimar-primary outline-none transition-all font-black text-sm appearance-none">
-                  <option value="+51">🇵🇪 +51</option>
-                  <option value="+1">🇺🇸 +1</option>
-                  <option value="+56">🇨🇱 +56</option>
-                  <option value="+54">🇦🇷 +54</option>
-                  <option value="+57">🇨🇴 +57</option>
-                  <option value="+34">🇪🇸 +34</option>
-                  <option value="+52">🇲🇽 +52</option>
-                </select>
-                <input v-model="form.phone" type="text" class="flex-1 px-6 py-4 bg-gray-50 border-2 border-transparent rounded-2xl focus:bg-white focus:border-intimar-primary outline-none transition-all font-bold text-lg">
-              </div>
+              <vue-tel-input 
+                v-model="form.phone" 
+                @on-input="onPhoneInput"
+                v-bind="telInputOptions"
+                class="bg-gray-50 border-2 border-transparent rounded-2xl focus-within:bg-white focus-within:border-intimar-primary transition-all font-bold"
+              ></vue-tel-input>
+            </div>
+            <div>
+              <label class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 ml-2 mb-2 block">Email</label>
+              <input v-model="form.email" type="email" class="w-full px-6 py-4 bg-gray-50 border-2 border-transparent rounded-2xl focus:bg-white focus:border-intimar-primary outline-none transition-all font-bold" placeholder="cliente@correo.com">
             </div>
             <div>
               <label class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 ml-2 mb-2 block">Dirección</label>
@@ -307,6 +305,8 @@ import { ref, reactive, computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { createResource, LoadingIndicator, Button, call } from 'frappe-ui'
 import Sidebar from '@/components/Sidebar.vue'
+import { VueTelInput } from 'vue-tel-input'
+import 'vue-tel-input/vue-tel-input.css'
 
 const route = useRoute()
 const activeTab = ref('Historial')
@@ -322,8 +322,22 @@ const form = reactive({
   direccion: '',
   alergias: '',
   observaciones: '',
-  email: ''
+  email: '',
+  fullPhone: ''
 })
+
+const telInputOptions = {
+  mode: 'international',
+  dropdownOptions: { showFlags: true, showDialCodeInSelection: true },
+  inputOptions: { placeholder: '987 654 321', showDialCode: false },
+  autoDefaultCountry: true
+}
+
+const onPhoneInput = (phone, phoneObject) => {
+  if (phoneObject && phoneObject.number) {
+    form.fullPhone = phoneObject.number
+  }
+}
 
 // Obtener datos del Cliente
 const cliente = createResource({
@@ -355,22 +369,15 @@ const openEditModal = () => {
   form.observaciones = cliente.data.observaciones
   form.email = cliente.data.email
   
-  const fullPhone = cliente.data.phone || ''
-  const match = fullPhone.match(/^(\+\d+)\s*(.*)$/)
-  if (match) {
-    form.country_code = match[1]
-    form.phone = match[2]
-  } else {
-    form.country_code = '+51'
-    form.phone = fullPhone
-  }
+  form.phone = cliente.data.phone || ''
+  form.fullPhone = cliente.data.phone || ''
   showEditModal.value = true
 }
 
 const saveChanges = async () => {
   saving.value = true
   try {
-    const fullPhone = `${form.country_code} ${form.phone}`.trim()
+    const finalPhone = form.fullPhone || form.phone.replace(/\s/g, '')
     await call('frappe.client.set_value', {
       doctype: 'Cliente Intimar',
       name: route.params.name,
@@ -378,7 +385,7 @@ const saveChanges = async () => {
         name1: form.name1,
         lastname: form.lastname,
         dni_ruc: form.dni_ruc,
-        phone: fullPhone,
+        phone: finalPhone,
         direccion: form.direccion,
         alergias: form.alergias,
         observaciones: form.observaciones,

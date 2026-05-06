@@ -341,8 +341,9 @@ const fetchMonthReservations = async () => {
     const endDate = new Date(lastDayOfMonth)
     endDate.setDate(endDate.getDate() + 7)
 
-    const startDateStr = startDate.toISOString().split('T')[0]
-    const endDateStr = endDate.toISOString().split('T')[0]
+    const formatDate = (d) => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0')
+    const startDateStr = formatDate(startDate)
+    const endDateStr = formatDate(endDate)
 
     const data = await call('frappe.client.get_list', {
       doctype: 'Reserva Intimar',
@@ -436,7 +437,8 @@ const calendarWeekDays = computed(() => {
   for (let i = 0; i < 7; i++) {
     const d = new Date(monday)
     d.setDate(monday.getDate() + i)
-    const dateStr = d.toISOString().split('T')[0]
+    const formatDate = (date) => date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0') + '-' + String(date.getDate()).padStart(2, '0')
+    const dateStr = formatDate(d)
     
     const dayReservations = rawReservations.value.filter(r => r.fecha_reserva === dateStr)
     const pax = dayReservations.reduce((acc, curr) => acc + (curr.cant_adultos || 0) + (curr.cant_ninos || 0), 0)
@@ -445,14 +447,15 @@ const calendarWeekDays = computed(() => {
       date: dateStr,
       dayNumber: d.getDate(),
       reservations: dayReservations,
-      totalPers: pers
+      totalPers: pax
     })
   }
   return week
 })
 
 const currentDayData = computed(() => {
-  const dateStr = currentDate.value.toISOString().split('T')[0]
+  const formatDate = (d) => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0')
+  const dateStr = formatDate(currentDate.value)
   const dayReservations = rawReservations.value.filter(r => r.fecha_reserva === dateStr)
   const pers = dayReservations.reduce((acc, curr) => acc + (curr.cant_adultos || 0) + (curr.cant_ninos || 0), 0)
   return {
@@ -488,7 +491,8 @@ const nextPeriod = () => {
 const goToToday = () => {
   currentDate.value = new Date()
   fetchMonthReservations()
-  selectedDay.value = currentDate.value.toISOString().split('T')[0]
+  const formatDate = (d) => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0')
+  selectedDay.value = formatDate(currentDate.value)
 }
 
 // Side Panel Logic

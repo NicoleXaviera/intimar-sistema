@@ -158,19 +158,29 @@ class ReservaIntimar(Document):
 		if self.name:
 			filters.append(["Reserva Intimar", "name", "!=", self.name])
 
-		reservas_solapadas = frappe.get_all("Reserva Intimar", filters=filters, fields=["cant_adultos", "cant_ninos"])
-		aforo_ocupado = sum((r.cant_adultos or 0) + (r.cant_ninos or 0) for r in reservas_solapadas)
+		reservas_solapadas = frappe.get_all("Reserva Intimar", filters=filters, fields=["name", "cant_adultos", "cant_ninos", "estado_reserva", "hora_reserva", "hora_llegada"])
+		
+		# Aplicar tolerancia de 20 min para liberar aforo
+		aforo_ocupado = 0
+		now_dt = now_datetime()
+		for r in reservas_solapadas:
+			if r.estado_reserva == "Confirmada" and not r.hora_llegada:
+				# Solo liberar si es para hoy
+				if self.fecha_reserva == frappe.utils.today():
+					r_time = get_datetime(f"{self.fecha_reserva} {r.hora_reserva}")
+					if (now_dt - r_time).total_seconds() / 60 > 20:
+						continue # Ignorar reserva con >20m de retraso
+			aforo_ocupado += (r.cant_adultos or 0) + (r.cant_ninos or 0)
+
 		personas_nuevas = (self.cant_adultos or 0) + (self.cant_ninos or 0)
 		total_proyectado = aforo_ocupado + personas_nuevas
 		
 		# Solo bloqueamos si estamos intentando CONFIRMAR algo nuevo o que estaba en espera
-		# Si la reserva ya existe, permitimos cambios (como asignar mesa) sin importar el aforo total
 		if not self.is_new():
 			old_doc = self.get_doc_before_save()
-			if old_doc and old_doc.estado_reserva in ["Confirmada", "En proceso", "Solicitud de reserva", "Pendiente a confirmar"]:
-				# Si ya existía, permitimos el cambio siempre que no aumenten personas
-				old_personas = (old_doc.cant_adultos or 0) + (old_doc.cant_ninos or 0)
-				if personas_nuevas <= old_personas:
+			if old_doc and old_doc.estado_reserva in ["Confirmada", "En proceso", "Solicitud de reserva"]:
+				old_pax = (old_doc.cant_adultos or 0) + (old_doc.cant_ninos or 0)
+				if personas_nuevas <= old_pax and old_doc.hora_reserva == self.hora_reserva:
 					return 
 
 		if total_proyectado > config.aforo_maximo:
@@ -178,8 +188,14 @@ class ReservaIntimar(Document):
 				self.estado_reserva = "Lista de espera"
 				self.notify_event("aforo_lleno", _("Aforo lleno. Reserva de {0} enviada a Lista de Espera.").format(self.nombre))
 			else:
-				exceso = total_proyectado - config.aforo_maximo
-				msg = _("Aforo excedido. Faltan {0} lugares.").format(exceso)
+				disponible = max(0, config.aforo_maximo - aforo_ocupado)
+				msg = (
+					f"<b>AFORO EXCEDIDO</b><br><br>"
+					f"Capacidad Máxima: {config.aforo_maximo}<br>"
+					f"Ocupación (con tolerancia 20m): {aforo_ocupado}<br>"
+					f"Espacio Disponible: {disponible}<br><br>"
+					f"No se puede registrar el grupo de {personas_nuevas} personas."
+				)
 				self.notify_event("aforo_lleno", msg)
 				frappe.throw(msg)
 		
