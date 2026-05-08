@@ -15,7 +15,7 @@
  "fields": [
   {
    "fieldname": "numero_mesa",
-   "fieldtype": "Int",
+   "fieldtype": "Float",
    "in_list_view": 1,
    "label": "N\u00famero de Mesa",
    "reqd": 1
@@ -44,7 +44,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-05-04 21:55:37.689692",
+ "modified": "2026-05-06 22:08:39.449375",
  "modified_by": "Administrator",
  "module": "intimar",
  "name": "Mesa Intimar",

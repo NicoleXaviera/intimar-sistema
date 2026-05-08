@@ -31,7 +31,7 @@ export const session: Session = reactive({
     onSuccess() {
       sessionUser.value = getSessionUserFromCookie()
       session.roles = []
-      window.location.href = '/login'
+      window.location.href = '/intimar/login'
     },
   }),
   user: sessionUser,

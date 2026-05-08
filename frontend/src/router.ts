@@ -84,9 +84,30 @@ const routes = [
   },
 ]
 
-let router = createRouter({
+const router = createRouter({
   history: createWebHistory(import.meta.env.DEV ? '/frontend' : '/intimar'),
   routes,
+})
+
+router.beforeEach((to, from, next) => {
+  const user_id = document.cookie
+    .split('; ')
+    .find((row) => row.startsWith('user_id='))
+    ?.split('=')[1]
+
+  const isLoggedIn = user_id && user_id !== 'Guest'
+
+  // Si la ruta no es pública y no es Login, y no está logueado -> Login
+  if (!to.meta.isPublic && to.name !== 'Login' && !isLoggedIn) {
+    next('/login')
+  } 
+  // Si intenta entrar a la raíz y no está logueado -> Reserva Pública
+  else if (to.path === '/' && !isLoggedIn) {
+    next('/reservar')
+  } 
+  else {
+    next()
+  }
 })
 
 export default router

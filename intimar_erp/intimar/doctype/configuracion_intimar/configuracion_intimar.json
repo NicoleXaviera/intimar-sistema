@@ -1,7 +1,6 @@
 {
  "actions": [],
- "allow_import": 1,
- "creation": "2024-04-26 10:40:00.000000",
+ "creation": "2024-04-26 10:40:00",
  "doctype": "DocType",
  "editable_grid": 1,
  "engine": "InnoDB",
@@ -36,10 +35,10 @@
    "label": "Monto de Anticipo por Persona"
   },
   {
+   "default": "2",
    "fieldname": "duracion_reserva",
    "fieldtype": "Float",
-   "label": "Duraci\u00f3n Estimada (Horas)",
-   "default": "2"
+   "label": "Duraci\u00f3n Estimada (Horas)"
   },
   {
    "fieldname": "aforo_maximo",
@@ -75,9 +74,9 @@
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2024-04-26 11:30:00.000000",
+ "modified": "2026-05-06 10:46:20.265523",
  "modified_by": "Administrator",
- "module": "Intimar",
+ "module": "intimar",
  "name": "Configuracion Intimar",
  "owner": "Administrator",
  "permissions": [
@@ -85,15 +84,41 @@
    "create": 1,
    "delete": 1,
    "email": 1,
-   "export": 1,
    "print": 1,
    "read": 1,
-   "report": 1,
    "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "Recepcionista",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "Mozo",
+   "share": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "Anfitriona",
    "share": 1,
    "write": 1
   }
  ],
+ "row_format": "Dynamic",
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": []

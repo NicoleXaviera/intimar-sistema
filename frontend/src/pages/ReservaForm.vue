@@ -1266,10 +1266,7 @@ const ubicacionesList = ref([])
 
 const fetchUbicaciones = async () => {
   try {
-    const res = await call('frappe.client.get_list', {
-      doctype: 'Ubicacion Mesa Intimar',
-      fields: ['name']
-    })
+    const res = await call('intimar_erp.api.get_ubicaciones_mesas')
     ubicacionesList.value = res || []
   } catch(e) {}
 }

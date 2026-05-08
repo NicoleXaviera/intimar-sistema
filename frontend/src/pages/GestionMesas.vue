@@ -241,11 +241,7 @@ onMounted(() => {
 
 
 const zonas = createResource({
-  url: 'frappe.client.get_list',
-  params: {
-    doctype: 'Ubicacion Mesa Intimar',
-    fields: ['name']
-  },
+  url: 'intimar_erp.api.get_ubicaciones_mesas',
   auto: true
 })
 

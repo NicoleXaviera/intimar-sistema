@@ -11,5 +11,9 @@ class MesaIntimar(Document):
 		if not codigo:
 			codigo = "INV" # Invalid/Missing
 			
-		# Format as CODE-M01
-		self.name = f"{codigo}-M{int(self.numero_mesa):02d}"
+		# Format naming
+		num = float(self.numero_mesa or 0)
+		num_str = f"{int(num):02d}" if num % 1 == 0 else f"{num}"
+		
+		# Format as CODE-01 or CODE-6.1
+		self.name = f"{codigo}-{num_str}"

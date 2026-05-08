@@ -42,6 +42,7 @@
                 <button @click="lang = 'es'" :class="['text-[9px] md:text-[10px] font-bold tracking-widest px-1.5 py-1 rounded transition-all', lang === 'es' ? 'text-intimar-primary bg-intimar-primary/5' : 'text-gray-300 hover:text-gray-400']">ES</button>
                 <button @click="lang = 'en'" :class="['text-[9px] md:text-[10px] font-bold tracking-widest px-1.5 py-1 rounded transition-all', lang === 'en' ? 'text-intimar-primary bg-intimar-primary/5' : 'text-gray-300 hover:text-gray-400']">EN</button>
             </div>
+            
             <button v-if="step > 1 && step < 5" @click="step--" class="text-gray-400 flex items-center justify-center h-8 w-8 hover:text-intimar-primary border border-gray-100 rounded-lg">
                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
             </button>
@@ -49,7 +50,7 @@
       </div>
 
       <!-- Flow Content -->
-      <div :class="['flex-1 flex flex-col relative z-10 -mt-8 md:mt-0 bg-white rounded-t-[2.5rem] md:rounded-none', step === 4 ? 'p-6 md:p-8' : 'p-8 md:p-12 lg:p-20']">
+      <div :class="['flex-1 flex flex-col relative z-10 -mt-8 md:mt-0 bg-white rounded-t-[2.5rem] md:rounded-none', step === 4 ? 'p-6 md:p-8' : (step === 5 ? 'p-4 md:p-12' : 'p-8 md:p-12 lg:p-20')]">
         <div :class="['w-full mx-auto space-y-6 md:space-y-8', step === 4 ? 'max-w-4xl' : 'max-w-md']">
           
           <div v-if="step < 5" class="flex items-center gap-4 mb-2">
@@ -191,10 +192,41 @@
               <p class="text-gray-600 font-medium text-base max-w-[280px] mx-auto leading-relaxed">{{ t.successDesc.replace('{name}', form.nombre) }}</p>
             </div>
 
-            <div class="max-w-[300px] mx-auto p-6 bg-intimar-primary/5 rounded-[2rem] border border-intimar-primary/10 space-y-3">
-                <p class="text-[9px] font-bold text-intimar-primary uppercase tracking-[0.4em]">{{ t.idLabel }}</p>
-                <p class="text-3xl font-light tracking-tight text-gray-900 uppercase serif-font">{{ reservationId }}</p>
-                <p class="text-[8px] text-gray-400 uppercase font-bold tracking-widest pt-2">{{ t.idHint }}</p>
+            <!-- CARD DE CONFIRMACIÓN PREMIUM -->
+            <div class="w-full max-w-md mx-auto bg-white rounded-[2rem] md:rounded-[3rem] border border-gray-100 shadow-2xl shadow-gray-200/50 overflow-hidden relative group animate-in zoom-in-95 duration-700">
+                <div class="absolute top-0 right-0 w-40 h-40 bg-intimar-gold/5 rounded-full -mr-20 -mt-20 blur-3xl group-hover:bg-intimar-gold/10 transition-all duration-1000"></div>
+                
+                <div class="p-6 md:p-12 relative z-10 space-y-8 md:space-y-10">
+                    <!-- Código de Reserva -->
+                    <div class="text-center space-y-2 md:space-y-3">
+                        <p class="text-[8px] md:text-[9px] font-black text-gray-400 uppercase tracking-[0.4em]">{{ t.idLabel }}</p>
+                        <h3 class="text-4xl md:text-5xl font-light tracking-tighter text-intimar-dark uppercase serif-font">{{ reservationId }}</h3>
+                        <p class="text-[7px] md:text-[8px] text-gray-300 uppercase font-bold tracking-[0.2em]">{{ t.idHint }}</p>
+                    </div>
+
+                    <!-- Sección Anticipo (Si aplica) -->
+                    <div v-if="requiresAnticipo" class="pt-8 md:pt-10 border-t border-gray-50 space-y-6 md:space-y-8">
+                        <div class="text-center space-y-4">
+                            <span class="inline-block px-4 py-1.5 bg-intimar-gold/10 text-intimar-gold text-[8px] md:text-[9px] font-black uppercase tracking-[0.2em] rounded-full">{{ t.anticipoTitle }}</span>
+                            <p class="text-[11px] md:text-xs font-medium text-gray-500 leading-relaxed max-w-[280px] mx-auto italic">{{ t.anticipoNotice }}</p>
+                            <div class="py-2 md:py-4">
+                                <span class="block text-[7px] md:text-[8px] font-bold text-gray-300 uppercase tracking-widest mb-1">{{ lang === 'es' ? 'Total a depositar' : 'Total to deposit' }}</span>
+                                <div class="text-4xl md:text-5xl font-black text-intimar-primary tracking-tighter serif-font">S/ {{ totalAnticipo }}</div>
+                            </div>
+                        </div>
+
+                        <!-- Condiciones Elegantes -->
+                        <div class="bg-gray-50/50 rounded-[1.5rem] md:rounded-[2rem] p-6 md:p-8 space-y-4 md:space-y-5">
+                            <p class="text-[7px] md:text-[8px] font-black text-gray-400 uppercase tracking-[0.3em] text-center mb-1 md:mb-2">{{ t.anticipoConditions }}</p>
+                            <div class="space-y-3 md:space-y-4">
+                                <div v-for="item in [t.anticipoItem1, t.anticipoItem2, t.anticipoItem3]" :key="item" class="flex gap-3 md:gap-4 items-start">
+                                    <div class="w-1.5 h-1.5 rounded-full bg-intimar-gold/30 mt-1.5 shrink-0"></div>
+                                    <p class="text-[9px] md:text-[10px] font-medium text-gray-500 leading-relaxed">{{ item }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <!-- Aviso de Correo y Botón de Verificación WhatsApp -->
@@ -268,7 +300,13 @@ import { VueTelInput } from 'vue-tel-input'
 import 'vue-tel-input/vue-tel-input.css'
 
 const step = ref(1); const submitting = ref(false); const lang = ref('es'); const showManualPax = ref(false); const currentMonthOffset = ref(0); const currentHeroIdx = ref(0); let heroTimer = null;
-const reservationId = ref(''); const showWaitlistModal = ref(false); const apiError = ref('');
+const reservationId = ref('');
+const requiresAnticipo = ref(false);
+const totalAnticipo = computed(() => {
+  const pax = (Number(form.adultos) || 0) + (Number(form.ninos) || 0)
+  return pax * 20
+})
+const showWaitlistModal = ref(false); const apiError = ref('');
 const heroImages = ['/files/intimar-1.webp','/files/intimar-2.webp','/files/intimar-3.webp']
 const form = reactive({ fecha: '', adultos: 2, ninos: 0, hora: '', nombre: '', apellido: '', celular: '', codigoPais: '+51', email: '', dni: '', requerimientos: '', necesidades: '', alergias: '', acepta_legal1: false, acepta_legal3: false, aceptar_lista_espera: 0 })
 const errors = reactive({})
@@ -326,7 +364,13 @@ const translations = {
     btnVerifyWsp: 'Verificar mi reserva',
     verifyText: '¿No te llegó el correo? Verifica aquí:',
     emailCheck1: 'Por favor, revisa tu correo electrónico',
-    generalPolicy: 'Nuestro horario de atención es de 11:30 a.m. a 4:00 p.m, la asignación de mesas es por orden de llegada y la zona sujeta a disponibilidad. Para reservas grupales de 8 a más personas, se requiere un pago de consumo anticipado.'
+    generalPolicy: 'Nuestro horario de atención es de 11:30 a.m. a 4:00 p.m, la asignación de mesas es por orden de llegada y la zona sujeta a disponibilidad. Para reservas grupales de 8 a más personas, se requiere un pago de consumo anticipado.',
+    anticipoTitle: 'Pago de Anticipo Requerido',
+    anticipoNotice: 'Debido al tamaño de tu grupo, nos contactaremos pronto vía WhatsApp para coordinar el pago del anticipo que sería:',
+    anticipoConditions: 'Condiciones de Reserva',
+    anticipoItem1: 'Para grupos de 8 o más personas, se requiere un anticipo de 20 soles por persona previo a la visita.',
+    anticipoItem2: 'Este importe será deducido del total de su consumo en el restaurante.',
+    anticipoItem3: 'Por favor, envíe el comprobante de pago vía WhatsApp para formalizar su confirmación.'
   },
   en: {
     welcomeQuote: 'Welcome to this place of respect for nature, taste for good food, and Passion for the sea.',
@@ -403,6 +447,13 @@ const validateForm = () => {
 
 const submitReserva = async () => {
   if (!validateForm()) { window.scrollTo({ top: 0, behavior: 'smooth' }); return }
+  
+  // Intentar obtener el token CSRF desde la cookie si no existe en window
+  if (!window.csrf_token) {
+    const csrfCookie = document.cookie.split('; ').find(row => row.startsWith('frappe_csrftoken='));
+    if (csrfCookie) window.csrf_token = csrfCookie.split('=')[1];
+  }
+
   submitting.value = true
   try {
     const finalPhone = form.fullPhone || form.celular.replace(/\s/g, '')
@@ -416,6 +467,7 @@ const submitReserva = async () => {
     
     if (res && res.status === 'success') {
         reservationId.value = res.reserva_name;
+        requiresAnticipo.value = !!res.requires_anticipo;
         step.value = 5; showWaitlistModal.value = false; window.scrollTo({ top: 0, behavior: 'smooth' })
     } else if (res && res.status === 'error') {
         if (res.message && res.message.includes('Aforo excedido')) {

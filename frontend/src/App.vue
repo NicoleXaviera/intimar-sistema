@@ -18,17 +18,7 @@ const route = useRoute()
 // Recurso para verificar quién está logueado
 const user = createResource({
   url: 'frappe.auth.get_logged_user',
-  auto: true,
-  onSuccess: (data) => {
-    if (!data && route.name !== 'Login' && !route.meta.isPublic) {
-      router.push({ name: 'Login' })
-    }
-  },
-  onError: () => {
-    if (route.name !== 'Login' && !route.meta.isPublic) {
-      router.push({ name: 'Login' })
-    }
-  }
+  auto: true
 })
 
 const roles = createResource({

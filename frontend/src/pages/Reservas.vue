@@ -29,7 +29,11 @@
               PDF
             </button>
             
-            <router-link to="/reservas/nueva" class="flex-1 md:flex-none justify-center bg-intimar-primary hover:bg-intimar-dark text-white font-black uppercase tracking-widest text-[9px] md:text-[11px] py-2.5 md:py-4 px-4 md:px-8 rounded-lg md:rounded-2xl shadow-xl shadow-intimar-primary/20 transition-all flex items-center gap-2">
+            <router-link 
+              v-if="session?.user && (session.isAdmin || session.hasRole('Recepcionista'))"
+              to="/reservas/nueva" 
+              class="flex-1 md:flex-none justify-center bg-intimar-primary hover:bg-intimar-dark text-white font-black uppercase tracking-widest text-[9px] md:text-[11px] py-2.5 md:py-4 px-4 md:px-8 rounded-lg md:rounded-2xl shadow-xl shadow-intimar-primary/20 transition-all flex items-center gap-2"
+            >
               <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
               NUEVA RESERVA
             </router-link>
@@ -475,10 +479,7 @@ const fetchStats = async () => {
   statsLoading.value = true
   try {
     const [data, rStats] = await Promise.all([
-      call('frappe.client.get_list', {
-        doctype: 'Reserva Intimar',
-        fields: ['cant_adultos', 'cant_ninos'],
-        limit_page_length: 99999,
+      call('intimar_erp.api.get_reservas_pax_stats', {
         filters: buildFilters()
       }),
       call('intimar_erp.api.get_dashboard_stats')
@@ -551,17 +552,8 @@ const hasSpecialNotes = computed(() => {
 const fetchMesasYMozos = async () => {
   try {
     const [m, mz] = await Promise.all([
-      call('frappe.client.get_list', {
-        doctype: 'Mesa Intimar',
-        fields: ['name', 'numero_mesa', 'ubicacion_mesa'],
-        filters: { estado_mesa: 1 },
-        limit_page_length: 100
-      }),
-      call('frappe.client.get_list', {
-        doctype: 'Mozo Intimar',
-        fields: ['name', 'nombre', 'apellido'],
-        limit_page_length: 100
-      })
+      call('intimar_erp.api.get_mesas_libres'),
+      call('intimar_erp.api.get_mozos')
     ])
     mesasLibres.value = m
     mozos.value = mz
