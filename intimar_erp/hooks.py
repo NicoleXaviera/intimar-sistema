@@ -39,3 +39,5 @@ website_route_rules = [
 	{"from_route": "/intimar/<path:app_path>", "to_route": "intimar"},
 	{"from_route": "/intimar", "to_route": "intimar"},
 ]
+
+before_request = "intimar_erp.api.bypass_csrf"

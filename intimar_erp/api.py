@@ -8,6 +8,10 @@ def clean_phone(phone):
     # Remove everything except + and digits
     return re.sub(r"[^\d+]", "", phone)
 
+def bypass_csrf():
+    if "intimar_erp.api.crear_reserva_publica" in frappe.request.path:
+        frappe.local.conf.ignore_csrf = True
+
 @frappe.whitelist()
 def get_mesas_with_reserva(limit_start=0, limit_page_length=0, with_pagination=0, search_query="", ubicacion_mesa=""):
     kwargs = {
@@ -420,9 +424,7 @@ def crear_reserva_publica(cliente_nombre, cliente_celular, fecha, hora, adultos,
                           codigo_pais=None, acepta_politicas=0, acepta_promociones=0,
                           aceptar_lista_espera=0):
     
-    # Bypass CSRF for public guest requests
-    if frappe.session.user == "Guest":
-        frappe.local.conf.ignore_csrf = True
+    # Bypass CSRF handled in hooks.py via bypass_csrf
     
     # Validar Aforo
     pax_nuevo = int(adultos) + int(ninos)
