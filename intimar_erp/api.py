@@ -906,7 +906,8 @@ def get_ocupacion_proyectada(fecha=None):
     
     for h in horas_check:
         h_dt = frappe.utils.get_datetime(f"{fecha} {h}")
-        h_end = h_dt + timedelta(hours=duracion)
+        # El slot de simulación también considera el margen de limpieza configurado
+        h_end = h_dt + timedelta(hours=duracion + (config.margen_limpieza or 0)/60.0)
         
         ocupado = 0
         detalles = []
@@ -921,7 +922,15 @@ def get_ocupacion_proyectada(fecha=None):
                 if fecha == today and now > limite_tolerancia:
                     continue
             
-            r_end = r_start + timedelta(hours=duracion)
+            pax = (r.cant_adultos or 0) + (r.cant_ninos or 0)
+            
+            # LÓGICA DE TIEMPO DINÁMICO
+            r_dur = config.duracion_reserva or 2
+            if pax > 8:
+                r_dur = config.duracion_reserva_grande or r_dur
+            
+            r_margen = (config.margen_limpieza or 0) / 60.0
+            r_end = r_start + timedelta(hours=r_dur + r_margen)
             
             # Si la reserva está activa en este punto 'h'
             if r_start <= h_dt < r_end:

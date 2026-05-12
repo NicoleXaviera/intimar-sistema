@@ -154,8 +154,16 @@ class ReservaIntimar(Document):
 		hora = self.hora_reserva
 		pax_nuevos = (self.cant_adultos or 0) + (self.cant_ninos or 0)
 		
+		# LÓGICA DINÁMICA PROFESIONAL
+		mi_pax = (self.cant_adultos or 0) + (self.cant_ninos or 0)
+		mi_dur = config.duracion_reserva or 2
+		if mi_pax > 8:
+			mi_dur = config.duracion_reserva_grande or mi_dur
+		
+		margen_horas = (config.margen_limpieza or 0) / 60.0
+		
 		h_inicio = get_datetime(f"{fecha} {hora}")
-		h_fin = h_inicio + timedelta(hours=duracion)
+		h_fin = h_inicio + timedelta(hours=mi_dur + margen_horas)
 		
 		# Obtener todas las reservas que podrían solaparse (rango amplio)
 		hora_buffer_min = (h_inicio - timedelta(hours=duracion)).time()
@@ -186,7 +194,14 @@ class ReservaIntimar(Document):
 				if str(fecha) == today and now > limite_tolerancia:
 					continue
 			
-			r_end = r_start + timedelta(hours=duracion)
+			pax_r = (r.cant_adultos or 0) + (r.cant_ninos or 0)
+			
+			# Duración dinámica para las otras reservas
+			r_dur = config.duracion_reserva or 2
+			if pax_r > 8:
+				r_dur = config.duracion_reserva_grande or r_dur
+			
+			r_end = r_start + timedelta(hours=r_dur + margen_horas)
 			rango_reservas.append({
 				"start": r_start,
 				"end": r_end,

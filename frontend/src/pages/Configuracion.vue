@@ -60,8 +60,16 @@
                   <input v-model="formData.aforo_maximo" type="number" class="w-full px-6 py-4 bg-gray-50 border-2 border-transparent rounded-2xl focus:bg-white focus:border-intimar-primary outline-none transition-all font-bold">
                 </div>
                 <div>
-                  <label class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 ml-2 mb-2 block">Duración Reserva (Horas)</label>
+                  <label class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 ml-2 mb-2 block">Duración Estándar (Horas)</label>
                   <input v-model="formData.duracion_reserva" type="number" step="0.5" class="w-full px-6 py-4 bg-gray-50 border-2 border-transparent rounded-2xl focus:bg-white focus:border-intimar-primary outline-none transition-all font-bold">
+                </div>
+                <div>
+                  <label class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 ml-2 mb-2 block">Duración Grupos >8 (Horas)</label>
+                  <input v-model="formData.duracion_reserva_grande" type="number" step="0.5" class="w-full px-6 py-4 bg-gray-50 border-2 border-transparent rounded-2xl focus:bg-white focus:border-intimar-primary outline-none transition-all font-bold">
+                </div>
+                <div>
+                  <label class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 ml-2 mb-2 block">Margen de Limpieza (Minutos)</label>
+                  <input v-model="formData.margen_limpieza" type="number" class="w-full px-6 py-4 bg-gray-50 border-2 border-transparent rounded-2xl focus:bg-white focus:border-intimar-primary outline-none transition-all font-bold">
                 </div>
               </div>
             </div>
@@ -92,18 +100,18 @@
                   <div class="flex gap-5">
                     <span class="text-4xl font-black text-intimar-primary opacity-30 mt-1">01</span>
                     <div class="space-y-2">
-                      <p class="font-black uppercase tracking-widest text-xs text-white">Tiempo de Estancia</p>
+                      <p class="font-black uppercase tracking-widest text-xs text-white">Tiempos Inteligentes</p>
                       <p class="text-sm text-gray-400 leading-relaxed">
-                        El sistema no usa "turnos" fijos. Usa la <b class="text-white">Duración de Reserva</b>. Si un grupo llega a las 12 PM y la duración es de 2h, ocuparán espacio hasta las 2 PM.
+                        El sistema distingue entre grupos: las mesas de <b class="text-white">más de 8 personas</b> tienen una duración mayor, ya que su estancia suele ser más larga.
                       </p>
                     </div>
                   </div>
                   <div class="flex gap-5">
                     <span class="text-4xl font-black text-intimar-primary opacity-30 mt-1">02</span>
                     <div class="space-y-2">
-                      <p class="font-black uppercase tracking-widest text-xs text-white">Solapamiento Dinámico</p>
+                      <p class="font-black uppercase tracking-widest text-xs text-white">Solapamiento Real</p>
                       <p class="text-sm text-gray-400 leading-relaxed">
-                        Para saber el espacio libre a la 1 PM, el sistema suma a los que <b class="text-white">siguen comiendo</b> y a los que <b class="text-white">están por llegar</b> en ese rango.
+                        Para saber el espacio libre a la 1 PM, el sistema suma a los que <b class="text-white">siguen comiendo</b> y a los que <b class="text-white">están por llegar</b> en ese instante exacto.
                       </p>
                     </div>
                   </div>
@@ -113,9 +121,18 @@
                   <div class="flex gap-5">
                     <span class="text-4xl font-black text-intimar-primary opacity-30 mt-1">03</span>
                     <div class="space-y-2">
+                      <p class="font-black uppercase tracking-widest text-xs text-white">Margen de Limpieza</p>
+                      <p class="text-sm text-gray-400 leading-relaxed">
+                         Cada reserva reserva automáticamente un <b class="text-white">tiempo de limpieza</b> al final, evitando que se junten clientes al entrar y salir.
+                      </p>
+                    </div>
+                  </div>
+                  <div class="flex gap-5">
+                    <span class="text-4xl font-black text-intimar-primary opacity-30 mt-1">04</span>
+                    <div class="space-y-2">
                       <p class="font-black uppercase tracking-widest text-xs text-white">Autoliberación</p>
                       <p class="text-sm text-gray-400 leading-relaxed">
-                        A los <b class="text-white">20 min de retraso</b>, si no se marcó llegada ("En proceso"), el sistema libera el espacio automáticamente para permitir otros registros.
+                        A los <b class="text-white">20 min de retraso</b>, si no se marcó llegada ("En proceso"), el sistema libera el espacio para permitir nuevos registros.
                       </p>
                     </div>
                   </div>
@@ -192,6 +209,8 @@ const formData = reactive({
   anticipo_persona: 0,
   monto_anticipo_persona: 0,
   duracion_reserva: 2,
+  duracion_reserva_grande: 2.5,
+  margen_limpieza: 15,
   aforo_maximo: 100,
   hora_minima: '09:00:00',
   hora_maxima: '22:00:00'
@@ -209,6 +228,8 @@ const fetchConfig = async () => {
       formData.anticipo_persona = data.anticipo_persona || 0
       formData.monto_anticipo_persona = data.monto_anticipo_persona || 0
       formData.duracion_reserva = data.duracion_reserva || 2
+      formData.duracion_reserva_grande = data.duracion_reserva_grande || 2.5
+      formData.margen_limpieza = data.margen_limpieza || 15
       formData.aforo_maximo = data.aforo_maximo || 100
       formData.hora_minima = data.hora_minima || '09:00:00'
       formData.hora_maxima = data.hora_maxima || '22:00:00'
@@ -239,6 +260,8 @@ const saveConfig = async () => {
         anticipo_persona: formData.anticipo_persona,
         monto_anticipo_persona: formData.monto_anticipo_persona,
         duracion_reserva: formData.duracion_reserva,
+        duracion_reserva_grande: formData.duracion_reserva_grande,
+        margen_limpieza: formData.margen_limpieza,
         aforo_maximo: formData.aforo_maximo,
         hora_minima: formData.hora_minima,
         hora_maxima: formData.hora_maxima

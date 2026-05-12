@@ -9,6 +9,8 @@
   "anticipo_persona",
   "monto_anticipo_persona",
   "duracion_reserva",
+  "duracion_reserva_grande",
+  "margen_limpieza",
   "aforo_maximo",
   "hora_minima",
   "hora_maxima",
@@ -39,6 +41,18 @@
    "fieldname": "duracion_reserva",
    "fieldtype": "Float",
    "label": "Duraci\u00f3n Estimada (Horas)"
+  },
+  {
+   "default": "2.5",
+   "fieldname": "duracion_reserva_grande",
+   "fieldtype": "Float",
+   "label": "Duraci\u00f3n Grupos >8 (Horas)"
+  },
+  {
+   "default": "15",
+   "fieldname": "margen_limpieza",
+   "fieldtype": "Int",
+   "label": "Margen de Limpieza (Minutos)"
   },
   {
    "fieldname": "aforo_maximo",
@@ -74,7 +88,7 @@
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2026-05-06 10:46:20.265523",
+ "modified": "2026-05-12 01:53:00",
  "modified_by": "Administrator",
  "module": "intimar",
  "name": "Configuracion Intimar",
