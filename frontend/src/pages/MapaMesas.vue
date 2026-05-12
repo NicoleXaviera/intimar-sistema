@@ -519,6 +519,39 @@
         </TransitionGroup>
       </div>
     </Teleport>
+
+    <!-- MODAL: AFORO EXCEDIDO DETALLADO -->
+    <Teleport to="body">
+      <transition name="modal-fade">
+        <div v-if="showAforoErrorModal" class="fixed inset-0 z-[10000] flex items-center justify-center p-4">
+          <div class="absolute inset-0 bg-gray-900/70 backdrop-blur-md" @click="showAforoErrorModal = false"></div>
+          <div class="relative bg-white w-full max-w-lg rounded-[2.5rem] shadow-2xl overflow-hidden animate-scaleIn border-t-8 border-red-500">
+            <div class="p-8">
+              <div class="flex items-center gap-4 mb-6">
+                <div class="w-16 h-16 bg-red-100 text-red-600 rounded-2xl flex items-center justify-center shrink-0">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+                </div>
+                <div>
+                  <h3 class="text-2xl font-black text-gray-900 leading-tight">Control de Aforo</h3>
+                  <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mt-1">Detalles de ocupación actual</p>
+                </div>
+              </div>
+
+              <div class="prose prose-sm max-w-none text-gray-700" v-html="aforoErrorContent"></div>
+
+              <div class="mt-8 flex flex-col gap-3">
+                <button 
+                  @click="showAforoErrorModal = false"
+                  class="w-full py-4 bg-gray-900 text-white font-black rounded-2xl shadow-xl uppercase tracking-widest text-xs hover:bg-black transition-all"
+                >
+                  Entendido
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </transition>
+    </Teleport>
     </div>
   </div>
 </template>
@@ -542,6 +575,8 @@ const showReleaseModal = ref(false)
 const selectedMesa = ref(null)
 const releasing = ref(false)
 const searchQuery = ref('')
+const showAforoErrorModal = ref(false)
+const aforoErrorContent = ref('')
 
 const assignStep = ref(1)
 const selectedReservaForAssign = ref(null)
@@ -780,7 +815,12 @@ async function confirmarReservaRapida() {
     } catch (e) {
         console.error(e)
         const msg = e.messages ? e.messages.join('\n') : (e.message || 'No se pudo crear la reserva rápida.')
-        showToast('Error', msg, 'error')
+        if (msg && msg.includes('AFORO EXCEDIDO')) {
+            aforoErrorContent.value = msg
+            showAforoErrorModal.value = true
+        } else {
+            showToast('Error', msg, 'error')
+        }
     } finally {
         creatingQuickReserva.value = false
     }
@@ -822,7 +862,12 @@ async function confirmarAsignacionFinal(mozo) {
   } catch (e) {
     console.error(e)
     const msg = e.messages ? e.messages.join('\n') : (e.message || 'No se pudo completar la asignación.')
-    showToast('Error', msg, 'error')
+    if (msg && msg.includes('AFORO EXCEDIDO')) {
+        aforoErrorContent.value = msg
+        showAforoErrorModal.value = true
+    } else {
+        showToast('Error', msg, 'error')
+    }
   }
 }
 

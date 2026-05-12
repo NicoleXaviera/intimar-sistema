@@ -1,4 +1,5 @@
 import frappe
+from datetime import timedelta
 from frappe import _
 import json
 import re
@@ -133,7 +134,7 @@ def get_aforo_ocupado(fecha, hora, excluir_reserva=None):
     
     now = frappe.utils.now_datetime()
     h_inicio = frappe.utils.get_datetime(f"{fecha} {hora}")
-    h_fin = h_inicio + frappe.utils.get_timedelta(f"{duracion}:00:00")
+    h_fin = h_inicio + timedelta(hours=duracion)
     
     reservas = frappe.get_all("Reserva Intimar", 
         filters={
@@ -149,21 +150,26 @@ def get_aforo_ocupado(fecha, hora, excluir_reserva=None):
     
     for r in reservas:
         start_str = r.hora_llegada if (r.estado_reserva == "En proceso" and r.hora_llegada) else r.hora_reserva
-        r_start = frappe.utils.get_datetime(f"{fecha} {start_str}")
-        
+        if (isinstance(start_str, (bytes, str))):
+            r_start = frappe.utils.get_datetime(f"{fecha} {start_str}")
+        else:
+            # Handle timedelta or other time objects
+            r_start = frappe.utils.get_datetime(f"{fecha} {str(start_str)}")
+            
         # Lógica de Tolerancia: Si es hoy, no ha llegado y pasaron 20 min, NO ocupa aforo
         if r.estado_reserva == "Confirmada" and not r.hora_llegada:
             limite_tolerancia = frappe.utils.add_to_date(r_start, minutes=tolerancia_mins)
-            if fecha == frappe.utils.today() and now > limite_tolerancia:
+            if str(fecha) == frappe.utils.today() and now > limite_tolerancia:
                 continue # Se ignora esta reserva tarde
-        
-        r_end = r_start + frappe.utils.get_timedelta(f"{duracion}:00:00")
+                
+        r_end = r_start + timedelta(hours=duracion)
         rango_reservas.append({
             "start": r_start,
             "end": r_end,
             "pax": (r.cant_adultos or 0) + (r.cant_ninos or 0)
         })
         puntos_de_tiempo.append(r_start)
+        puntos_de_tiempo.append(r_end) # También chequear el punto de salida
     
     max_ocupacion = 0
     for p in puntos_de_tiempo:
@@ -179,7 +185,8 @@ def get_aforo_ocupado(fecha, hora, excluir_reserva=None):
         "ocupado": max_ocupacion,
         "limite": aforo_max,
         "disponible": max(0, aforo_max - max_ocupacion) if aforo_max > 0 else 999,
-        "mesas_fisicas_libres": mesas_libres
+        "mesas_fisicas_libres": mesas_libres,
+        "detalle": rango_reservas # Devolvemos los rangos para el desglose
     }
 
 @frappe.whitelist()
@@ -200,12 +207,48 @@ def crear_reserva_rapida(nombre, apellido, celular, adultos, ninos=0, email=None
             frappe.throw("<b>SIN MESAS DISPONIBLES</b><br><br>No hay mesas físicas desocupadas en este momento. Por favor, espere a que se libere una.")
 
         if estado["limite"] > 0 and (estado["ocupado"] + pax_nuevo) > estado["limite"]:
+            # Obtener detalles de reservas que solapan ahora mismo
+            now_dt = frappe.utils.now_datetime()
+            detalle_txt = []
+            
+            # Buscar las reservas que están solapadas AHORA
+            reservas_ahora = frappe.get_all("Reserva Intimar",
+                filters={
+                    "fecha_reserva": frappe.utils.today(),
+                    "estado_reserva": ["not in", ["Cancelada", "Finalizada", "Lista de espera"]]
+                },
+                fields=["name", "nombre", "cliente", "hora_reserva", "cant_adultos", "cant_ninos", "hora_llegada", "estado_reserva"]
+            )
+            
+            duracion_res = config.duracion_reserva or 2
+            for r in reservas_ahora:
+                start_str = r.hora_llegada if (r.estado_reserva == "En proceso" and r.hora_llegada) else r.hora_reserva
+                r_start = frappe.utils.get_datetime(f"{frappe.utils.today()} {start_str}")
+                
+                # Tolerancia
+                if r.estado_reserva == "Confirmada" and not r.hora_llegada:
+                    if (now_dt - r_start).total_seconds() / 60 > 20:
+                        continue
+                
+                r_end = r_start + timedelta(hours=duracion_res)
+                
+                if r_start <= now_dt < r_end:
+                    pax = (r.cant_adultos or 0) + (r.cant_ninos or 0)
+                    nombre_cli = r.nombre or frappe.get_value("Cliente Intimar", r.cliente, "nombre_y_apellido_completo") or "Cliente"
+                    detalle_txt.append(f"• <b>{frappe.utils.format_time(start_str, 'HH:mm')}</b> - {nombre_cli} ({pax} pers.)")
+
+            res_list_html = "<div style='margin-top: 10px; font-size: 0.9em;'>" + "".join([f"<div>{d}</div>" for d in detalle_txt]) + "</div>"
+
             frappe.throw(
-                f"<b>AFORO EXCEDIDO</b><br><br>"
-                f"Capacidad Máxima: {estado['limite']}<br>"
-                f"Ocupación (con tolerancia 20m): {estado['ocupado']}<br>"
-                f"Espacio Libre: {estado['disponible']}<br><br>"
-                f"No hay espacio para {pax_nuevo} personas."
+                f"<div style='text-align: center; margin-bottom: 15px;'><span style='font-size: 1.5em; font-weight: 900; color: #d32f2f;'>⚠️ AFORO EXCEDIDO</span></div>"
+                f"<b>Capacidad Máxima:</b> {estado['limite']} personas<br>"
+                f"<b>Ocupación Actual:</b> {estado['ocupado']} personas<br>"
+                f"<b>Espacio Libre:</b> {estado['disponible']} personas<br><br>"
+                f"<div style='background: #f5f5f5; padding: 15px; border-radius: 12px; border-left: 4px solid #00938f;'>"
+                f"<b>Reservas activas en este momento:</b><br>"
+                f"{res_list_html}"
+                f"</div>"
+                f"<br>No hay espacio para registrar este nuevo grupo de <b>{pax_nuevo}</b> personas."
             )
         
         celular = clean_phone(celular)
@@ -643,14 +686,14 @@ def get_dashboard_stats(start_date=None, end_date=None):
     
     # Ranking de Mozos (Procesado en Python desde DocTypes)
     reservas_mozos = frappe.get_all("Reserva Intimar",
-        filters={"fecha_reserva": ["between", [start_date, end_date]], "mozo_asignado": ["is", "set"]},
-        fields=["mozo_asignado"]
+        filters={"fecha_reserva": ["between", [start_date, end_date]], "mozo": ["is", "set"]},
+        fields=["mozo"]
     )
     mozos_stats = {}
     for r in reservas_mozos:
-        mozos_stats[r.mozo_asignado] = mozos_stats.get(r.mozo_asignado, 0) + 1
+        mozos_stats[r.mozo] = mozos_stats.get(r.mozo, 0) + 1
     
-    mozos_ranking = sorted([{"mozo_asignado": k, "total": v} for k, v in mozos_stats.items()], 
+    mozos_ranking = sorted([{"mozo": k, "total": v} for k, v in mozos_stats.items()], 
                            key=lambda x: x['total'], reverse=True)[:5]
     
     # Ocupación por Hora
@@ -818,10 +861,88 @@ def get_ubicaciones_mesas():
 @frappe.whitelist()
 def get_reservas_pax_stats(filters=None):
     if isinstance(filters, str):
-        import json
-        filters = json.loads(filters)
-    
-    return frappe.get_all("Reserva Intimar", 
+        try:
+            import json
+            filters = json.loads(filters)
+        except:
+            filters = []
+            
+    # Uso de Frappe nativo (get_list)
+    return frappe.get_list("Reserva Intimar", 
         filters=filters,
         fields=["cant_adultos", "cant_ninos"]
     )
+
+@frappe.whitelist()
+def get_ocupacion_proyectada(fecha=None):
+    if not fecha:
+        fecha = frappe.utils.today()
+    
+    config = frappe.get_doc("Configuracion Intimar", ignore_permissions=True)
+    aforo_max = config.aforo_maximo or 0
+    duracion = config.duracion_reserva or 2
+    tolerancia_mins = 20
+    
+    # Horas base de consulta (desde apertura a cierre estimado)
+    # Horas cada 30 min para mayor precisión con duraciones de 1.5h
+    horas_check = [
+        "11:00", "11:30", "12:00", "12:30", "13:00", "13:30", 
+        "14:00", "14:30", "15:00", "15:30", "16:00", "16:30", 
+        "17:00", "17:30", "18:00"
+    ]
+    
+    # Obtener todas las reservas del día (excluyendo canceladas/finalizadas)
+    reservas = frappe.get_all("Reserva Intimar",
+        filters={
+            "fecha_reserva": fecha,
+            "estado_reserva": ["not in", ["Cancelada", "Finalizada", "Lista de espera"]]
+        },
+        fields=["name", "nombre", "cliente", "hora_reserva", "cant_adultos", "cant_ninos", "estado_reserva", "hora_llegada"]
+    )
+    
+    proyeccion = []
+    now = frappe.utils.now_datetime()
+    today = frappe.utils.today()
+    
+    for h in horas_check:
+        h_dt = frappe.utils.get_datetime(f"{fecha} {h}")
+        h_end = h_dt + timedelta(hours=duracion)
+        
+        ocupado = 0
+        detalles = []
+        
+        for r in reservas:
+            start_str = r.hora_llegada if (r.estado_reserva == "En proceso" and r.hora_llegada) else r.hora_reserva
+            r_start = frappe.utils.get_datetime(f"{fecha} {start_str}")
+            
+            # Tolerancia: si no ha llegado y pasaron 20 min, no ocupa aforo
+            if r.estado_reserva == "Confirmada" and not r.hora_llegada:
+                limite_tolerancia = frappe.utils.add_to_date(r_start, minutes=tolerancia_mins)
+                if fecha == today and now > limite_tolerancia:
+                    continue
+            
+            r_end = r_start + timedelta(hours=duracion)
+            
+            # Si la reserva está activa en este punto 'h'
+            if r_start <= h_dt < r_end:
+                pax = (r.cant_adultos or 0) + (r.cant_ninos or 0)
+                ocupado += pax
+                nombre_cli = r.nombre or frappe.get_value("Cliente Intimar", r.cliente, "nombre_y_apellido_completo") or "Cliente"
+                detalles.append({
+                    "reserva": r.name,
+                    "nombre": nombre_cli,
+                    "pax": pax,
+                    "hora": frappe.utils.format_time(start_str, "HH:mm"),
+                    "hora_fin": frappe.utils.format_time(r_end, "HH:mm"),
+                    "estado": r.estado_reserva
+                })
+        
+        proyeccion.append({
+            "hora": h,
+            "ocupado": ocupado,
+            "limite": aforo_max,
+            "porcentaje": round((ocupado / aforo_max * 100), 1) if aforo_max > 0 else 0,
+            "detalles": detalles
+        })
+        
+    return proyeccion

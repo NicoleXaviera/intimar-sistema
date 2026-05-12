@@ -51,7 +51,12 @@
               </h3>
               <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div>
-                  <label class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 ml-2 mb-2 block">Aforo Máximo</label>
+                  <label class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 ml-2 mb-2 flex items-center gap-2">
+                    Aforo Máximo
+                    <button @click="showAforoGuide = true" class="w-5 h-5 bg-intimar-primary/10 text-intimar-primary rounded-full flex items-center justify-center hover:bg-intimar-primary hover:text-white transition-all transform active:scale-90">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+                    </button>
+                  </label>
                   <input v-model="formData.aforo_maximo" type="number" class="w-full px-6 py-4 bg-gray-50 border-2 border-transparent rounded-2xl focus:bg-white focus:border-intimar-primary outline-none transition-all font-bold">
                 </div>
                 <div>
@@ -60,6 +65,74 @@
                 </div>
               </div>
             </div>
+
+    <!-- MODAL: GUÍA DE AFORO (POPUP) -->
+    <Teleport to="body">
+      <transition name="modal-fade">
+        <div v-if="showAforoGuide" class="fixed inset-0 z-[10000] flex items-center justify-center p-4">
+          <div class="absolute inset-0 bg-gray-900/80 backdrop-blur-md" @click="showAforoGuide = false"></div>
+          <div class="relative bg-gray-900 text-white w-full max-w-3xl rounded-[3rem] shadow-2xl overflow-hidden border border-white/10 animate-scaleIn">
+            <button @click="showAforoGuide = false" class="absolute top-8 right-8 w-10 h-10 bg-white/5 rounded-full flex items-center justify-center text-white/40 hover:text-white hover:bg-white/10 transition-all z-20">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+
+            <div class="p-10 md:p-14 relative z-10">
+              <div class="flex items-center gap-5 mb-10">
+                <div class="w-16 h-16 bg-intimar-primary/20 text-intimar-primary rounded-[1.5rem] flex items-center justify-center shrink-0">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+                </div>
+                <div>
+                  <h3 class="text-3xl font-black italic tracking-tight text-white leading-tight">Lógica de Aforo</h3>
+                  <p class="text-[10px] font-bold uppercase tracking-[0.4em] text-intimar-primary mt-1">Guía para el Administrador</p>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+                <div class="space-y-8">
+                  <div class="flex gap-5">
+                    <span class="text-4xl font-black text-intimar-primary opacity-30 mt-1">01</span>
+                    <div class="space-y-2">
+                      <p class="font-black uppercase tracking-widest text-xs text-white">Tiempo de Estancia</p>
+                      <p class="text-sm text-gray-400 leading-relaxed">
+                        El sistema no usa "turnos" fijos. Usa la <b class="text-white">Duración de Reserva</b>. Si un grupo llega a las 12 PM y la duración es de 2h, ocuparán espacio hasta las 2 PM.
+                      </p>
+                    </div>
+                  </div>
+                  <div class="flex gap-5">
+                    <span class="text-4xl font-black text-intimar-primary opacity-30 mt-1">02</span>
+                    <div class="space-y-2">
+                      <p class="font-black uppercase tracking-widest text-xs text-white">Solapamiento Dinámico</p>
+                      <p class="text-sm text-gray-400 leading-relaxed">
+                        Para saber el espacio libre a la 1 PM, el sistema suma a los que <b class="text-white">siguen comiendo</b> y a los que <b class="text-white">están por llegar</b> en ese rango.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="space-y-8">
+                  <div class="flex gap-5">
+                    <span class="text-4xl font-black text-intimar-primary opacity-30 mt-1">03</span>
+                    <div class="space-y-2">
+                      <p class="font-black uppercase tracking-widest text-xs text-white">Autoliberación</p>
+                      <p class="text-sm text-gray-400 leading-relaxed">
+                        A los <b class="text-white">20 min de retraso</b>, si no se marcó llegada ("En proceso"), el sistema libera el espacio automáticamente para permitir otros registros.
+                      </p>
+                    </div>
+                  </div>
+                  <div class="bg-white/5 p-8 rounded-[2rem] border border-white/10 relative overflow-hidden group/card">
+                    <div class="absolute top-0 right-0 p-4 opacity-10"><svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="m9 12 2 2 4-4"/></svg></div>
+                    <p class="text-[10px] font-black uppercase tracking-widest text-intimar-gold mb-3">Consejo Operativo</p>
+                    <p class="text-[13px] text-gray-300 italic leading-relaxed font-medium">
+                      "Marcar <b>Finalizada</b> cuando un grupo se retira es clave para que el sistema libere la mesa de inmediato."
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </transition>
+    </Teleport>
 
             <!-- Card: Horarios -->
             <div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-gray-100">
@@ -112,6 +185,7 @@ import Sidebar from '@/components/Sidebar.vue'
 
 const loading = ref(true)
 const saving = ref(false)
+const showAforoGuide = ref(false)
 const errorMessage = ref('')
 const successMessage = ref('')
 const formData = reactive({

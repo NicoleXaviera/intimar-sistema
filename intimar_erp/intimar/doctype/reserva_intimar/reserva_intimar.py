@@ -1,6 +1,7 @@
 import frappe
 from frappe.model.document import Document
 from frappe.utils import now_datetime, get_time, get_datetime, add_to_date, format_time, get_weekday
+from datetime import timedelta
 from frappe import _
 
 @frappe.whitelist()
@@ -140,70 +141,109 @@ class ReservaIntimar(Document):
 					config.hora_minima, config.hora_maxima))
 
 	def validate_aforo(self):
-		# Si la reserva está cancelada, finalizada o en lista de espera, no bloqueamos ni validamos aforo para ella
+		config = frappe.get_doc("Configuracion Intimar", ignore_permissions=True)
+		aforo_max = config.aforo_maximo or 40
+		duracion = config.duracion_reserva or 2
+		tolerancia_mins = 20
+		
+		# Si ya es una reserva en lista de espera o cancelada, no validamos aforo
 		if self.estado_reserva in ["Cancelada", "Finalizada", "Lista de espera"]:
 			return
 
-		config = frappe.get_doc("Configuracion Intimar", ignore_permissions=True)
-		if not config.aforo_maximo:
-			return
+		fecha = self.fecha_reserva
+		hora = self.hora_reserva
+		pax_nuevos = (self.cant_adultos or 0) + (self.cant_ninos or 0)
 		
-		# Duración en horas
-		duracion = config.duracion_reserva or 2
+		h_inicio = get_datetime(f"{fecha} {hora}")
+		h_fin = h_inicio + timedelta(hours=duracion)
 		
-		res_datetime = get_datetime(f"{self.fecha_reserva} {self.hora_reserva}")
-		hora_min = add_to_date(res_datetime, hours=-duracion).time()
-		hora_max = add_to_date(res_datetime, hours=duracion).time()
+		# Obtener todas las reservas que podrían solaparse (rango amplio)
+		hora_buffer_min = (h_inicio - timedelta(hours=duracion)).time()
+		hora_buffer_max = (h_inicio + timedelta(hours=duracion)).time()
 		
-		# Buscar reservas que se solapan en esa fecha
-		filters = [
-			["Reserva Intimar", "fecha_reserva", "=", self.fecha_reserva],
-			["Reserva Intimar", "hora_reserva", ">", hora_min],
-			["Reserva Intimar", "hora_reserva", "<", hora_max],
-			["Reserva Intimar", "estado_reserva", "in", ["Confirmada", "En proceso", "Solicitud de reserva"]]
-		]
-		
-		if self.name:
-			filters.append(["Reserva Intimar", "name", "!=", self.name])
+		reservas = frappe.get_all("Reserva Intimar", 
+			filters={
+				"fecha_reserva": fecha,
+				"estado_reserva": ["not in", ["Cancelada", "Finalizada", "Lista de espera"]],
+				"hora_reserva": ["between", [hora_buffer_min, hora_buffer_max]],
+				"name": ["!=", self.name] if self.name else ["!=", ""]
+			},
+			fields=["name", "nombre", "cliente", "hora_reserva", "cant_adultos", "cant_ninos", "estado_reserva", "hora_llegada"]
+		)
 
-		reservas_solapadas = frappe.get_all("Reserva Intimar", filters=filters, fields=["name", "cant_adultos", "cant_ninos", "estado_reserva", "hora_reserva", "hora_llegada"])
-		
-		# Aplicar tolerancia de 20 min para liberar aforo
-		aforo_ocupado = 0
-		now_dt = now_datetime()
-		for r in reservas_solapadas:
+		rango_reservas = []
+		puntos_de_tiempo = [h_inicio]
+		now = now_datetime()
+		today = frappe.utils.today()
+
+		for r in reservas:
+			start_str = r.hora_llegada if (r.estado_reserva == "En proceso" and r.hora_llegada) else r.hora_reserva
+			r_start = get_datetime(f"{fecha} {start_str}")
+			
+			# Tolerancia de 20 min
 			if r.estado_reserva == "Confirmada" and not r.hora_llegada:
-				# Solo liberar si es para hoy
-				if self.fecha_reserva == frappe.utils.today():
-					r_time = get_datetime(f"{self.fecha_reserva} {r.hora_reserva}")
-					if (now_dt - r_time).total_seconds() / 60 > 20:
-						continue # Ignorar reserva con >20m de retraso
-			aforo_ocupado += (r.cant_adultos or 0) + (r.cant_ninos or 0)
+				limite_tolerancia = add_to_date(r_start, minutes=tolerancia_mins)
+				if str(fecha) == today and now > limite_tolerancia:
+					continue
+			
+			r_end = r_start + timedelta(hours=duracion)
+			rango_reservas.append({
+				"start": r_start,
+				"end": r_end,
+				"pax": (r.cant_adultos or 0) + (r.cant_ninos or 0),
+				"desc": f"{format_time(start_str, 'HH:mm')} - {r.nombre or r.cliente} ({ (r.cant_adultos or 0) + (r.cant_ninos or 0) } pers.)"
+			})
+			puntos_de_tiempo.append(r_start)
+			puntos_de_tiempo.append(r_end)
 
-		personas_nuevas = (self.cant_adultos or 0) + (self.cant_ninos or 0)
-		total_proyectado = aforo_ocupado + personas_nuevas
+		max_ocupacion = 0
+		reservas_en_pico = []
 		
-		# Solo bloqueamos si estamos intentando CONFIRMAR algo nuevo o que estaba en espera
+		for p in sorted(list(set(puntos_de_tiempo))):
+			if h_inicio <= p < h_fin:
+				ocupacion_p = 0
+				activos_p = []
+				for res in rango_reservas:
+					if res["start"] <= p < res["end"]:
+						ocupacion_p += res["pax"]
+						activos_p.append(res["desc"])
+				
+				if ocupacion_p > max_ocupacion:
+					max_ocupacion = ocupacion_p
+					reservas_en_pico = activos_p
+
+		total_proyectado = max_ocupacion + pax_nuevos
+		
 		if not self.is_new():
 			old_doc = self.get_doc_before_save()
-			if old_doc and old_doc.estado_reserva in ["Confirmada", "En proceso", "Solicitud de reserva"]:
+			if old_doc and old_doc.estado_reserva in ["Confirmada", "En proceso"]:
 				old_pax = (old_doc.cant_adultos or 0) + (old_doc.cant_ninos or 0)
-				if personas_nuevas <= old_pax and old_doc.hora_reserva == self.hora_reserva:
+				if pax_nuevos <= old_pax and old_doc.hora_reserva == self.hora_reserva:
 					return 
 
-		if total_proyectado > config.aforo_maximo:
+		if total_proyectado > aforo_max:
 			if self.aceptar_lista_espera:
 				self.estado_reserva = "Lista de espera"
 				self.notify_event("aforo_lleno", _("Aforo lleno. Reserva de {0} enviada a Lista de Espera.").format(self.nombre))
 			else:
-				disponible = max(0, config.aforo_maximo - aforo_ocupado)
+				disponible = max(0, aforo_max - max_ocupacion)
+				res_list_html = "<div style='margin-top: 10px; font-size: 0.9em;'>" + "".join([f"<div>• {d}</div>" for d in list(set(reservas_en_pico))]) + "</div>"
+				
 				msg = (
-					f"<b>AFORO EXCEDIDO</b><br><br>"
-					f"Capacidad Máxima: {config.aforo_maximo}<br>"
-					f"Ocupación (con tolerancia 20m): {aforo_ocupado}<br>"
-					f"Espacio Disponible: {disponible}<br><br>"
-					f"No se puede registrar el grupo de {personas_nuevas} personas."
+					f"<div style='text-align: center; margin-bottom: 15px;'>"
+					f"<span style='font-size: 1.5em; font-weight: 900; color: #d32f2f;'>⚠️ AFORO EXCEDIDO</span><br>"
+					f"<span style='font-size: 0.9em; font-weight: 700; color: #d32f2f;'>CONTROL DE AFORO</span><br>"
+					f"</div>"
+					f"<b>Capacidad Máxima:</b> {aforo_max} personas<br>"
+					f"<b>Ocupación Pico en este horario:</b> {max_ocupacion} personas<br>"
+					f"<b>Espacio Disponible:</b> {disponible} personas<br><br>"
+					f"<div style='background: #f5f5f5; padding: 15px; border-radius: 12px; border-left: 4px solid #00938f;'>"
+					f"<b>Reservas que ocupan sitio en este lapso:</b><br>"
+					f"{res_list_html}"
+					f"</div>"
+					f"<br>No es posible registrar este nuevo grupo de <b>{pax_nuevos}</b> personas."
 				)
+				
 				self.notify_event("aforo_lleno", msg)
 				frappe.throw(msg)
 		

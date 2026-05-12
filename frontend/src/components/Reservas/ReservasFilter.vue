@@ -38,19 +38,13 @@
         </div>
         <select v-model="filters.hora" class="w-full pl-12 pr-4 py-3 bg-gray-50 border border-transparent rounded-2xl text-xs font-bold text-gray-700 focus:border-intimar-gold/30 focus:bg-white focus:ring-4 focus:ring-intimar-gold/10 transition-all appearance-none cursor-pointer">
           <option value="Todas">Cualquier Hora</option>
-          <option value="11:00:00">11:00 AM</option>
-          <option value="11:30:00">11:30 AM</option>
-          <option value="12:00:00">12:00 PM</option>
-          <option value="12:30:00">12:30 PM</option>
-          <option value="13:00:00">1:00 PM</option>
-          <option value="13:30:00">1:30 PM</option>
-          <option value="14:00:00">2:00 PM</option>
-          <option value="14:30:00">2:30 PM</option>
-          <option value="15:00:00">3:00 PM</option>
-          <option value="15:30:00">3:30 PM</option>
-          <option value="16:00:00">4:00 PM</option>
-          <option value="16:30:00">4:30 PM</option>
-          <option value="17:00:00">5:00 PM</option>
+          <option value="11">11 AM</option>
+          <option value="12">12 PM</option>
+          <option value="13">1 PM</option>
+          <option value="14">2 PM</option>
+          <option value="15">3 PM</option>
+          <option value="16">4 PM</option>
+          <option value="17">5 PM</option>
         </select>
         <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none text-gray-400"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></div>
       </div>
