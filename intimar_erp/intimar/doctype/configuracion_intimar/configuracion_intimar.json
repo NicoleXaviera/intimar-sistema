@@ -12,6 +12,7 @@
   "duracion_reserva_grande",
   "margen_limpieza",
   "aforo_maximo",
+  "capacidad_cocina_30min",
   "hora_minima",
   "hora_maxima",
   "whatsapp_section",
@@ -55,9 +56,16 @@
    "label": "Margen de Limpieza (Minutos)"
   },
   {
+   "default": "162",
    "fieldname": "aforo_maximo",
    "fieldtype": "Int",
-   "label": "Aforo M\u00e1ximo"
+   "label": "Aforo M\u00e1ximo (Sillas)"
+  },
+  {
+   "default": "30",
+   "fieldname": "capacidad_cocina_30min",
+   "fieldtype": "Int",
+   "label": "Capacidad Cocina (Pers/30min)"
   },
   {
    "fieldname": "hora_minima",
@@ -88,7 +96,7 @@
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2026-05-12 01:53:00",
+ "modified": "2026-05-12 12:24:00",
  "modified_by": "Administrator",
  "module": "intimar",
  "name": "Configuracion Intimar",

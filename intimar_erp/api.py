@@ -879,7 +879,7 @@ def get_ocupacion_proyectada(fecha=None):
         fecha = frappe.utils.today()
     
     config = frappe.get_doc("Configuracion Intimar", ignore_permissions=True)
-    aforo_max = config.aforo_maximo or 0
+    aforo_max = config.get("aforo_maximo") or 162
     duracion = config.duracion_reserva or 2
     tolerancia_mins = 20
     
@@ -946,11 +946,28 @@ def get_ocupacion_proyectada(fecha=None):
                     "estado": r.estado_reserva
                 })
         
+        # CÁLCULO DE FLUJO DE COCINA (LLEGADAS EN ESTE BLOQUE)
+        # Agrupamos por bloques de 30 min (ej: 13:15 -> 13:00) para un conteo real
+        llegando = 0
+        for res in reservas:
+            r_time = frappe.utils.get_time(res.hora_reserva)
+            # Redondeamos hacia abajo al bloque de 30 min más cercano
+            r_slot_mins = (r_time.hour * 60 + r_time.minute) // 30 * 30
+            r_slot = f"{r_slot_mins // 60:02d}:{r_slot_mins % 60:02d}"
+            
+            if r_slot == h:
+                llegando += (res.cant_adultos or 0) + (res.cant_ninos or 0)
+        
+        limite_cocina = config.get("capacidad_cocina_30min") or 30
+        
         proyeccion.append({
             "hora": h,
             "ocupado": ocupado,
+            "llegando": llegando,
             "limite": aforo_max,
+            "limite_cocina": limite_cocina,
             "porcentaje": round((ocupado / aforo_max * 100), 1) if aforo_max > 0 else 0,
+            "porcentaje_cocina": round((llegando / limite_cocina * 100), 1) if limite_cocina > 0 else 0,
             "detalles": detalles
         })
         

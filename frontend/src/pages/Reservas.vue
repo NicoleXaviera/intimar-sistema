@@ -355,10 +355,17 @@
                       <!-- Info y Barra -->
                       <div class="flex-1 space-y-1.5">
                         <div class="flex items-center justify-between">
-                          <div class="flex items-center gap-1.5">
-                            <span class="text-[9px] font-black text-gray-700">{{ slot.ocupado }} / {{ slot.limite }}</span>
-                            <div class="w-1 h-1 bg-gray-200 rounded-full"></div>
-                            <span class="text-[9px] font-bold" :class="slot.porcentaje > 85 ? 'text-red-500' : 'text-[#00938f]'">{{ slot.porcentaje }}%</span>
+                          <div class="flex items-center gap-3">
+                            <!-- Sillas -->
+                            <div class="flex items-center gap-1">
+                              <span class="text-[9px] font-black text-gray-700">{{ slot.ocupado }} / {{ slot.limite }}</span>
+                              <span class="text-[7px] font-bold text-gray-400 uppercase tracking-tighter">Sillas</span>
+                            </div>
+                            <!-- Cocina -->
+                            <div class="flex items-center gap-1 border-l border-gray-100 pl-3">
+                              <span class="text-[9px] font-black" :class="slot.porcentaje_cocina > 90 ? 'text-orange-600' : 'text-orange-500'">{{ slot.llegando }} / {{ slot.limite_cocina }}</span>
+                              <span class="text-[7px] font-bold text-gray-400 uppercase tracking-tighter">Cocina</span>
+                            </div>
                           </div>
                           
                           <!-- Indicador de click -->
@@ -368,12 +375,22 @@
                           </div>
                         </div>
                         
-                        <!-- Barra Delgada -->
-                        <div class="h-1.5 w-full bg-gray-100 rounded-full overflow-hidden">
-                          <div class="h-full transition-all duration-700 rounded-full" 
-                               :style="`width: ${slot.porcentaje}%`" 
-                               :class="slot.porcentaje > 85 ? 'bg-red-500' : 'bg-intimar-gold shadow-sm'">
-                          </div>
+                        <!-- Barras Apiladas -->
+                        <div class="flex gap-1 h-1.5">
+                           <!-- Barra Sillas -->
+                           <div class="h-full flex-1 bg-gray-100 rounded-full overflow-hidden">
+                             <div class="h-full transition-all duration-700" 
+                                  :style="`width: ${slot.porcentaje}%`" 
+                                  :class="slot.porcentaje > 85 ? 'bg-red-500' : 'bg-intimar-primary'">
+                             </div>
+                           </div>
+                           <!-- Barra Cocina -->
+                           <div class="h-full w-1/3 bg-gray-100 rounded-full overflow-hidden">
+                             <div class="h-full transition-all duration-700" 
+                                  :style="`width: ${slot.porcentaje_cocina}%`" 
+                                  :class="slot.porcentaje_cocina > 90 ? 'bg-orange-600' : 'bg-orange-400'">
+                             </div>
+                           </div>
                         </div>
                       </div>
                     </div>

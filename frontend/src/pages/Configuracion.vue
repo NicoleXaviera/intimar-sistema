@@ -71,6 +71,18 @@
                   <label class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 ml-2 mb-2 block">Margen de Limpieza (Minutos)</label>
                   <input v-model="formData.margen_limpieza" type="number" class="w-full px-6 py-4 bg-gray-50 border-2 border-transparent rounded-2xl focus:bg-white focus:border-intimar-primary outline-none transition-all font-bold">
                 </div>
+                <div class="md:col-span-2 bg-amber-50/50 p-6 rounded-3xl border border-amber-100/50">
+                  <label class="text-[10px] font-black uppercase tracking-[0.2em] text-amber-600 ml-2 mb-2 flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M6 13.87A4 4 0 0 1 7.41 6a5.11 5.11 0 0 1 1.05-1.54 5 5 0 0 1 7.08 0A5.11 5.11 0 0 1 16.59 6 4 4 0 0 1 18 13.87V21H6Z"/><line x1="6" x2="18" y1="17" y2="17"/></svg>
+                    Capacidad de Cocina (Personas / 30 min)
+                  </label>
+                  <div class="flex flex-col md:flex-row gap-6 items-center">
+                    <input v-model="formData.capacidad_cocina_30min" type="number" class="w-full md:w-48 px-6 py-4 bg-white border-2 border-amber-200 rounded-2xl focus:border-amber-500 outline-none transition-all font-black text-xl text-amber-700 shadow-sm">
+                    <p class="text-[11px] text-amber-800 leading-relaxed font-medium">
+                      <b class="uppercase">Control de Producción:</b> Evita que lleguen más personas de las que la cocina puede atender en media hora. Si el salón tiene 162 sillas pero la cocina solo puede con 30 personas cada 30 min, el sistema bloqueará nuevas reservas para proteger el servicio.
+                    </p>
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -79,23 +91,23 @@
       <transition name="modal-fade">
         <div v-if="showAforoGuide" class="fixed inset-0 z-[10000] flex items-center justify-center p-4">
           <div class="absolute inset-0 bg-gray-900/80 backdrop-blur-md" @click="showAforoGuide = false"></div>
-          <div class="relative bg-gray-900 text-white w-full max-w-3xl rounded-[3rem] shadow-2xl overflow-hidden border border-white/10 animate-scaleIn">
+          <div class="relative bg-gray-900 text-white w-full max-w-3xl max-h-[90vh] md:max-h-none rounded-[2rem] md:rounded-[3rem] shadow-2xl overflow-y-auto md:overflow-hidden border border-white/10 animate-scaleIn">
             <button @click="showAforoGuide = false" class="absolute top-8 right-8 w-10 h-10 bg-white/5 rounded-full flex items-center justify-center text-white/40 hover:text-white hover:bg-white/10 transition-all z-20">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
             </button>
 
-            <div class="p-10 md:p-14 relative z-10">
-              <div class="flex items-center gap-5 mb-10">
-                <div class="w-16 h-16 bg-intimar-primary/20 text-intimar-primary rounded-[1.5rem] flex items-center justify-center shrink-0">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+            <div class="p-6 md:p-14 relative z-10">
+              <div class="flex items-center gap-4 md:gap-5 mb-8 md:mb-10">
+                <div class="w-12 h-12 md:w-16 md:h-16 bg-intimar-primary/20 text-intimar-primary rounded-2xl md:rounded-[1.5rem] flex items-center justify-center shrink-0">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" class="md:w-8 md:h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
                 </div>
                 <div>
-                  <h3 class="text-3xl font-black italic tracking-tight text-white leading-tight">Lógica de Aforo</h3>
-                  <p class="text-[10px] font-bold uppercase tracking-[0.4em] text-intimar-primary mt-1">Guía para el Administrador</p>
+                  <h3 class="text-xl md:text-3xl font-black italic tracking-tight text-white leading-tight">Lógica de Aforo</h3>
+                  <p class="text-[8px] md:text-[10px] font-bold uppercase tracking-[0.2em] md:tracking-[0.4em] text-intimar-primary mt-0.5 md:mt-1">Guía para el Administrador</p>
                 </div>
               </div>
 
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
                 <div class="space-y-8">
                   <div class="flex gap-5">
                     <span class="text-4xl font-black text-intimar-primary opacity-30 mt-1">01</span>
@@ -129,6 +141,15 @@
                   </div>
                   <div class="flex gap-5">
                     <span class="text-4xl font-black text-intimar-primary opacity-30 mt-1">04</span>
+                    <div class="space-y-2">
+                      <p class="font-black uppercase tracking-widest text-xs text-white">Flujo de Cocina</p>
+                      <p class="text-sm text-gray-400 leading-relaxed">
+                        Aunque haya mesas libres, el sistema bloquea el horario si ya hay <b class="text-white">30 personas</b> (o el límite configurado) llegando en esa misma media hora.
+                      </p>
+                    </div>
+                  </div>
+                  <div class="flex gap-5">
+                    <span class="text-4xl font-black text-intimar-primary opacity-30 mt-1">05</span>
                     <div class="space-y-2">
                       <p class="font-black uppercase tracking-widest text-xs text-white">Autoliberación</p>
                       <p class="text-sm text-gray-400 leading-relaxed">
@@ -211,7 +232,8 @@ const formData = reactive({
   duracion_reserva: 2,
   duracion_reserva_grande: 2.5,
   margen_limpieza: 15,
-  aforo_maximo: 100,
+  aforo_maximo: 162,
+  capacidad_cocina_30min: 30,
   hora_minima: '09:00:00',
   hora_maxima: '22:00:00'
 })
@@ -230,7 +252,8 @@ const fetchConfig = async () => {
       formData.duracion_reserva = data.duracion_reserva || 2
       formData.duracion_reserva_grande = data.duracion_reserva_grande || 2.5
       formData.margen_limpieza = data.margen_limpieza || 15
-      formData.aforo_maximo = data.aforo_maximo || 100
+      formData.aforo_maximo = data.aforo_maximo || 162
+      formData.capacidad_cocina_30min = data.capacidad_cocina_30min || 30
       formData.hora_minima = data.hora_minima || '09:00:00'
       formData.hora_maxima = data.hora_maxima || '22:00:00'
     }
@@ -263,6 +286,7 @@ const saveConfig = async () => {
         duracion_reserva_grande: formData.duracion_reserva_grande,
         margen_limpieza: formData.margen_limpieza,
         aforo_maximo: formData.aforo_maximo,
+        capacidad_cocina_30min: formData.capacidad_cocina_30min,
         hora_minima: formData.hora_minima,
         hora_maxima: formData.hora_maxima
       }

@@ -142,7 +142,7 @@ class ReservaIntimar(Document):
 
 	def validate_aforo(self):
 		config = frappe.get_doc("Configuracion Intimar", ignore_permissions=True)
-		aforo_max = config.aforo_maximo or 40
+		aforo_max = config.get("aforo_maximo") or 162
 		duracion = config.duracion_reserva or 2
 		tolerancia_mins = 20
 		
@@ -229,12 +229,46 @@ class ReservaIntimar(Document):
 
 		total_proyectado = max_ocupacion + pax_nuevos
 		
+		# Permitir guardar si es edición y no se aumenta el aforo/tiempo
 		if not self.is_new():
 			old_doc = self.get_doc_before_save()
 			if old_doc and old_doc.estado_reserva in ["Confirmada", "En proceso"]:
 				old_pax = (old_doc.cant_adultos or 0) + (old_doc.cant_ninos or 0)
-				if pax_nuevos <= old_pax and old_doc.hora_reserva == self.hora_reserva:
+				if pax_nuevos <= old_pax and format_time(old_doc.hora_reserva, "HH:mm") == format_time(self.hora_reserva, "HH:mm"):
 					return 
+
+		# --- VALIDACIÓN DE FLUJO DE COCINA ---
+		# Agrupamos por bloques de 30 min (ej: 13:15 -> 13:00) para un conteo real
+		mi_hora = get_time(self.hora_reserva)
+		mi_slot_mins = (mi_hora.hour * 60 + mi_hora.minute) // 30 * 30
+		mi_slot = f"{mi_slot_mins // 60:02d}:{mi_slot_mins % 60:02d}"
+		
+		llegadas_este_bloque = 0
+		for res in reservas:
+			r_time = get_time(res.hora_reserva)
+			r_slot_mins = (r_time.hour * 60 + r_time.minute) // 30 * 30
+			r_slot = f"{r_slot_mins // 60:02d}:{r_slot_mins % 60:02d}"
+			
+			if r_slot == mi_slot:
+				llegadas_este_bloque += (res.cant_adultos or 0) + (res.cant_ninos or 0)
+		
+		total_llegadas = llegadas_este_bloque + pax_nuevos
+		limite_cocina = config.get("capacidad_cocina_30min") or 30
+		
+		if total_llegadas > limite_cocina:
+			msg_cocina = (
+				f"<div style='text-align: center; margin-bottom: 15px;'>"
+				f"<span style='font-size: 1.5em; font-weight: 900; color: #ff9800;'>🔥 FLUJO DE COCINA EXCEDIDO</span><br>"
+				f"<span style='font-size: 0.9em; font-weight: 700; color: #ff9800;'>CONTROL DE PRODUCCIÓN</span><br>"
+				f"</div>"
+				f"La cocina tiene un límite de <b>{limite_cocina} personas cada 30 minutos</b>.<br>"
+				f"En el bloque de las <b>{mi_slot}</b> ya hay <b>{llegadas_este_bloque} personas</b> programadas.<br><br>"
+				f"<b>Total con esta reserva:</b> {total_llegadas} personas.<br><br>"
+				f"<div style='background: #fff8e1; padding: 15px; border-radius: 12px; border-left: 4px solid #ff9800; font-size: 0.9em;'>"
+				f"Por favor, mueve la reserva a otro bloque de horario para no saturar la cocina."
+				f"</div>"
+			)
+			frappe.throw(msg_cocina, title="Control de Flujo")
 
 		if total_proyectado > aforo_max:
 			if self.aceptar_lista_espera:
