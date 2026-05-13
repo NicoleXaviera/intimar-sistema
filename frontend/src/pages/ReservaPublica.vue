@@ -85,7 +85,24 @@
 
           <div v-if="step === 2" class="space-y-10 animate-fade-in">
             <div class="space-y-1.5"><h2 class="text-3xl md:text-5xl font-light tracking-tighter text-gray-900 leading-none uppercase">{{ t.title2 }}</h2><p class="text-gray-400 text-[9px] font-bold uppercase tracking-[0.3em]">{{ t.subtitle2 }}</p></div>
-            <div class="grid grid-cols-3 gap-3"><button v-for="slot in availableSlots" :key="slot" @click="form.hora = slot; nextStep()" class="py-5 rounded-2xl font-light text-2xl transition-all border border-gray-50 text-gray-300 hover:border-intimar-primary hover:text-intimar-primary active:scale-95">{{ slot }}</button></div>
+            <div class="grid grid-cols-3 gap-3">
+              <button 
+                v-for="slot in availableSlots" 
+                :key="slot" 
+                @click="handleSlotClick(slot)" 
+                class="py-5 rounded-2xl font-light text-2xl transition-all border relative overflow-hidden"
+                :class="getSlotClass(slot)"
+              >
+                {{ slot }}
+                <!-- Línea de Tachado (X) -->
+                <div v-if="isSlotDisabled(slot)" class="absolute inset-0 flex items-center justify-center pointer-events-none">
+                  <div class="w-full h-[1px] bg-red-400/40 -rotate-45"></div>
+                </div>
+              </button>
+            </div>
+            <div v-if="loadingSlots" class="mt-4 flex justify-center">
+              <div class="animate-spin h-5 w-5 border-2 border-intimar-primary border-t-transparent rounded-full"></div>
+            </div>
             <div class="p-6 bg-gray-50 rounded-3xl flex gap-5 items-start border border-orange-50">
                <div class="text-orange-400 shrink-0 mt-0.5"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8v4l3 3"/><circle cx="12" cy="12" r="10"/></svg></div>
                <div class="space-y-2"><div class="space-y-1"><p class="text-[9px] font-bold uppercase tracking-[0.2em] text-orange-600">{{ t.policyTitle }}</p><p class="text-[11px] font-medium text-gray-500 leading-snug uppercase">{{ t.policyDesc }}</p></div><p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest pt-2 border-t border-gray-100">{{ t.assignmentNote }}</p></div>
@@ -294,12 +311,13 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted, onUnmounted } from 'vue'
+import { ref, reactive, computed, onMounted, onUnmounted, watch } from 'vue'
 import { call } from 'frappe-ui'
 import { VueTelInput } from 'vue-tel-input'
 import 'vue-tel-input/vue-tel-input.css'
 
 const step = ref(1); const submitting = ref(false); const lang = ref('es'); const showManualPax = ref(false); const currentMonthOffset = ref(0); const currentHeroIdx = ref(0); let heroTimer = null;
+const radarData = ref([]); const loadingSlots = ref(false);
 const reservationId = ref('');
 const requiresAnticipo = ref(false);
 const totalAnticipo = computed(() => {
@@ -430,7 +448,50 @@ const formatDate = (dateStr) => { if (!dateStr) return ''; const date = new Date
 const calendarData = computed(() => { const months = []; let curr = new Date(); curr.setMonth(curr.getMonth() + currentMonthOffset.value); curr.setDate(1); for (let i = 0; i < 2; i++) { const month = curr.getMonth(); const year = curr.getFullYear(); let firstDay = new Date(year, month, 1).getDay(); let padding = firstDay === 0 ? 6 : firstDay - 1; const daysInMonth = new Date(year, month + 1, 0).getDate(); const days = []; for (let d = 1; d <= daysInMonth; d++) { const date = new Date(year, month, d); const dateStr = year + '-' + String(month + 1).padStart(2, '0') + '-' + String(d).padStart(2, '0'); const today = new Date(); today.setHours(0,0,0,0); days.push({ day: d, dateStr, disabled: date < today }) } months.push({ month, year, padding, days }); curr.setMonth(curr.getMonth() + 1); } return months })
 const nextMonth = () => currentMonthOffset.value++; const prevMonth = () => { if (currentMonthOffset.value > 0) currentMonthOffset.value-- };
 const getMonthName = (m) => { const names = lang.value === 'es' ? ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'] : ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']; return names[m]; }
-const selectDate = (dateStr) => form.fecha = dateStr; const availableSlots = ['11:00', '11:30', '12:00', '12:30', '13:00', '13:30', '14:00', '14:30', '15:00', '15:30', '16:00'];
+const selectDate = (dateStr) => { form.fecha = dateStr; fetchAvailability(); }; 
+const availableSlots = ['11:00', '11:30', '12:00', '12:30', '13:00', '13:30', '14:00', '14:30', '15:00', '15:30', '16:00'];
+
+const fetchAvailability = async () => {
+  if (!form.fecha) return;
+  loadingSlots.value = true;
+  try {
+    const data = await call('intimar_erp.api.get_ocupacion_proyectada', { fecha: form.fecha });
+    radarData.value = data || [];
+  } catch (e) {
+    console.error('Error fetching availability:', e);
+  } finally {
+    loadingSlots.value = false;
+  }
+};
+
+const isSlotDisabled = (slotTime) => {
+  if (!radarData.value || radarData.value.length === 0) return false;
+  const pax = (Number(form.adultos) || 0) + (Number(form.ninos) || 0);
+  const slot = radarData.value.find(s => s.hora === slotTime);
+  if (!slot) return false;
+  
+  const salonLleno = (slot.ocupado + pax) > slot.limite;
+  const cocinaLlena = (slot.llegando + pax) > slot.limite_cocina;
+  
+  return salonLleno || cocinaLlena;
+};
+
+const handleSlotClick = (slot) => {
+  if (isSlotDisabled(slot)) return;
+  form.hora = slot;
+  nextStep();
+};
+
+const getSlotClass = (slot) => {
+  if (isSlotDisabled(slot)) {
+    return 'border-gray-100 bg-gray-50/50 text-gray-200 cursor-not-allowed opacity-50';
+  }
+  return 'border-gray-50 text-gray-300 hover:border-intimar-primary hover:text-intimar-primary active:scale-95';
+};
+
+watch(() => [form.adultos, form.ninos], () => {
+  if (form.fecha) fetchAvailability();
+});
 const nextStep = () => { step.value++; window.scrollTo({ top: 0, behavior: 'smooth' }) }
 
 const validateForm = () => {
