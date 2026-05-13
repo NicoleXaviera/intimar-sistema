@@ -345,7 +345,21 @@
                 </div>
 
                 <div v-else class="space-y-1">
-                  <div v-for="slot in radarData" :key="slot.hora" class="group bg-white border border-gray-50 hover:border-[#00938f]/30 p-2.5 rounded-2xl transition-all cursor-pointer overflow-hidden" @click="toggleSlot(slot.hora)" :class="{'ring-2 ring-[#00938f]/10 bg-gray-50/50': expandedSlot === slot.hora}">
+                  <div 
+                    v-for="slot in radarData" 
+                    :key="slot.hora" 
+                    :id="'radar-slot-' + slot.hora"
+                    class="group bg-white border border-gray-50 hover:border-[#00938f]/30 p-2.5 rounded-2xl transition-all cursor-pointer overflow-hidden relative" 
+                    @click="toggleSlot(slot.hora)" 
+                    :class="{
+                      'ring-2 ring-[#00938f]/10 bg-gray-50/50': expandedSlot === slot.hora,
+                      'ring-2 ring-intimar-gold bg-amber-50/30 shadow-lg shadow-amber-200/20 z-10': activeFilters.hora === slot.hora
+                    }"
+                  >
+                    <!-- Badge de Hora Seleccionada -->
+                    <div v-if="activeFilters.hora === slot.hora" class="absolute top-0 right-0 bg-intimar-gold text-white text-[6px] font-black px-2 py-0.5 rounded-bl-lg uppercase tracking-widest animate-pulse">
+                      Seleccionada
+                    </div>
                     <div class="flex items-center gap-4">
                       <!-- Hora -->
                       <div class="w-10 text-center">
@@ -480,7 +494,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed, reactive, watch } from 'vue'
+import { ref, onMounted, computed, reactive, watch, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import Sidebar from '@/components/Sidebar.vue'
 import ReservasFilter from '@/components/Reservas/ReservasFilter.vue'
@@ -749,10 +763,24 @@ watch(() => [simulator.pax, simulator.hora, radarDate.value], async ([pax, hora,
 }, { deep: true })
 
 const openAforoRadar = () => {
-  // Sincronizar con el filtro actual si existe, sino con hoy
-  radarDate.value = activeFilters.value.fecha || frappe.utils.today()
-  showAforoRadar.value = true
-  fetchRadarData()
+  try {
+    // Sincronizar con el filtro actual si existe, sino con hoy
+    const filterDate = activeFilters.value?.fecha
+    radarDate.value = filterDate || frappe.utils.today()
+    
+    showAforoRadar.value = true
+    
+    if (!filterDate) {
+      showToast('Radar Aforo', 'Mostrando proyección para el día de hoy.', 'info')
+    } else {
+      showToast('Radar Aforo', `Proyectando disponibilidad para el ${filterDate}`, 'success')
+    }
+    
+    fetchRadarData()
+  } catch (err) {
+    console.error('Error al abrir radar:', err)
+    showToast('Error', 'No se pudo abrir el radar. Reintenta en un momento.', 'error')
+  }
 }
 
 const fetchRadarData = async () => {
@@ -762,6 +790,16 @@ const fetchRadarData = async () => {
       fecha: radarDate.value
     })
     radarData.value = data
+    
+    // Auto-scroll a la hora seleccionada si existe
+    if (activeFilters.value.hora && activeFilters.value.hora !== 'Todas') {
+      nextTick(() => {
+        const el = document.getElementById(`radar-slot-${activeFilters.value.hora}`)
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+        }
+      })
+    }
   } catch (err) {
     console.error('Error radar:', err)
   } finally {

@@ -947,12 +947,13 @@ def get_ocupacion_proyectada(fecha=None):
                 })
         
         # CÁLCULO DE FLUJO DE COCINA (LLEGADAS EN ESTE BLOQUE)
-        # Agrupamos por bloques de 30 min (ej: 13:15 -> 13:00) para un conteo real
+        # Agrupamos por bloques dinámicos según configuración (ej: 13:15 -> 13:00)
         llegando = 0
+        intervalo = config.get("intervalo_flujo_cocina") or 30
         for res in reservas:
             r_time = frappe.utils.get_time(res.hora_reserva)
-            # Redondeamos hacia abajo al bloque de 30 min más cercano
-            r_slot_mins = (r_time.hour * 60 + r_time.minute) // 30 * 30
+            # Redondeamos hacia abajo al intervalo más cercano
+            r_slot_mins = (r_time.hour * 60 + r_time.minute) // intervalo * intervalo
             r_slot = f"{r_slot_mins // 60:02d}:{r_slot_mins % 60:02d}"
             
             if r_slot == h:

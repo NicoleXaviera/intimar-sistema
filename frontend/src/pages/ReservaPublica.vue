@@ -364,7 +364,7 @@ const translations = {
     btnVerifyWsp: 'Verificar mi reserva',
     verifyText: '¿No te llegó el correo? Verifica aquí:',
     emailCheck1: 'Por favor, revisa tu correo electrónico',
-    generalPolicy: 'Nuestro horario de atención es de 11:30 a.m. a 4:00 p.m, la asignación de mesas es por orden de llegada y la zona sujeta a disponibilidad. Para reservas grupales de 8 a más personas, se requiere un pago de consumo anticipado.',
+    generalPolicy: 'Nuestro horario de atención es de 11:00 a.m. a 4:00 p.m, la asignación de mesas es por orden de llegada y la zona sujeta a disponibilidad. Para reservas grupales de 8 a más personas, se requiere un pago de consumo anticipado.',
     anticipoTitle: 'Pago de Anticipo Requerido',
     anticipoNotice: 'Debido al tamaño de tu grupo, nos contactaremos pronto vía WhatsApp para coordinar el pago del anticipo que sería:',
     anticipoConditions: 'Condiciones de Reserva',
@@ -430,7 +430,7 @@ const formatDate = (dateStr) => { if (!dateStr) return ''; const date = new Date
 const calendarData = computed(() => { const months = []; let curr = new Date(); curr.setMonth(curr.getMonth() + currentMonthOffset.value); curr.setDate(1); for (let i = 0; i < 2; i++) { const month = curr.getMonth(); const year = curr.getFullYear(); let firstDay = new Date(year, month, 1).getDay(); let padding = firstDay === 0 ? 6 : firstDay - 1; const daysInMonth = new Date(year, month + 1, 0).getDate(); const days = []; for (let d = 1; d <= daysInMonth; d++) { const date = new Date(year, month, d); const dateStr = year + '-' + String(month + 1).padStart(2, '0') + '-' + String(d).padStart(2, '0'); const today = new Date(); today.setHours(0,0,0,0); days.push({ day: d, dateStr, disabled: date < today }) } months.push({ month, year, padding, days }); curr.setMonth(curr.getMonth() + 1); } return months })
 const nextMonth = () => currentMonthOffset.value++; const prevMonth = () => { if (currentMonthOffset.value > 0) currentMonthOffset.value-- };
 const getMonthName = (m) => { const names = lang.value === 'es' ? ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'] : ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']; return names[m]; }
-const selectDate = (dateStr) => form.fecha = dateStr; const availableSlots = ['12:30', '13:00', '13:30', '14:00', '14:30', '15:00', '15:30', '16:00', '16:30'];
+const selectDate = (dateStr) => form.fecha = dateStr; const availableSlots = ['11:00', '11:30', '12:00', '12:30', '13:00', '13:30', '14:00', '14:30', '15:00', '15:30', '16:00'];
 const nextStep = () => { step.value++; window.scrollTo({ top: 0, behavior: 'smooth' }) }
 
 const validateForm = () => {

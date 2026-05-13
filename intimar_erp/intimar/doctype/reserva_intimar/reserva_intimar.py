@@ -238,15 +238,16 @@ class ReservaIntimar(Document):
 					return 
 
 		# --- VALIDACIÓN DE FLUJO DE COCINA ---
-		# Agrupamos por bloques de 30 min (ej: 13:15 -> 13:00) para un conteo real
+		# Agrupamos por bloques dinámicos según configuración (ej: 13:15 -> 13:00)
+		intervalo = config.get("intervalo_flujo_cocina") or 30
 		mi_hora = get_time(self.hora_reserva)
-		mi_slot_mins = (mi_hora.hour * 60 + mi_hora.minute) // 30 * 30
+		mi_slot_mins = (mi_hora.hour * 60 + mi_hora.minute) // intervalo * intervalo
 		mi_slot = f"{mi_slot_mins // 60:02d}:{mi_slot_mins % 60:02d}"
 		
 		llegadas_este_bloque = 0
 		for res in reservas:
 			r_time = get_time(res.hora_reserva)
-			r_slot_mins = (r_time.hour * 60 + r_time.minute) // 30 * 30
+			r_slot_mins = (r_time.hour * 60 + r_time.minute) // intervalo * intervalo
 			r_slot = f"{r_slot_mins // 60:02d}:{r_slot_mins % 60:02d}"
 			
 			if r_slot == mi_slot:
