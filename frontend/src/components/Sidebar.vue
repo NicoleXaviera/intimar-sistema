@@ -143,7 +143,7 @@
   <div class="md:hidden fixed top-0 left-0 right-0 h-16 bg-white/80 backdrop-blur-md border-b border-gray-100 z-[1000] flex items-center justify-between px-6">
     <router-link to="/mapa" class="flex items-center gap-2">
       <img :src="'/files/intimar-logo.png'" alt="Logo" class="h-8 w-auto" />
-      <span class="text-xs font-black text-intimar-dark uppercase tracking-widest italic">Intimar</span>
+      <span class="text-xs font-black text-intimar-dark uppercase tracking-widest italic hidden md:inline">Intimar</span>
     </router-link>
 
     <div class="relative">

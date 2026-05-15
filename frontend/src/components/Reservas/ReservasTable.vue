@@ -1,23 +1,25 @@
 <template>
   <div class="bg-white rounded-[2.5rem] shadow-sm border border-gray-100 overflow-hidden relative z-10">
-    <div class="overflow-x-auto">
+    <div class="overflow-x-auto scrollbar-hide">
       <table class="w-full text-left border-collapse">
         <thead>
           <tr class="bg-gray-50/50 border-b border-gray-100">
             <th class="py-3 px-2 font-black text-gray-400 text-[10px] uppercase tracking-[0.2em] w-1 text-center">ID</th>
             <th class="py-3 px-4 font-black text-gray-400 text-[10px] uppercase tracking-[0.2em]">Cliente</th>
-            <th class="py-3 px-4 font-black text-gray-400 text-[10px] uppercase tracking-[0.2em]">Detalles de Reserva</th>
-            <th class="py-3 px-4 font-black text-gray-400 text-[10px] uppercase tracking-[0.2em]">Asignación</th>
+            <th class="py-3 px-4 font-black text-gray-400 text-[10px] uppercase tracking-[0.2em]">Detalles</th>
+            <th v-if="columns.llegada" class="py-3 px-4 font-black text-gray-400 text-[10px] uppercase tracking-[0.2em]">Llegada</th>
+            <th v-if="columns.pago" class="py-3 px-4 font-black text-gray-400 text-[10px] uppercase tracking-[0.2em]">Medio de Pago</th>
+            <th v-if="columns.mesas" class="py-3 px-4 font-black text-gray-400 text-[10px] uppercase tracking-[0.2em]">Asignación</th>
             <th class="py-3 px-4 font-black text-gray-400 text-[10px] uppercase tracking-[0.2em]">Estado</th>
             <th class="py-3 px-4 font-black text-gray-400 text-[10px] uppercase tracking-[0.2em] text-right">Acciones</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-100">
           <tr v-if="loading" class="animate-pulse">
-            <td colspan="6" class="p-8 text-center text-gray-400 font-bold">Cargando reservaciones...</td>
+            <td colspan="8" class="p-8 text-center text-gray-400 font-bold">Cargando reservaciones...</td>
           </tr>
           <tr v-else-if="reservas.length === 0">
-            <td colspan="6" class="p-12 text-center text-gray-400 font-bold">No hay reservaciones que coincidan con los filtros.</td>
+            <td colspan="8" class="p-12 text-center text-gray-400 font-bold">No hay reservaciones que coincidan con los filtros.</td>
           </tr>
           
           <tr 
@@ -41,7 +43,9 @@
                 <div>
                   <h4 class="font-black text-gray-900 text-[13px] mb-0.5 flex items-center gap-2">
                     {{ reserva.nombre }} {{ reserva.apellido || '' }}
-                    <span v-if="reserva.motivo_reserva?.includes('[WEB]')" class="bg-blue-100 text-blue-600 text-[8px] px-1.5 py-0.5 rounded-full tracking-tighter">WEB</span>
+                    <span v-if="reserva.motivo_reserva?.includes('[WEB]')" class="bg-blue-100 text-blue-600 text-[8px] px-1.5 py-0.5 rounded-full tracking-tighter uppercase font-black">WEB</span>
+                    <span v-else-if="reserva.motivo_reserva?.includes('[RÁPIDA]')" class="bg-amber-100 text-amber-700 text-[8px] px-1.5 py-0.5 rounded-full tracking-tighter uppercase font-black">RÁPIDA</span>
+                    <span v-else class="bg-gray-100 text-gray-500 text-[8px] px-1.5 py-0.5 rounded-full tracking-tighter uppercase font-bold">INTERNA</span>
                   </h4>
                   <p class="text-[10px] font-bold text-gray-400 flex items-center gap-1">
                     <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
@@ -74,20 +78,28 @@
                     {{ reserva.cant_ninos || 0 }} Niñ.
                   </span>
                 </div>
-                <!-- Alergias y Requerimientos -->
-                <div v-if="reserva.alergias || reserva.necesidades || reserva.requerimientos" class="mt-2 flex flex-wrap gap-1">
-                  <span v-if="reserva.alergias" class="bg-red-50 text-red-600 text-[9px] font-black py-0.5 px-2 rounded-md border border-red-100 flex items-center gap-1 animate-pulse" :title="reserva.alergias">
-                    ALERGIAS: {{ reserva.alergias }}
-                  </span>
-                  <span v-if="reserva.requerimientos || reserva.necesidades" class="bg-blue-50 text-blue-600 text-[9px] font-black py-0.5 px-2 rounded-md border border-blue-100 flex items-center gap-1">
-                    {{ reserva.requerimientos || reserva.necesidades }}
-                  </span>
-                </div>
               </div>
             </td>
 
-            <!-- Asignación -->
-            <td class="px-4 py-2">
+            <!-- Hora Llegada (OPCIONAL) -->
+            <td v-if="columns.llegada" class="px-4 py-2">
+              <div v-if="reserva.hora_llegada" class="flex flex-col gap-0.5">
+                <span class="text-xs font-black text-gray-900 tracking-tight">{{ formatTime(reserva.hora_llegada) }}</span>
+              </div>
+              <div v-else class="text-[10px] font-bold text-gray-300 italic">Pendiente</div>
+            </td>
+
+            <!-- Medio de Pago (OPCIONAL) -->
+            <td v-if="columns.pago" class="px-4 py-2">
+              <div v-if="reserva.total_pagado_txt" class="max-w-[200px]">
+                <p class="text-[10px] font-black text-gray-800 leading-tight uppercase">{{ reserva.total_pagado_txt }}</p>
+              </div>
+              <div v-else-if="reserva.anticipo_required" class="text-[10px] font-black text-amber-600 uppercase">Sin registrar</div>
+              <div v-else class="text-[10px] font-bold text-gray-300 uppercase">No requiere</div>
+            </td>
+
+            <!-- Asignación (OPCIONAL) -->
+            <td v-if="columns.mesas" class="px-4 py-2">
               <div v-if="reserva.mozo" class="flex items-center gap-2">
                 <div class="w-6 h-6 bg-purple-50 rounded flex items-center justify-center text-purple-600">
                   <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg>
@@ -95,14 +107,13 @@
                 <span class="font-bold text-[13px] text-gray-700">{{ reserva.mozo }}</span>
               </div>
               <div v-else class="text-[11px] font-bold text-gray-400 italic">
-                Sin asignar
+                Sin mozo
               </div>
               
-              <div v-if="reserva.total_pagado" class="mt-1 inline-flex items-center gap-1 bg-green-50 text-green-700 text-[10px] font-black py-0.5 px-2 rounded-lg border border-green-200/50 shadow-sm uppercase tracking-tight">
-                ANTIC. S/ {{ reserva.total_pagado }}
-              </div>
-              <div v-else-if="reserva.anticipo_required" class="mt-1 inline-flex items-center gap-1 bg-orange-50 text-orange-600 text-[9px] font-black uppercase tracking-widest py-0.5 px-1.5 rounded">
-                Pendiente
+              <div v-if="reserva.mesas?.length" class="mt-1 flex flex-wrap gap-1">
+                <span v-for="m in reserva.mesas" :key="m.name" class="bg-intimar-dark text-white text-[9px] font-black py-0.5 px-1.5 rounded uppercase">
+                  Mesa {{ m.mesa_numero || m.mesa }}
+                </span>
               </div>
             </td>
 
@@ -177,6 +188,10 @@ const props = defineProps({
   loading: {
     type: Boolean,
     default: false
+  },
+  columns: {
+    type: Object,
+    default: () => ({ pago: false, llegada: false, mesas: true })
   }
 })
 
@@ -208,8 +223,6 @@ const getInitials = (nombre, apellido) => {
 
 const formatDate = (dateString) => {
   if (!dateString) return ''
-  // Extraemos manualmente el año, mes y día para evitar que JS reste horas 
-  // por la zona horaria al usar new Date("YYYY-MM-DD") (lo que causaba que salga el día anterior)
   const [year, month, day] = dateString.substring(0, 10).split('-')
   const date = new Date(year, month - 1, day)
   return new Intl.DateTimeFormat('es-ES', { day: '2-digit', month: 'short' }).format(date)
@@ -217,7 +230,6 @@ const formatDate = (dateString) => {
 
 const formatTime = (timeString) => {
   if (!timeString) return ''
-  // Asume formato "HH:MM:SS"
   return timeString.substring(0, 5)
 }
 

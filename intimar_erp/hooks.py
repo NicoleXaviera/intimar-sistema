@@ -20,19 +20,17 @@ scheduler_events = {
 	],
 	"hourly": [
 		"intimar_erp.intimar.whatsapp.notify_waitlist_2_hours_before",
-		"intimar_erp.intimar_erp.api.auto_cancel_expired_reservations"
+		"intimar_erp.api.auto_cancel_expired_reservations"
 	],
 }
 
 # Document Events
 # ---------------
-# doc_events = {
-# 	"*": {
-# 		"on_update": "method",
-# 		"on_cancel": "method",
-# 		"on_trash": "method"
-# 	}
-# }
+doc_events = {
+	"Reserva Intimar": {
+		"before_save": "intimar_erp.api.sync_fecha_hora_reserva"
+	}
+}
 # website_route_rules
 # -------------------
 website_route_rules = [

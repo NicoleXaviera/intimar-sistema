@@ -13,6 +13,31 @@ def bypass_csrf():
     if "intimar_erp.api.crear_reserva_publica" in frappe.request.path:
         frappe.local.conf.ignore_csrf = True
 
+def process_virtual_filters(filters):
+    if not filters: return filters
+    
+    processed = []
+    for f in filters:
+        if isinstance(f, list) and len(f) >= 3 and f[0] == 'total_pagado':
+            op = f[1]
+            val = f[2]
+            
+            # Consultamos directamente el DocType de Anticipos
+            reservas_con_pago = frappe.get_all("Anticipo Reserva Intimar", 
+                filters={"estado_anticipo": "Pagado"}, 
+                pluck="parent"
+            )
+            
+            if op == '>' and val == 0:
+                # Mostrar solo los que están en la lista de pagos
+                processed.append(['name', 'in', reservas_con_pago if reservas_con_pago else ['']])
+            elif op == '<=' and val == 0:
+                # Mostrar los que NO están en la lista
+                processed.append(['name', 'not in', reservas_con_pago if reservas_con_pago else ['']])
+        else:
+            processed.append(f)
+    return processed
+
 @frappe.whitelist()
 def get_mesas_with_reserva(limit_start=0, limit_page_length=0, with_pagination=0, search_query="", ubicacion_mesa=""):
     kwargs = {
@@ -291,7 +316,8 @@ def crear_reserva_rapida(nombre, apellido, celular, adultos, ninos=0, email=None
             'hora_reserva': frappe.utils.now_datetime().strftime("%H:%M"),
             'cant_adultos': int(adultos),
             'cant_ninos': int(ninos),
-            'estado_reserva': 'Confirmada'
+            'estado_reserva': 'Confirmada',
+            'motivo_reserva': '[RÁPIDA]'
         })
         
         reserva.insert(ignore_permissions=True)
@@ -404,15 +430,21 @@ def liberar_mesa(mesa_id):
 @frappe.whitelist()
 def get_reservas_list(filters=None, limit_start=0, limit_page_length=20, order_by="creation desc"):
     if isinstance(filters, str):
-        import json
         filters = json.loads(filters)
         
-    # Primero obtenemos los nombres que cumplen los filtros para manejar la paginación correctamente
+    filters = process_virtual_filters(filters)
+        
+    # Si ordenamos por llegada, usamos un orden base para la DB y luego refinamos en Python
+    db_order = order_by
+    if "hora_llegada" in order_by:
+        db_order = "hora_llegada asc"
+        
+    # Primero obtenemos los nombres que cumplen los filtros
     reserva_names = frappe.get_all("Reserva Intimar", 
         filters=filters, 
         limit_start=limit_start, 
         limit_page_length=limit_page_length, 
-        order_by=order_by,
+        order_by=db_order,
         pluck="name"
     )
     
@@ -428,8 +460,12 @@ def get_reservas_list(filters=None, limit_start=0, limit_page_length=20, order_b
             "anticipo_required", "mozo", "hora_llegada", "hora_salida", 
             "am_pm", "requerimientos", "necesidades", "alergias", "motivo_reserva"
         ],
-        order_by=order_by
+        order_by=db_order
     )
+
+    # 2. Ordenar en Python si es por llegada (para poner NULLS al final)
+    if "hora_llegada" in order_by:
+        data.sort(key=lambda x: (x.hora_llegada is None, x.hora_llegada))
 
     # Calculamos los totales pagados para estas reservas
     for r in data:
@@ -440,21 +476,28 @@ def get_reservas_list(filters=None, limit_start=0, limit_page_length=20, order_b
         )
         r.total_pagado = sum(p.monto_anticipo for p in pagos)
         
-        # Sumar anticipos pagados por moneda
+        # Sumar anticipos pagados por moneda y medio de pago
         anticipos = frappe.get_all("Anticipo Reserva Intimar", 
             filters={"parent": r.name, "estado_anticipo": "Pagado"},
-            fields=["monto_anticipo", "moneda"]
+            fields=["monto_anticipo", "moneda", "banco", "nro_operacion"]
         )
         
         resumen = []
-        total_pen = sum(a.monto_anticipo for a in anticipos if a.moneda == "PEN")
-        total_usd = sum(a.monto_anticipo for a in anticipos if a.moneda == "USD")
+        total_pen = 0
+        total_usd = 0
         
-        if total_pen > 0: resumen.append(f"S/ {total_pen}")
-        if total_usd > 0: resumen.append(f"$ {total_usd}")
+        for a in anticipos:
+            if a.moneda == "PEN": total_pen += a.monto_anticipo
+            if a.moneda == "USD": total_usd += a.monto_anticipo
+            
+            # Formato: "Yape: S/ 50 (Op: 123)"
+            txt = f"{a.banco or 'Pago'}: {a.moneda} {a.monto_anticipo}"
+            if a.nro_operacion:
+                txt += f" ({a.nro_operacion})"
+            resumen.append(txt)
         
-        r["total_pagado_txt"] = " + ".join(resumen) if resumen else ""
-        r["total_pagado"] = total_pen + (total_usd * 3.7) # Para lógica de aviso
+        r["total_pagado_txt"] = " | ".join(resumen) if resumen else ""
+        r["total_pagado"] = total_pen + (total_usd * 3.7)
 
     return data
 
@@ -763,6 +806,7 @@ def get_user_display(user_id):
     name = user_info.full_name if user_info and user_info.full_name else user_id
     return f"{name} ({role_to_show})"
 
+
 @frappe.whitelist()
 def get_recent_activity():
     """Devuelve las últimas 15 actividades con autoría y detalle de cambios."""
@@ -859,19 +903,25 @@ def get_ubicaciones_mesas():
     return frappe.get_all("Ubicacion Mesa Intimar", fields=["name"], order_by="name asc")
 
 @frappe.whitelist()
-def get_reservas_pax_stats(filters=None):
+def get_reservas_summary(filters=None):
     if isinstance(filters, str):
-        try:
-            import json
-            filters = json.loads(filters)
-        except:
-            filters = []
-            
-    # Uso de Frappe nativo (get_list)
-    return frappe.get_list("Reserva Intimar", 
-        filters=filters,
+        filters = json.loads(filters)
+    
+    filters = process_virtual_filters(filters)
+    
+    # Traemos solo los campos necesarios para sumar en Python
+    res = frappe.get_all("Reserva Intimar", 
+        filters=filters, 
         fields=["cant_adultos", "cant_ninos"]
     )
+    
+    total_reservas = len(res)
+    total_personas = sum((r.cant_adultos or 0) + (r.cant_ninos or 0) for r in res)
+    
+    return {
+        "reservas": total_reservas,
+        "personas": total_personas
+    }
 
 @frappe.whitelist()
 def get_ocupacion_proyectada(fecha=None):
@@ -973,3 +1023,39 @@ def get_ocupacion_proyectada(fecha=None):
         })
         
     return proyeccion
+
+@frappe.whitelist()
+def sync_fecha_hora_reserva(doc, method=None):
+    """Combina fecha y hora en un solo campo Datetime para alertas de Frappe."""
+    if doc.fecha_reserva and doc.hora_reserva:
+        from frappe.utils import get_datetime
+        try:
+            doc.fecha_hora_reserva = get_datetime(f"{doc.fecha_reserva} {doc.hora_reserva}")
+        except Exception:
+            pass
+
+@frappe.whitelist()
+def auto_cancel_expired_reservations():
+    """Cancela automáticamente las reservas que no llegaron después de 30 minutos."""
+    from frappe.utils import now_datetime, get_datetime, add_to_date
+    
+    now = now_datetime()
+    reservas = frappe.get_all("Reserva Intimar", 
+        filters={
+            "fecha_reserva": frappe.utils.today(),
+            "estado_reserva": "Confirmada"
+        },
+        fields=["name", "hora_reserva"]
+    )
+    
+    for r in reservas:
+        try:
+            reserva_time = get_datetime(f"{frappe.utils.today()} {r.hora_reserva}")
+            # Si pasaron más de 30 minutos de la hora citada
+            if now > add_to_date(reserva_time, minutes=30):
+                frappe.db.set_value("Reserva Intimar", r.name, "estado_reserva", "Cancelada")
+                frappe.get_doc("Reserva Intimar", r.name).add_comment("Comment", "Cancelada automáticamente por inasistencia (30 min tarde).")
+        except Exception:
+            continue
+    
+    frappe.db.commit()

@@ -7,6 +7,7 @@
  "field_order": [
   "monto_anticipo",
   "banco",
+  "nro_operacion",
   "moneda",
   "estado_anticipo",
   "fecha_pago",
@@ -25,6 +26,12 @@
    "fieldtype": "Data",
    "in_list_view": 1,
    "label": "Banco"
+  },
+  {
+   "fieldname": "nro_operacion",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Nro. Operación"
   },
   {
    "default": "PEN",

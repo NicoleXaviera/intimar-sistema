@@ -64,16 +64,43 @@
         <input v-model="filters.celular" type="text" placeholder="Teléfono..." class="w-full pl-10 pr-4 py-3 bg-gray-50 border border-transparent rounded-2xl text-xs font-bold text-gray-700 focus:border-intimar-gold/30 focus:bg-white focus:ring-4 focus:ring-intimar-gold/10 transition-all placeholder:text-gray-400">
       </div>
 
+      <div class="relative" v-click-outside="() => showEstadoMenu = false">
+        <button 
+          @click="showEstadoMenu = !showEstadoMenu"
+          class="w-full px-4 py-3 bg-gray-50 border border-transparent rounded-2xl text-xs font-bold text-gray-700 hover:bg-white hover:border-intimar-gold/30 transition-all flex items-center justify-between group"
+        >
+          <span v-if="filters.estado.length === 0">Todos los Estados</span>
+          <span v-else-if="filters.estado.length === 1" class="truncate">{{ filters.estado[0] }}</span>
+          <span v-else class="bg-intimar-gold text-white px-2 py-0.5 rounded-lg text-[10px]">{{ filters.estado.length }} estados</span>
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="text-gray-400 group-hover:text-intimar-gold transition-transform" :class="{'rotate-180': showEstadoMenu}"><path d="m6 9 6 6 6-6"/></svg>
+        </button>
+
+        <!-- Dropdown Menu -->
+        <div v-if="showEstadoMenu" class="absolute top-full left-0 w-full mt-2 bg-white rounded-2xl shadow-2xl border border-gray-100 py-2 z-50 max-h-60 overflow-y-auto animate-in fade-in zoom-in-95 duration-200">
+          <label 
+            v-for="e in estados" 
+            :key="e.value"
+            class="flex items-center gap-3 px-4 py-2.5 hover:bg-gray-50 cursor-pointer transition-colors"
+          >
+            <input 
+              type="checkbox" 
+              :value="e.value" 
+              v-model="filters.estado"
+              class="w-4 h-4 rounded text-intimar-gold focus:ring-intimar-gold border-gray-300"
+            >
+            <span class="text-xs font-bold text-gray-700 flex items-center gap-2">
+              <span>{{ e.icon }}</span>
+              {{ e.label }}
+            </span>
+          </label>
+        </div>
+      </div>
+
       <div class="relative">
-        <select v-model="filters.estado" class="w-full px-4 py-3 bg-gray-50 border border-transparent rounded-2xl text-xs font-bold text-gray-700 focus:border-intimar-gold/30 focus:bg-white focus:ring-4 focus:ring-intimar-gold/10 transition-all appearance-none cursor-pointer">
-          <option value="Todos">Todos los Estados</option>
-          <option value="Solicitud de reserva">🔴 Solicitud</option>
-          <option value="Pendiente a confirmar">🟠 Pendiente</option>
-          <option value="Confirmada">🟢 Confirmada</option>
-          <option value="En proceso">🔵 En proceso</option>
-          <option value="Finalizada">⚫ Finalizada</option>
-          <option value="Cancelada">❌ Cancelada</option>
-          <option value="Lista de espera">⏳ Lista de espera</option>
+        <select v-model="filters.anticipo" class="w-full px-4 py-3 bg-gray-50 border border-transparent rounded-2xl text-xs font-bold text-gray-700 focus:border-intimar-gold/30 focus:bg-white focus:ring-4 focus:ring-intimar-gold/10 transition-all appearance-none cursor-pointer">
+          <option value="Todos">Anticipo: Todos</option>
+          <option value="Pagado">Sí</option>
+          <option value="No Pagado">No</option>
         </select>
         <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none text-gray-400"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></div>
       </div>
@@ -83,11 +110,38 @@
 </template>
 
 <script setup>
-import { reactive, watch, defineEmits } from 'vue'
+import { reactive, watch, defineEmits, ref } from 'vue'
 import { useRoute } from 'vue-router'
 
 const emit = defineEmits(['filter'])
 const route = useRoute()
+
+const showEstadoMenu = ref(false)
+
+const estados = [
+  { label: 'Solicitud', value: 'Solicitud de reserva', icon: '🔴' },
+  { label: 'Pendiente', value: 'Pendiente a confirmar', icon: '🟠' },
+  { label: 'Confirmada', value: 'Confirmada', icon: '🟢' },
+  { label: 'En proceso', value: 'En proceso', icon: '🔵' },
+  { label: 'Finalizada', value: 'Finalizada', icon: '⚫' },
+  { label: 'Cancelada', value: 'Cancelada', icon: '❌' },
+  { label: 'Lista de espera', value: 'Lista de espera', icon: '⏳' },
+]
+
+// Directiva simple para cerrar al clickear fuera
+const vClickOutside = {
+  mounted(el, binding) {
+    el.clickOutsideEvent = (event) => {
+      if (!(el === event.target || el.contains(event.target))) {
+        binding.value(event)
+      }
+    }
+    document.addEventListener('click', el.clickOutsideEvent)
+  },
+  unmounted(el) {
+    document.removeEventListener('click', el.clickOutsideEvent)
+  },
+}
 
 // Obtener fecha de hoy en formato YYYY-MM-DD (Local) para el filtro inicial
 const now = new Date()
@@ -100,7 +154,8 @@ const filters = reactive({
   celular: '',
   fecha: initialDate, // Fecha del calendario o hoy
   hora: 'Todas',
-  estado: 'Todos'
+  estado: [], // Cambiado a Array para multiselección
+  anticipo: 'Todos'
 })
 
 // Emitimos los filtros al padre cada vez que cambien
@@ -114,6 +169,7 @@ const clearFilters = () => {
   filters.celular = ''
   filters.fecha = ''
   filters.hora = 'Todas'
-  filters.estado = 'Todos'
+  filters.estado = []
+  filters.anticipo = 'Todos'
 }
 </script>

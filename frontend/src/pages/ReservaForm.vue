@@ -528,6 +528,10 @@
               <label class="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1 pl-1">Banco / Referencia</label>
               <input v-model="anticipoForm.banco" type="text" placeholder="Ej. BCP, Yape, Plin..." class="w-full px-4 py-3.5 bg-gray-50 border border-transparent rounded-2xl text-sm font-bold text-gray-700 focus:border-intimar-gold/30 focus:bg-white focus:ring-4 focus:ring-intimar-gold/10 transition-all">
             </div>
+            <div>
+              <label class="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1 pl-1">Nro. de Operación</label>
+              <input v-model="anticipoForm.nro_operacion" type="text" placeholder="Código de transacción..." class="w-full px-4 py-3.5 bg-gray-50 border border-transparent rounded-2xl text-sm font-bold text-gray-700 focus:border-intimar-gold/30 focus:bg-white focus:ring-4 focus:ring-intimar-gold/10 transition-all">
+            </div>
             
             <div>
               <label class="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1 pl-1">Voucher / Comprobante</label>
@@ -1104,6 +1108,7 @@ const editingAnticipoIndex = ref(-1)
 const anticipoForm = reactive({
   monto_anticipo: 0,
   banco: '',
+  nro_operacion: '',
   moneda: 'PEN',
   estado_anticipo: 'Pendiente',
   fecha_pago: today,
@@ -1116,6 +1121,7 @@ const addAnticipoRow = () => {
   Object.assign(anticipoForm, {
     monto_anticipo: 0,
     banco: '',
+    nro_operacion: '',
     moneda: 'PEN',
     estado_anticipo: 'Pendiente',
     fecha_pago: today,
@@ -1520,6 +1526,7 @@ const saveReserva = async () => {
       anticipos: form.anticipos.map(a => ({
         monto_anticipo: a.monto_anticipo,
         banco: a.banco,
+        nro_operacion: a.nro_operacion || '',
         moneda: a.moneda,
         estado_anticipo: a.estado_anticipo,
         fecha_pago: a.fecha_pago,

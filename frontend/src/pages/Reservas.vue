@@ -1,143 +1,115 @@
 <template>
-  <div class="min-h-screen bg-gray-50 flex">
+  <div class="min-h-screen bg-gray-50 flex overflow-x-hidden">
     <Sidebar />
-    <div class="flex-1 p-3 pb-24 md:p-8 md:pb-8 overflow-y-auto overflow-x-hidden">
-      <div class="w-full space-y-4 md:space-y-8">
+    <div class="flex-1 p-4 pb-24 md:p-8 md:pb-8 overflow-y-auto mt-14 md:mt-0 transition-all duration-300">
+      <div class="w-full space-y-6 md:space-y-8">
         
-        <!-- Header -->
-        <div class="flex flex-col md:flex-row justify-between items-center md:items-center gap-3 md:gap-0 bg-white p-3 md:p-8 rounded-[1.2rem] md:rounded-[2.5rem] shadow-sm border border-gray-100 relative overflow-hidden animate-in fade-in slide-in-from-top-4 duration-500">
-          <div class="absolute right-0 top-0 w-64 h-64 bg-intimar-gold/5 rounded-full -mr-20 -mt-20 blur-3xl"></div>
-          <div class="relative z-10 flex items-center gap-3 md:gap-6 text-left w-full md:w-auto">
+        <!-- Header Principal -->
+        <div class="flex flex-col lg:flex-row justify-between items-stretch lg:items-center gap-4 bg-white p-5 md:p-8 rounded-[1.5rem] md:rounded-[2.5rem] shadow-sm border border-gray-100 relative animate-in fade-in slide-in-from-top-4 duration-500">
+          <div class="absolute right-0 top-0 w-64 h-64 bg-intimar-gold/5 rounded-full -mr-20 -mt-20 blur-3xl hidden md:block"></div>
+          
+          <div class="relative z-10 flex items-center gap-4 md:gap-6 text-left">
             <div class="hidden md:flex w-16 h-16 bg-gradient-to-br from-intimar-primary to-intimar-dark rounded-2xl items-center justify-center shadow-lg shadow-intimar-primary/20 shrink-0">
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/><path d="M8 14h.01"/><path d="M12 14h.01"/><path d="M16 14h.01"/><path d="M8 18h.01"/><path d="M12 18h.01"/><path d="M16 18h.01"/></svg>
             </div>
             <div>
-              <h1 class="text-lg md:text-4xl font-black text-gray-900 tracking-tight italic leading-tight">Gestión de Reservas</h1>
-              <p class="text-gray-500 font-bold uppercase tracking-widest text-[7px] md:text-xs mt-0.5">
+              <h1 class="text-xl md:text-4xl font-black text-gray-900 tracking-tight italic leading-tight">Reservas</h1>
+              <p class="text-gray-500 font-bold uppercase tracking-widest text-[8px] md:text-xs mt-0.5">
                 {{ statsLoading ? 'Calculando...' : `${stats.reservas} Reservas • ${stats.personas} Personas` }}
               </p>
             </div>
           </div>
           
-          <div class="flex gap-2 w-full md:w-auto relative z-10 items-center justify-between md:justify-start mt-1 md:mt-0">
-            <button 
-              @click="openAforoRadar" 
-              class="justify-center bg-gray-900 hover:bg-black text-white font-black uppercase tracking-widest text-[8px] md:text-[10px] py-2.5 md:py-4 px-4 md:px-6 rounded-lg md:rounded-2xl shadow-xl transition-all flex items-center gap-2 group"
-            >
-              <div class="relative w-3 h-3">
-                <div class="absolute inset-0 bg-emerald-400 rounded-full animate-ping opacity-75"></div>
-                <div class="relative bg-emerald-500 w-3 h-3 rounded-full border-2 border-white"></div>
-              </div>
-              RADAR AFORO
+          <div class="flex flex-wrap items-center gap-2 md:gap-3 relative z-10">
+            <button @click="openAforoRadar" class="flex-1 md:flex-none justify-center bg-gray-900 hover:bg-black text-white font-black uppercase tracking-widest text-[9px] md:text-[10px] py-3 md:py-4 px-5 md:px-6 rounded-xl md:rounded-2xl shadow-xl transition-all flex items-center gap-2">
+              <div class="relative w-2.5 h-2.5"><div class="absolute inset-0 bg-emerald-400 rounded-full animate-ping opacity-75"></div><div class="relative bg-emerald-500 w-2.5 h-2.5 rounded-full border-2 border-white"></div></div>
+              RADAR
             </button>
-
-            <button 
-              @click="exportToPDF" 
-              class="flex justify-center bg-white/50 hover:bg-white text-gray-400 hover:text-intimar-primary font-black uppercase tracking-widest text-[8px] py-2 md:py-1.5 px-3 rounded-lg border border-gray-100 transition-all items-center gap-1.5 opacity-60 hover:opacity-100 shrink-0"
-              title="Descargar listado actual en PDF"
-            >
+            <button @click="exportToPDF" class="flex-none bg-white hover:bg-gray-50 text-gray-400 hover:text-intimar-primary font-black uppercase tracking-widest text-[9px] py-3 md:py-4 px-4 rounded-xl border border-gray-100 transition-all flex items-center gap-2" title="Descargar PDF">
               <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
               PDF
             </button>
-            
-            <router-link 
-              v-if="session?.user && (session.isAdmin || session.hasRole('Recepcionista'))"
-              to="/reservas/nueva" 
-              class="flex-1 md:flex-none justify-center bg-intimar-primary hover:bg-intimar-dark text-white font-black uppercase tracking-widest text-[9px] md:text-[11px] py-2.5 md:py-4 px-4 md:px-8 rounded-lg md:rounded-2xl shadow-xl shadow-intimar-primary/20 transition-all flex items-center gap-2"
-            >
+
+            <div class="relative" v-click-outside="() => showColumnToggle = false">
+              <button @click="showColumnToggle = !showColumnToggle" class="bg-white hover:bg-gray-50 text-gray-500 font-black uppercase tracking-widest text-[9px] py-3 md:py-4 px-4 rounded-xl border border-gray-100 transition-all flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3h10"/><path d="M12 12h10"/><path d="M12 21h10"/><path d="M3 3h1"/><path d="M3 12h1"/><path d="M3 21h1"/></svg>
+                TABLA
+              </button>
+              <div v-if="showColumnToggle" class="absolute top-full right-0 mt-2 w-48 bg-white rounded-xl shadow-2xl border border-gray-100 py-2 z-[100] animate-in fade-in zoom-in-95 duration-200">
+                <p class="px-4 py-1 text-[8px] font-black text-gray-400 uppercase tracking-widest mb-1">Ver en tabla:</p>
+                <label v-for="(val, col) in columnLabels" :key="col" class="flex items-center gap-3 px-4 py-2 hover:bg-gray-50 cursor-pointer transition-colors">
+                  <input type="checkbox" v-model="visibleColumns[col]" class="w-3 h-3 rounded text-intimar-gold focus:ring-intimar-gold border-gray-300">
+                  <span class="text-[10px] font-bold text-gray-700 uppercase tracking-wider">{{ val }}</span>
+                </label>
+              </div>
+            </div>
+
+            <button @click="showSortToggle = !showSortToggle" class="bg-white hover:bg-gray-50 text-gray-500 font-black uppercase tracking-widest text-[9px] py-3 md:py-4 px-4 rounded-xl border border-gray-100 transition-all flex items-center gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m3 16 4 4 4-4"/><path d="M7 20V4"/><path d="m21 8-4-4-4 4"/><path d="M17 4v16"/></svg>
+              ORDEN
+            </button>
+            <div v-if="showSortToggle" class="absolute top-[160px] md:top-full left-0 md:right-0 mt-2 w-56 bg-white rounded-xl shadow-2xl border border-gray-100 py-2 z-[100] animate-in fade-in zoom-in-95 duration-200">
+              <p class="px-4 py-1 text-[8px] font-black text-gray-400 uppercase tracking-widest mb-1">Ordenar por:</p>
+              <button v-for="(label, value) in sortOptions" :key="value" @click="currentSort = value; showSortToggle = false; fetchReservas()" class="w-full text-left px-4 py-2.5 hover:bg-gray-50 transition-colors flex items-center justify-between" :class="currentSort === value ? 'bg-intimar-primary/5 text-intimar-primary' : 'text-gray-600'">
+                <span class="text-[10px] font-bold uppercase tracking-wider">{{ label }}</span>
+                <svg v-if="currentSort === value" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" class="text-intimar-primary"><polyline points="20 6 9 17 4 12"/></svg>
+              </button>
+            </div>
+
+            <router-link to="/reservas/nueva" class="flex-1 md:flex-none justify-center bg-intimar-primary hover:bg-intimar-dark text-white font-black uppercase tracking-widest text-[9px] md:text-[11px] py-3 md:py-4 px-6 md:px-8 rounded-xl md:rounded-2xl shadow-xl shadow-intimar-primary/20 transition-all flex items-center gap-2">
               <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
               NUEVA RESERVA
             </router-link>
           </div>
         </div>
 
-        <!-- Dashboard de Aforo Rápido (Horizontal Scroll on Mobile) -->
-        <div v-if="realtimeStats" class="flex md:grid md:grid-cols-4 gap-2 md:gap-4 overflow-x-auto pb-2 md:pb-0 scrollbar-hide snap-x animate-in fade-in slide-in-from-top-4 duration-500 delay-75">
-          <!-- Aforo Total -->
-          <div class="shrink-0 w-[40%] md:w-auto bg-white p-3 md:p-5 rounded-[1.2rem] md:rounded-[2rem] border border-gray-100 shadow-sm relative overflow-hidden group snap-start">
-            <p class="text-[7px] md:text-[9px] font-black text-gray-400 uppercase tracking-widest mb-0.5">General</p>
-            <h3 class="text-[8px] md:text-[10px] font-black text-gray-400 mb-0.5 italic uppercase">Total</h3>
-            <h2 class="text-xl md:text-3xl font-black text-intimar-dark tracking-tighter">{{ realtimeStats?.kpis?.aforo_total || 0 }}</h2>
+        <!-- Dashboard de Aforo Rápido (Grid Optimizado) -->
+        <div v-if="realtimeStats" class="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 animate-in fade-in slide-in-from-top-4 duration-500 delay-75">
+          <div class="bg-white p-4 md:p-6 rounded-[1.5rem] md:rounded-[2.5rem] border border-gray-100 shadow-sm relative overflow-hidden group">
+            <p class="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">General</p>
+            <h2 class="text-2xl md:text-3xl font-black text-intimar-dark tracking-tighter">{{ realtimeStats?.kpis?.aforo_total || 0 }}</h2>
+            <p class="text-[8px] font-bold text-gray-400 uppercase tracking-widest mt-1">Total Reservas</p>
           </div>
-
-          <!-- Aforo Actual -->
-          <div class="shrink-0 w-[40%] md:w-auto bg-intimar-primary p-3 md:p-5 rounded-[1.2rem] md:rounded-[2rem] shadow-xl shadow-intimar-primary/20 relative overflow-hidden group snap-start">
-            <p class="text-[7px] md:text-[9px] font-black text-white/50 uppercase tracking-widest mb-0.5">En Sala</p>
-            <h3 class="text-[8px] md:text-[10px] font-black text-intimar-gold mb-0.5 italic uppercase">En Sala</h3>
-            <h2 class="text-xl md:text-3xl font-black text-white leading-none tracking-tighter mb-0.5">{{ realtimeStats?.kpis?.personas_en_restaurante || 0 }}</h2>
-            <p class="text-[7px] md:text-[9px] font-black text-white/40 uppercase tracking-widest">de {{ realtimeStats?.kpis?.reservas_en_proceso || 0 }} res.</p>
+          <div class="bg-intimar-primary p-4 md:p-6 rounded-[1.5rem] md:rounded-[2.5rem] shadow-xl shadow-intimar-primary/20 relative overflow-hidden group text-white">
+            <p class="text-[9px] font-black text-white/60 uppercase tracking-widest mb-1">Actualmente</p>
+            <h2 class="text-2xl md:text-3xl font-black text-white leading-none tracking-tighter mb-1">{{ realtimeStats?.kpis?.personas_en_restaurante || 0 }}</h2>
+            <p class="text-[8px] font-black text-white/40 uppercase tracking-widest">en {{ realtimeStats?.kpis?.reservas_en_proceso || 0 }} mesas</p>
           </div>
-
-          <!-- Lista de Espera -->
-          <div class="shrink-0 w-[40%] md:w-auto bg-white p-3 md:p-5 rounded-[1.2rem] md:rounded-[2rem] border border-gray-100 shadow-sm relative group snap-start">
-            <p class="text-[7px] md:text-[9px] font-black text-gray-400 uppercase tracking-widest mb-0.5">Espera</p>
-            <h3 class="text-[8px] md:text-[10px] font-black text-amber-500 mb-0.5 italic uppercase">Espera</h3>
-            <h2 class="text-xl md:text-3xl font-black text-intimar-dark tracking-tighter mb-0.5">{{ realtimeStats?.kpis?.personas_en_espera || 0 }}</h2>
-            <p class="text-[7px] md:text-[9px] font-black text-gray-400 uppercase tracking-widest">de {{ realtimeStats?.kpis?.reservas_en_espera || 0 }} res.</p>
+          <div class="bg-white p-4 md:p-6 rounded-[1.5rem] md:rounded-[2.5rem] border border-gray-100 shadow-sm relative group">
+            <p class="text-[9px] font-black text-orange-600 uppercase tracking-widest mb-1">En Espera</p>
+            <h2 class="text-2xl md:text-3xl font-black text-intimar-dark tracking-tighter mb-1">{{ realtimeStats?.kpis?.personas_en_espera || 0 }}</h2>
+            <p class="text-[8px] font-bold text-gray-400 uppercase tracking-widest mt-1">en {{ realtimeStats?.kpis?.reservas_en_espera || 0 }} res.</p>
           </div>
-
-          <!-- Mesas Disponibles -->
-          <div class="shrink-0 w-[40%] md:w-auto bg-white p-3 md:p-5 rounded-[1.2rem] md:rounded-[2rem] border-2 border-emerald-500/20 shadow-sm relative group overflow-hidden snap-start">
-            <p class="text-[7px] md:text-[9px] font-black text-gray-400 uppercase tracking-widest mb-0.5">Libres</p>
-            <h3 class="text-[8px] md:text-[10px] font-black text-emerald-500 mb-0.5 italic uppercase">Mesas</h3>
-            <h2 class="text-xl md:text-3xl font-black text-intimar-dark tracking-tighter">{{ realtimeStats?.kpis?.mesas_disponibles || 0 }}</h2>
+          <div class="bg-white p-4 md:p-6 rounded-[1.5rem] md:rounded-[2.5rem] border-2 border-emerald-500/10 shadow-sm relative group overflow-hidden">
+            <p class="text-[9px] font-black text-emerald-600 uppercase tracking-widest mb-1">Disponibles</p>
+            <h2 class="text-2xl md:text-3xl font-black text-intimar-dark tracking-tighter">{{ realtimeStats?.kpis?.mesas_disponibles || 0 }}</h2>
+            <p class="text-[8px] font-bold text-gray-400 uppercase tracking-widest mt-1">Mesas Libres</p>
           </div>
         </div>
 
         <!-- Filtros Component -->
-        <ReservasFilter @filter="applyFilters" class="animate-in fade-in slide-in-from-top-4 duration-500 delay-75" />
+        <ReservasFilter @filter="applyFilters" class="animate-in fade-in duration-500 delay-100" />
 
         <!-- Tabla Component -->
-        <ReservasTable 
-          :reservas="filteredReservas" 
-          :loading="loading" 
-          @refresh="fetchReservas" 
-          @asignar="openAsignarModal" 
-          @delete="handleDelete"
-          class="animate-in fade-in slide-in-from-bottom-4 duration-500 delay-150" 
-        />
-
-        <!-- Controles Inferiores (Orden y Paginación) -->
-        <div v-if="!loading && filteredReservas && filteredReservas.length > 0" class="mt-4 flex flex-col sm:flex-row justify-between items-center gap-4 px-2 animate-in fade-in slide-in-from-bottom-4 duration-500 delay-200">
-          
-          <!-- Ordenamiento -->
-          <div class="flex items-center gap-2">
-            <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Creación:</span>
-            <select 
-              v-model="sortCreationOrder" 
-              class="text-[10px] uppercase font-black tracking-widest text-gray-700 bg-white border border-gray-100 rounded-xl px-3 py-1.5 focus:ring-0 focus:border-intimar-primary outline-none shadow-sm cursor-pointer"
-            >
-              <option value="desc">Últimas Creadas Primero</option>
-              <option value="asc">Primeras Creadas Inicio</option>
-            </select>
-          </div>
-
-          <div class="flex flex-col sm:flex-row items-center gap-4">
-            <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest hidden sm:block">
-              Mostrando {{ filteredReservas.length }} registros de {{ stats.reservas }} en total
-            </p>
-          <div class="flex items-center gap-4 bg-white px-3 py-1.5 rounded-xl shadow-sm border border-gray-100">
-            <button 
-              :disabled="currentPage === 1"
-              @click="currentPage--"
-              class="text-gray-400 hover:text-intimar-primary disabled:opacity-30 disabled:hover:text-gray-400 transition-colors flex items-center p-1"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
-            </button>
-            <span class="text-[10px] font-black uppercase tracking-widest text-gray-700">
-              PÁGINA {{ currentPage }}
-            </span>
-            <button 
-              :disabled="!filteredReservas || filteredReservas.length < pageSize"
-              @click="currentPage++"
-              class="text-gray-400 hover:text-intimar-primary disabled:opacity-30 disabled:hover:text-gray-400 transition-colors flex items-center p-1"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
-            </button>
-          </div>
-          </div>
+        <div class="bg-white rounded-[1.5rem] md:rounded-[2.5rem] border border-gray-100 shadow-sm overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-500 delay-150">
+          <ReservasTable :reservas="filteredReservas" :loading="loading" :columns="visibleColumns" @refresh="fetchReservas" @asignar="openAsignarModal" @delete="handleDelete" />
         </div>
 
+        <!-- Paginación -->
+        <div v-if="!loading && filteredReservas && filteredReservas.length > 0" class="flex flex-col md:flex-row justify-between items-center gap-4 bg-white p-4 md:p-6 rounded-2xl shadow-sm border border-gray-100 animate-in fade-in slide-in-from-bottom-4 duration-500 delay-200">
+          <p class="text-[9px] md:text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+            Mostrando {{ filteredReservas.length }} de {{ stats.reservas }} registros
+          </p>
+          <div class="flex items-center gap-4">
+            <button :disabled="currentPage === 1" @click="currentPage--" class="p-2 text-gray-400 hover:text-intimar-primary disabled:opacity-30 transition-colors">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+            </button>
+            <span class="text-[10px] font-black uppercase tracking-widest text-gray-700">PÁGINA {{ currentPage }}</span>
+            <button :disabled="!filteredReservas || filteredReservas.length < pageSize" @click="currentPage++" class="p-2 text-gray-400 hover:text-intimar-primary disabled:opacity-30 transition-colors">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+            </button>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -624,13 +596,14 @@ const loading = ref(true)
 const currentPage = ref(1)
 const pageSize = ref(20)
 const sortCreationOrder = ref('desc')
+const defaultOrder = 'fecha_reserva asc, hora_reserva asc'
 
 // Función para atrapar los filtros emitidos por el componente ReservasFilter
 const applyFilters = (filters) => {
   activeFilters.value = filters
 }
 
-const buildFilters = (includeAllStatus = true) => {
+const buildFilters = () => {
     let f = []
     if (activeFilters.value.id) f.push(['name', 'like', `%${activeFilters.value.id}%`])
     if (activeFilters.value.nombre) f.push(['nombre', 'like', `%${activeFilters.value.nombre}%`])
@@ -642,11 +615,21 @@ const buildFilters = (includeAllStatus = true) => {
         f.push(['hora_reserva', '<=', `${h}:59:59`])
     }
     
-    if (activeFilters.value.estado && activeFilters.value.estado !== 'Todos') {
-        f.push(['estado_reserva', '=', activeFilters.value.estado])
-    } else if (!includeAllStatus) {
-        // Para el conteo de aforo en la cabecera, excluimos por defecto lo que ya no ocupa espacio
-        f.push(['estado_reserva', 'not in', ['Finalizada', 'Cancelada']])
+    if (activeFilters.value.estado && activeFilters.value.estado.length > 0) {
+        if (activeFilters.value.estado.length === 1) {
+            f.push(['estado_reserva', '=', activeFilters.value.estado[0]])
+        } else {
+            f.push(['estado_reserva', 'in', activeFilters.value.estado])
+        }
+    }
+
+    if (activeFilters.value.anticipo && activeFilters.value.anticipo !== 'Todos') {
+        if (activeFilters.value.anticipo === 'Pagado') {
+            f.push(['total_pagado', '>', 0])
+        } else {
+            // Considerar tanto 0 como null/None para Sin Anticipo
+            f.push(['total_pagado', '<=', 0])
+        }
     }
     return f
 }
@@ -672,13 +655,14 @@ const filteredReservas = computed(() => reservas.value)
 const fetchReservas = async () => {
   loading.value = true
   try {
-    const data = await call('intimar_erp.api.get_reservas_list', {
-      filters: buildFilters(true),
+    const response = await call('intimar_erp.api.get_reservas_list', {
+      filters: JSON.stringify(buildFilters()),
       limit_start: (currentPage.value - 1) * pageSize.value,
       limit_page_length: pageSize.value,
-      order_by: `creation ${sortCreationOrder.value}`
+      order_by: currentSort.value
     })
-    reservas.value = data
+    // Aseguramos que tomamos la lista de datos, sea que venga envuelta o directa
+    reservas.value = response?.data || response || []
   } catch (error) {
     console.error('Error obteniendo reservas:', error)
   } finally {
@@ -693,23 +677,22 @@ const statsLoading = ref(false)
 const fetchStats = async () => {
   statsLoading.value = true
   try {
-    const [data, rStats] = await Promise.all([
-      call('intimar_erp.api.get_reservas_pax_stats', {
-        filters: buildFilters(false)
+    let [summary, rStats] = await Promise.all([
+      call('intimar_erp.api.get_reservas_summary', {
+        filters: buildFilters()
       }),
       call('intimar_erp.api.get_dashboard_stats', {
         start_date: activeFilters.value.fecha || null
       })
     ])
     
-    let totalPersonas = 0
-    data.forEach(r => {
-      totalPersonas += (r.cant_adultos || 0) + (r.cant_ninos || 0)
-    })
+    // Extraer datos si vienen envueltos en .data
+    if (summary?.data) summary = summary.data
+    if (rStats?.data) rStats = rStats.data
     
     stats.value = {
-      reservas: data.length,
-      personas: totalPersonas
+      reservas: summary?.reservas || 0,
+      personas: summary?.personas || 0
     }
     realtimeStats.value = rStats
     // Sincronizar fecha del radar si está vacío
@@ -727,8 +710,46 @@ const radarLoading = ref(false)
 const radarData = ref([])
 const radarDate = ref('')
 const simulator = reactive({ pax: null, hora: '13:00' })
-
 const simulationResult = ref(null)
+
+// Configuración de Columnas Visibles
+const showColumnToggle = ref(false)
+const showSortToggle = ref(false)
+
+const sortOptions = {
+  'fecha_reserva asc, hora_reserva asc': 'Reserva (Menor a Mayor)',
+  'hora_reserva desc': 'Reserva (Mayor a Menor)',
+  'hora_llegada asc': 'Llegada (Más antiguo)',
+  'creation desc': 'Recientes'
+}
+const currentSort = ref('fecha_reserva asc, hora_reserva asc')
+
+const visibleColumns = reactive({
+  pago: false,
+  llegada: false,
+  mesas: true
+})
+
+const columnLabels = {
+  pago: 'Medio de Pago',
+  llegada: 'Hora Llegada',
+  mesas: 'Mesas Asignadas'
+}
+
+// Directiva para cerrar al clickear fuera
+const vClickOutside = {
+  mounted(el, binding) {
+    el.clickOutsideEvent = (event) => {
+      if (!(el === event.target || el.contains(event.target))) {
+        binding.value(event)
+      }
+    }
+    document.addEventListener('click', el.clickOutsideEvent)
+  },
+  unmounted(el) {
+    document.removeEventListener('click', el.clickOutsideEvent)
+  },
+}
 
 // Watcher para simular en tiempo real con precisión total
 watch(() => [simulator.pax, simulator.hora, radarDate.value], async ([pax, hora, fecha]) => {

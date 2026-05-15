@@ -105,7 +105,13 @@
             </div>
             <div class="p-6 bg-gray-50 rounded-3xl flex gap-5 items-start border border-orange-50">
                <div class="text-orange-400 shrink-0 mt-0.5"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8v4l3 3"/><circle cx="12" cy="12" r="10"/></svg></div>
-               <div class="space-y-2"><div class="space-y-1"><p class="text-[9px] font-bold uppercase tracking-[0.2em] text-orange-600">{{ t.policyTitle }}</p><p class="text-[11px] font-medium text-gray-500 leading-snug uppercase">{{ t.policyDesc }}</p></div><p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest pt-2 border-t border-gray-100">{{ t.assignmentNote }}</p></div>
+               <div class="space-y-2">
+                 <div class="space-y-1">
+                   <p class="text-[9px] font-bold uppercase tracking-[0.2em] text-orange-600">{{ t.policyTitle }}</p>
+                   <p class="text-[11px] font-medium text-gray-500 leading-snug uppercase">{{ t.policyDesc }}</p>
+                 </div>
+                 <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest pt-2 border-t border-gray-100">{{ t.assignmentNote }}</p>
+               </div>
             </div>
           </div>
 
@@ -302,6 +308,27 @@
         </div>
     </div>
 
+    <!-- MODAL DE ADVERTENCIA POLÍTICA 4 PM -->
+    <div v-if="showPolicyModal" class="fixed inset-0 z-[200] flex items-center justify-center p-6 bg-intimar-dark/60 backdrop-blur-md animate-fade-in">
+        <div class="bg-white w-full max-w-sm rounded-[2.5rem] p-10 shadow-2xl space-y-8 text-center border border-red-50">
+            <div class="w-14 h-14 bg-red-50 text-red-600 rounded-full flex items-center justify-center mx-auto">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            </div>
+            <div class="space-y-4">
+                <h3 class="text-xl font-black tracking-tighter uppercase text-gray-900">Aviso de Tolerancia</h3>
+                <p class="text-gray-500 text-xs font-bold leading-relaxed uppercase tracking-tight">{{ t.noToleranceNotice }}</p>
+            </div>
+            <div class="space-y-3 pt-4">
+                <button @click="confirmPolicy" class="w-full py-4 bg-intimar-primary text-white rounded-full font-black uppercase tracking-[0.2em] text-[9px] shadow-lg transition-all active:scale-95 hover:bg-intimar-dark">
+                    {{ t.policyAccept }}
+                </button>
+                <button @click="showPolicyModal = false" class="w-full py-4 bg-gray-50 text-gray-400 rounded-full font-bold uppercase tracking-[0.2em] text-[9px] transition-all hover:text-gray-600 active:scale-95">
+                    {{ t.btnBack }}
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- BOTÓN WHATSAPP -->
     <a href="https://wa.me/51981318866?text=Hola%20Intimar,%20tengo%20una%20consulta%20sobre%20mi%20reserva." target="_blank" class="fixed bottom-6 right-6 z-50 w-14 h-14 bg-[#25D366] text-white rounded-full flex items-center justify-center shadow-2xl hover:scale-110 transition-all active:scale-95 group">
       <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 448 512" fill="currentColor"><path d="M380.9 97.1C339 55.1 283.2 32 223.9 32c-122.4 0-222 99.6-222 222 0 39.1 10.2 77.3 29.6 111L0 480l117.7-30.9c32.4 17.7 68.9 27 106.1 27h.1c122.3 0 224.1-99.6 224.1-222 0-59.3-25.2-115-67.1-157zm-157 341.6c-33.2 0-65.7-8.9-94-25.7l-6.7-4-69.8 18.3L72 359.2l-4.4-7c-18.5-29.4-28.2-63.3-28.2-98.2 0-101.7 82.8-184.5 184.6-184.5 49.3 0 95.6 19.2 130.4 54.1 34.8 34.9 56.2 81.2 56.1 130.5 0 101.8-84.9 184.6-186.6 184.6zm101.2-138.2c-5.5-2.8-32.8-16.2-37.9-18-5.1-1.9-8.8-2.8-12.5 2.8-3.7 5.6-14.3 18-17.6 21.8-3.2 3.7-6.5 4.2-12 1.4-5.5-2.8-23.2-8.5-44.2-27.1-16.4-14.6-27.4-32.7-30.6-38.2-3.2-5.6-.3-8.6 2.5-11.3 2.5-2.5 5.6-6.5 8.3-9.7 2.8-3.3 3.7-5.6 5.6-9.3 1.9-3.7 0.9-6.9-0.5-9.7-1.4-2.8-12.5-30.1-17.1-41.2-4.5-10.8-9.1-9.3-12.5-9.5-3.2-0.2-6.9-0.2-10.6-0.2-3.7 0-9.7 1.4-14.8 6.9-5.1 5.6-19.4 19-19.4 46.3 0 27.3 19.9 53.7 22.6 57.4 2.8 3.7 39.1 59.7 94.8 83.8 13.2 5.8 23.5 9.2 31.5 11.8 13.3 4.2 25.4 3.6 35 2.2 10.7-1.6 32.8-13.4 37.4-26.4 4.6-13 4.6-24.1 3.2-26.4-1.3-2.5-5-3.9-10.5-6.6z"/></svg>
@@ -324,7 +351,9 @@ const totalAnticipo = computed(() => {
   const pax = (Number(form.adultos) || 0) + (Number(form.ninos) || 0)
   return pax * 20
 })
-const showWaitlistModal = ref(false); const apiError = ref('');
+const showWaitlistModal = ref(false); 
+const showPolicyModal = ref(false);
+const apiError = ref('');
 const heroImages = ['/files/intimar-1.webp','/files/intimar-2.webp','/files/intimar-3.webp']
 const form = reactive({ fecha: '', adultos: 2, ninos: 0, hora: '', nombre: '', apellido: '', celular: '', codigoPais: '+51', email: '', dni: '', requerimientos: '', necesidades: '', alergias: '', acepta_legal1: false, acepta_legal3: false, aceptar_lista_espera: 0 })
 const errors = reactive({})
@@ -382,6 +411,8 @@ const translations = {
     btnVerifyWsp: 'Verificar mi reserva',
     verifyText: '¿No te llegó el correo? Verifica aquí:',
     emailCheck1: 'Por favor, revisa tu correo electrónico',
+    noToleranceNotice: 'IMPORTANTE: Para reservas a las 16:00 (4 PM) no se brinda tiempo de tolerancia debido al cierre de cocina. Por favor, asegure su puntualidad.',
+    policyAccept: 'Entiendo y aceptaré la puntualidad',
     generalPolicy: 'Nuestro horario de atención es de 11:00 a.m. a 4:00 p.m, la asignación de mesas es por orden de llegada y la zona sujeta a disponibilidad. Para reservas grupales de 8 a más personas, se requiere un pago de consumo anticipado.',
     anticipoTitle: 'Pago de Anticipo Requerido',
     anticipoNotice: 'Debido al tamaño de tu grupo, nos contactaremos pronto vía WhatsApp para coordinar el pago del anticipo que sería:',
@@ -397,7 +428,12 @@ const translations = {
     labelManualPax: 'Specify amount',
     labelDate: 'Select a Date', btnSearch: 'Search Availability',
     title2: 'Available Slots', subtitle2: 'Times subject to availability',
-    policyTitle: 'Grace Period', policyDesc: '15-minute tolerance. After this time, your table may be reassigned.',
+    btnVerifyWsp: 'Verify my booking',
+    verifyText: "Didn't get the email? Verify here:",
+    emailCheck1: 'Please check your email',
+    noToleranceNotice: 'IMPORTANT: For 4:00 PM bookings, there is no grace period due to kitchen closing time. Please ensure your punctuality.',
+    policyAccept: 'I understand and will be punctual',
+    generalPolicy: 'Our service hours are from 11:00 a.m. to 4:00 p.m., table assignment is on a first-come, first-served basis, and area is subject to availability. For group bookings of 8 or more people, advance payment is required.',
     assignmentNote: 'Tables are assigned based on availability upon arrival.',
     title3: 'Confirm Your Details', subtitle3: 'Just one step left to secure your table',
     labelName: 'First Name', labelLastname: 'Last Name', labelPhone: 'Phone',
@@ -477,10 +513,22 @@ const isSlotDisabled = (slotTime) => {
 };
 
 const handleSlotClick = (slot) => {
-  if (isSlotDisabled(slot)) return;
-  form.hora = slot;
-  nextStep();
-};
+  if (isSlotDisabled(slot)) return
+  
+  if (slot === '16:00') {
+    showPolicyModal.value = true
+    return
+  }
+  
+  form.hora = slot
+  nextStep()
+}
+
+const confirmPolicy = () => {
+  form.hora = '16:00'
+  showPolicyModal.value = false
+  nextStep()
+}
 
 const getSlotClass = (slot) => {
   if (isSlotDisabled(slot)) {

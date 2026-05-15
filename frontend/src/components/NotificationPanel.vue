@@ -4,7 +4,7 @@
     <button 
       v-if="!isOpen"
       @click="isOpen = true"
-      class="fixed top-6 right-6 w-12 h-12 md:w-14 md:h-14 bg-white text-[#1a1a1a] rounded-2xl shadow-[0_10px_30px_rgba(197,160,89,0.2)] flex items-center justify-center hover:scale-110 active:scale-95 transition-all z-[40] border border-gray-100 group"
+      class="fixed top-2 right-[72px] md:top-6 md:right-6 w-12 h-12 md:w-14 md:h-14 bg-white/20 md:bg-white text-[#1a1a1a] rounded-2xl shadow-none md:shadow-[0_10px_30px_rgba(197,160,89,0.2)] flex items-center justify-center hover:scale-110 active:scale-95 transition-all z-[1001] border-none md:border md:border-gray-100 group"
       :class="{ 'animate-shake': unreadCount > 0 }"
     >
       <div class="relative">
