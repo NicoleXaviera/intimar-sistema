@@ -1575,8 +1575,8 @@ const saveReserva = async () => {
     } else {
       const msg = extractErrorMessage(error)
       
-      // Si el mensaje contiene palabras clave de aforo, lo mostramos en el modal detallado
-      if (msg && (msg.includes('AFORO') || msg.includes('CONTROL DE AFORO'))) {
+      // Si el mensaje contiene palabras clave de aforo o cocina, lo mostramos en el modal detallado
+      if (msg && (msg.includes('AFORO') || msg.includes('CONTROL DE AFORO') || msg.includes('COCINA') || msg.includes('PRODUCCIÓN'))) {
         aforoErrorContent.value = msg
         showAforoErrorModal.value = true
       } else {

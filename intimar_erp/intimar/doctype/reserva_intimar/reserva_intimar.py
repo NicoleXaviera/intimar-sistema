@@ -257,16 +257,24 @@ class ReservaIntimar(Document):
 		limite_cocina = config.get("capacidad_cocina_30min") or 30
 		
 		if total_llegadas > limite_cocina:
+			if frappe.session.user == "Guest":
+				frappe.throw(_("Lo sentimos, no hay disponibilidad para este bloque horario debido a la alta demanda. Por favor, seleccione otra hora."), title=_("Disponibilidad Limitada"))
+			
 			msg_cocina = (
-				f"<div style='text-align: center; margin-bottom: 15px;'>"
-				f"<span style='font-size: 1.5em; font-weight: 900; color: #ff9800;'>🔥 FLUJO DE COCINA EXCEDIDO</span><br>"
-				f"<span style='font-size: 0.9em; font-weight: 700; color: #ff9800;'>CONTROL DE PRODUCCIÓN</span><br>"
+				f"<div style='text-align: center; margin-bottom: 20px; font-family: sans-serif;'>"
+				f"<div style='display: inline-block; margin-bottom: 10px; color: #ff9800;'>"
+				f"<svg xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M12 2v2'/><path d='M12 20v2'/><path d='m4.93 4.93 1.41 1.41'/><path d='m17.66 17.66 1.41 1.41'/><path d='M2 12h2'/><path d='M20 12h2'/><path d='m6.34 17.66-1.41 1.41'/><path d='m19.07 4.93-1.41 1.41'/><path d='M12 7v5l3 3'/></svg>"
 				f"</div>"
+				f"<div style='font-size: 1.4em; font-weight: 900; color: #ff9800; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 1px;'>Flujo de Cocina Excedido</div>"
+				f"<div style='font-size: 0.85em; font-weight: 700; color: #ff9800; letter-spacing: 2px; opacity: 0.8; text-transform: uppercase;'>Control de Producción</div>"
+				f"</div>"
+				f"<div style='color: #444; line-height: 1.5;'>"
 				f"La cocina tiene un límite de <b>{limite_cocina} personas cada 30 minutos</b>.<br>"
 				f"En el bloque de las <b>{mi_slot}</b> ya hay <b>{llegadas_este_bloque} personas</b> programadas.<br><br>"
 				f"<b>Total con esta reserva:</b> {total_llegadas} personas.<br><br>"
-				f"<div style='background: #fff8e1; padding: 15px; border-radius: 12px; border-left: 4px solid #ff9800; font-size: 0.9em;'>"
+				f"<div style='background: #fff8e1; padding: 15px; border-radius: 12px; border-left: 4px solid #ff9800; font-size: 0.9em; color: #856404;'>"
 				f"Por favor, mueve la reserva a otro bloque de horario para no saturar la cocina."
+				f"</div>"
 				f"</div>"
 			)
 			frappe.throw(msg_cocina, title="Control de Flujo")
@@ -276,22 +284,30 @@ class ReservaIntimar(Document):
 				self.estado_reserva = "Lista de espera"
 				self.notify_event("aforo_lleno", _("Aforo lleno. Reserva de {0} enviada a Lista de Espera.").format(self.nombre))
 			else:
+				if frappe.session.user == "Guest":
+					frappe.throw(_("Lo sentimos, no hay aforo disponible para {0} personas en este horario.").format(pax_nuevos), title=_("Aforo Completo"))
+
 				disponible = max(0, aforo_max - max_ocupacion)
-				res_list_html = "<div style='margin-top: 10px; font-size: 0.9em;'>" + "".join([f"<div>• {d}</div>" for d in list(set(reservas_en_pico))]) + "</div>"
+				res_list_html = "<div style='margin-top: 10px; font-size: 0.85em;'>" + "".join([f"<div style='margin-bottom: 4px;'>• {d}</div>" for d in list(set(reservas_en_pico))]) + "</div>"
 				
 				msg = (
-					f"<div style='text-align: center; margin-bottom: 15px;'>"
-					f"<span style='font-size: 1.5em; font-weight: 900; color: #d32f2f;'>⚠️ AFORO EXCEDIDO</span><br>"
-					f"<span style='font-size: 0.9em; font-weight: 700; color: #d32f2f;'>CONTROL DE AFORO</span><br>"
+					f"<div style='text-align: center; margin-bottom: 20px; font-family: sans-serif;'>"
+					f"<div style='display: inline-block; margin-bottom: 10px; color: #d32f2f;'>"
+					f"<svg xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z'/><path d='M12 9v4'/><path d='M12 17h.01'/></svg>"
 					f"</div>"
+					f"<div style='font-size: 1.4em; font-weight: 900; color: #d32f2f; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 1px;'>Aforo Excedido</div>"
+					f"<div style='font-size: 0.85em; font-weight: 700; color: #d32f2f; letter-spacing: 2px; opacity: 0.8; text-transform: uppercase;'>Control de Capacidad</div>"
+					f"</div>"
+					f"<div style='color: #444; line-height: 1.5;'>"
 					f"<b>Capacidad Máxima:</b> {aforo_max} personas<br>"
 					f"<b>Ocupación Pico en este horario:</b> {max_ocupacion} personas<br>"
 					f"<b>Espacio Disponible:</b> {disponible} personas<br><br>"
-					f"<div style='background: #f5f5f5; padding: 15px; border-radius: 12px; border-left: 4px solid #00938f;'>"
+					f"<div style='background: #f8f9fa; padding: 15px; border-radius: 12px; border-left: 4px solid #00938f; color: #333;'>"
 					f"<b>Reservas que ocupan sitio en este lapso:</b><br>"
 					f"{res_list_html}"
 					f"</div>"
 					f"<br>No es posible registrar este nuevo grupo de <b>{pax_nuevos}</b> personas."
+					f"</div>"
 				)
 				
 				self.notify_event("aforo_lleno", msg)

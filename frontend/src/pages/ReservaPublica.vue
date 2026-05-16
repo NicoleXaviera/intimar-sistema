@@ -164,9 +164,7 @@
                 <div class="space-y-4">
                     <!-- Mensaje de Error del Servidor -->
                     <div v-if="apiError" class="p-4 bg-red-50 border border-red-100 rounded-2xl animate-in fade-in zoom-in duration-300">
-                        <p class="text-[10px] font-black text-red-600 uppercase tracking-widest leading-relaxed text-center">
-                           {{ apiError }}
-                        </p>
+                        <p class="text-[11px] font-bold text-red-600 leading-relaxed" v-html="apiError"></p>
                     </div>
 
                     <p v-if="Object.keys(errors).length > 0" class="text-[10px] font-bold text-red-500 uppercase tracking-widest text-center animate-pulse">{{ t.errorRequired }}</p>
