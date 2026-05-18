@@ -5,7 +5,7 @@
       <div class="w-full space-y-6 md:space-y-8">
         
         <!-- Header Principal -->
-        <div class="flex flex-col lg:flex-row justify-between items-stretch lg:items-center gap-4 bg-white p-5 md:p-8 rounded-[1.5rem] md:rounded-[2.5rem] shadow-sm border border-gray-100 relative animate-in fade-in slide-in-from-top-4 duration-500">
+        <div class="flex flex-col lg:flex-row justify-between items-stretch lg:items-center gap-4 bg-white p-5 md:p-8 rounded-[1.5rem] md:rounded-[2.5rem] shadow-sm border border-gray-100 relative z-30 animate-in fade-in slide-in-from-top-4 duration-500">
           <div class="absolute right-0 top-0 w-64 h-64 bg-intimar-gold/5 rounded-full -mr-20 -mt-20 blur-3xl hidden md:block"></div>
           
           <div class="relative z-10 flex items-center gap-4 md:gap-6 text-left">
@@ -22,8 +22,8 @@
           
           <div class="flex flex-wrap items-center gap-2 md:gap-3 relative z-10">
             <button @click="openAforoRadar" class="flex-1 md:flex-none justify-center bg-gray-900 hover:bg-black text-white font-black uppercase tracking-widest text-[9px] md:text-[10px] py-3 md:py-4 px-5 md:px-6 rounded-xl md:rounded-2xl shadow-xl transition-all flex items-center gap-2">
-              <div class="relative w-2.5 h-2.5"><div class="absolute inset-0 bg-emerald-400 rounded-full animate-ping opacity-75"></div><div class="relative bg-emerald-500 w-2.5 h-2.5 rounded-full border-2 border-white"></div></div>
-              RADAR
+              <div class="relative w-2.5 h-2.5"><div class="absolute inset-0 bg-[#00938f] rounded-full animate-ping opacity-75"></div><div class="relative bg-[#00938f] w-2.5 h-2.5 rounded-full border-2 border-white"></div></div>
+              SIMULACIÓN
             </button>
             <button @click="exportToPDF" class="flex-none bg-white hover:bg-gray-50 text-gray-400 hover:text-intimar-primary font-black uppercase tracking-widest text-[9px] py-3 md:py-4 px-4 rounded-xl border border-gray-100 transition-all flex items-center gap-2" title="Descargar PDF">
               <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
@@ -31,7 +31,7 @@
             </button>
 
             <div class="relative" v-click-outside="() => showColumnToggle = false">
-              <button @click="showColumnToggle = !showColumnToggle" class="bg-white hover:bg-gray-50 text-gray-500 font-black uppercase tracking-widest text-[9px] py-3 md:py-4 px-4 rounded-xl border border-gray-100 transition-all flex items-center gap-2">
+              <button @click="showColumnToggle = !showColumnToggle; showSortToggle = false" class="bg-white hover:bg-gray-50 text-gray-500 font-black uppercase tracking-widest text-[9px] py-3 md:py-4 px-4 rounded-xl border border-gray-100 transition-all flex items-center gap-2">
                 <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3h10"/><path d="M12 12h10"/><path d="M12 21h10"/><path d="M3 3h1"/><path d="M3 12h1"/><path d="M3 21h1"/></svg>
                 TABLA
               </button>
@@ -44,16 +44,18 @@
               </div>
             </div>
 
-            <button @click="showSortToggle = !showSortToggle" class="bg-white hover:bg-gray-50 text-gray-500 font-black uppercase tracking-widest text-[9px] py-3 md:py-4 px-4 rounded-xl border border-gray-100 transition-all flex items-center gap-2">
-              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m3 16 4 4 4-4"/><path d="M7 20V4"/><path d="m21 8-4-4-4 4"/><path d="M17 4v16"/></svg>
-              ORDEN
-            </button>
-            <div v-if="showSortToggle" class="absolute top-[160px] md:top-full left-0 md:right-0 mt-2 w-56 bg-white rounded-xl shadow-2xl border border-gray-100 py-2 z-[100] animate-in fade-in zoom-in-95 duration-200">
-              <p class="px-4 py-1 text-[8px] font-black text-gray-400 uppercase tracking-widest mb-1">Ordenar por:</p>
-              <button v-for="(label, value) in sortOptions" :key="value" @click="currentSort = value; showSortToggle = false; fetchReservas()" class="w-full text-left px-4 py-2.5 hover:bg-gray-50 transition-colors flex items-center justify-between" :class="currentSort === value ? 'bg-intimar-primary/5 text-intimar-primary' : 'text-gray-600'">
-                <span class="text-[10px] font-bold uppercase tracking-wider">{{ label }}</span>
-                <svg v-if="currentSort === value" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" class="text-intimar-primary"><polyline points="20 6 9 17 4 12"/></svg>
+            <div class="relative" v-click-outside="() => showSortToggle = false">
+              <button @click="showSortToggle = !showSortToggle; showColumnToggle = false" class="bg-white hover:bg-gray-50 text-gray-500 font-black uppercase tracking-widest text-[9px] py-3 md:py-4 px-4 rounded-xl border border-gray-100 transition-all flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m3 16 4 4 4-4"/><path d="M7 20V4"/><path d="m21 8-4-4-4 4"/><path d="M17 4v16"/></svg>
+                ORDEN
               </button>
+              <div v-if="showSortToggle" class="absolute top-full right-0 mt-2 w-56 bg-white rounded-xl shadow-2xl border border-gray-100 py-2 z-[100] animate-in fade-in zoom-in-95 duration-200">
+                <p class="px-4 py-1 text-[8px] font-black text-gray-400 uppercase tracking-widest mb-1">Ordenar por:</p>
+                <button v-for="(label, value) in sortOptions" :key="value" @click="currentSort = value; showSortToggle = false; fetchReservas()" class="w-full text-left px-4 py-2.5 hover:bg-gray-50 transition-colors flex items-center justify-between" :class="currentSort === value ? 'bg-intimar-primary/5 text-intimar-primary' : 'text-gray-600'">
+                  <span class="text-[10px] font-bold uppercase tracking-wider">{{ label }}</span>
+                  <svg v-if="currentSort === value" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" class="text-intimar-primary"><polyline points="20 6 9 17 4 12"/></svg>
+                </button>
+              </div>
             </div>
 
             <router-link to="/reservas/nueva" class="flex-1 md:flex-none justify-center bg-intimar-primary hover:bg-intimar-dark text-white font-black uppercase tracking-widest text-[9px] md:text-[11px] py-3 md:py-4 px-6 md:px-8 rounded-xl md:rounded-2xl shadow-xl shadow-intimar-primary/20 transition-all flex items-center gap-2">
@@ -63,36 +65,13 @@
           </div>
         </div>
 
-        <!-- Dashboard de Aforo Rápido (Grid Optimizado) -->
-        <div v-if="realtimeStats" class="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 animate-in fade-in slide-in-from-top-4 duration-500 delay-75">
-          <div class="bg-white p-4 md:p-6 rounded-[1.5rem] md:rounded-[2.5rem] border border-gray-100 shadow-sm relative overflow-hidden group">
-            <p class="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">General</p>
-            <h2 class="text-2xl md:text-3xl font-black text-intimar-dark tracking-tighter">{{ realtimeStats?.kpis?.aforo_total || 0 }}</h2>
-            <p class="text-[8px] font-bold text-gray-400 uppercase tracking-widest mt-1">Total Reservas</p>
-          </div>
-          <div class="bg-intimar-primary p-4 md:p-6 rounded-[1.5rem] md:rounded-[2.5rem] shadow-xl shadow-intimar-primary/20 relative overflow-hidden group text-white">
-            <p class="text-[9px] font-black text-white/60 uppercase tracking-widest mb-1">Actualmente</p>
-            <h2 class="text-2xl md:text-3xl font-black text-white leading-none tracking-tighter mb-1">{{ realtimeStats?.kpis?.personas_en_restaurante || 0 }}</h2>
-            <p class="text-[8px] font-black text-white/40 uppercase tracking-widest">en {{ realtimeStats?.kpis?.reservas_en_proceso || 0 }} mesas</p>
-          </div>
-          <div class="bg-white p-4 md:p-6 rounded-[1.5rem] md:rounded-[2.5rem] border border-gray-100 shadow-sm relative group">
-            <p class="text-[9px] font-black text-orange-600 uppercase tracking-widest mb-1">En Espera</p>
-            <h2 class="text-2xl md:text-3xl font-black text-intimar-dark tracking-tighter mb-1">{{ realtimeStats?.kpis?.personas_en_espera || 0 }}</h2>
-            <p class="text-[8px] font-bold text-gray-400 uppercase tracking-widest mt-1">en {{ realtimeStats?.kpis?.reservas_en_espera || 0 }} res.</p>
-          </div>
-          <div class="bg-white p-4 md:p-6 rounded-[1.5rem] md:rounded-[2.5rem] border-2 border-emerald-500/10 shadow-sm relative group overflow-hidden">
-            <p class="text-[9px] font-black text-emerald-600 uppercase tracking-widest mb-1">Disponibles</p>
-            <h2 class="text-2xl md:text-3xl font-black text-intimar-dark tracking-tighter">{{ realtimeStats?.kpis?.mesas_disponibles || 0 }}</h2>
-            <p class="text-[8px] font-bold text-gray-400 uppercase tracking-widest mt-1">Mesas Libres</p>
-          </div>
-        </div>
 
         <!-- Filtros Component -->
-        <ReservasFilter @filter="applyFilters" class="animate-in fade-in duration-500 delay-100" />
+        <ReservasFilter :totalReservas="stats.reservas" :totalPersonas="stats.personas" @filter="applyFilters" class="animate-in fade-in duration-500 delay-100" />
 
         <!-- Tabla Component -->
         <div class="bg-white rounded-[1.5rem] md:rounded-[2.5rem] border border-gray-100 shadow-sm overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-500 delay-150">
-          <ReservasTable :reservas="filteredReservas" :loading="loading" :columns="visibleColumns" @refresh="fetchReservas" @asignar="openAsignarModal" @delete="handleDelete" />
+          <ReservasTable :reservas="filteredReservas" :loading="loading" :columns="visibleColumns" :currentSort="currentSort" @sort="handleSort" @refresh="fetchReservas" @asignar="openAsignarModal" @delete="handleDelete" />
         </div>
 
         <!-- Paginación -->
@@ -245,14 +224,14 @@
       </div>
     </Teleport>
 
-    <!-- RADAR DE AFORO (DRAWER) -->
+    <!-- SIMULACIÓN DE AFORO (DRAWER) -->
     <Teleport to="body">
       <transition name="drawer-slide">
         <div v-if="showAforoRadar" class="fixed inset-0 z-[1000] flex justify-end">
           <div class="absolute inset-0 bg-[#002e2c]/40 backdrop-blur-sm" @click="showAforoRadar = false"></div>
           
           <div class="relative w-full max-w-md bg-white h-full shadow-2xl flex flex-col animate-drawerIn overflow-hidden border-l border-intimar-gold/20">
-            <!-- Header Radar Ultra Compact -->
+            <!-- Header Simulación Ultra Compact -->
             <div class="p-5 bg-gradient-to-r from-[#00938f] to-[#007b77] text-white relative">
                <div class="relative z-10 flex items-center justify-between">
                   <div class="flex items-center gap-3">
@@ -260,8 +239,8 @@
                       <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2v10l4 4"/></svg>
                     </div>
                     <div>
-                      <h3 class="text-xl font-black italic tracking-tighter uppercase leading-none">Radar Aforo</h3>
-                      <p class="text-[9px] font-bold text-white/70 uppercase tracking-widest">Intimar Proyección</p>
+                      <h3 class="text-xl font-black italic tracking-tighter uppercase leading-none">Simulación Aforo</h3>
+                      <p class="text-[9px] font-bold text-white/70 uppercase tracking-widest">Intimar Simulación</p>
                     </div>
                   </div>
                   <button @click="showAforoRadar = false" class="w-8 h-8 bg-white/10 rounded-lg flex items-center justify-center hover:bg-white/20 transition-all text-white/80 border border-white/20">
@@ -318,19 +297,19 @@
 
                 <div v-else class="space-y-1">
                   <div 
-                    v-for="slot in radarData" 
+                    v-for="slot in simulatedRadarData" 
                     :key="slot.hora" 
                     :id="'radar-slot-' + slot.hora"
                     class="group bg-white border border-gray-50 hover:border-[#00938f]/30 p-2.5 rounded-2xl transition-all cursor-pointer overflow-hidden relative" 
                     @click="toggleSlot(slot.hora)" 
                     :class="{
                       'ring-2 ring-[#00938f]/10 bg-gray-50/50': expandedSlot === slot.hora,
-                      'ring-2 ring-intimar-gold bg-amber-50/30 shadow-lg shadow-amber-200/20 z-10': activeFilters.hora === slot.hora
+                      'ring-2 ring-[#00938f] bg-[#00938f]/5 shadow-lg z-10 scale-[1.01] border-transparent': simulator.hora === slot.hora
                     }"
                   >
-                    <!-- Badge de Hora Seleccionada -->
-                    <div v-if="activeFilters.hora === slot.hora" class="absolute top-0 right-0 bg-intimar-gold text-white text-[6px] font-black px-2 py-0.5 rounded-bl-lg uppercase tracking-widest animate-pulse">
-                      Seleccionada
+                    <!-- Badge de Hora Simulada -->
+                    <div v-if="simulator.hora === slot.hora" class="absolute top-0 right-0 bg-[#00938f] text-white text-[7px] font-black px-2 py-0.5 rounded-bl-lg uppercase tracking-widest animate-pulse">
+                      Simulando
                     </div>
                     <div class="flex items-center gap-4">
                       <!-- Hora -->
@@ -344,12 +323,12 @@
                           <div class="flex items-center gap-3">
                             <!-- Sillas -->
                             <div class="flex items-center gap-1">
-                              <span class="text-[9px] font-black text-gray-700">{{ slot.ocupado }} / {{ slot.limite }}</span>
+                              <span class="text-[9px] font-black text-gray-700">{{ slot.simOcupado }} / {{ slot.limite }}</span>
                               <span class="text-[7px] font-bold text-gray-400 uppercase tracking-tighter">Sillas</span>
                             </div>
                             <!-- Cocina -->
                             <div class="flex items-center gap-1 border-l border-gray-100 pl-3">
-                              <span class="text-[9px] font-black" :class="slot.porcentaje_cocina > 90 ? 'text-orange-600' : 'text-orange-500'">{{ slot.llegando }} / {{ slot.limite_cocina }}</span>
+                              <span class="text-[9px] font-black" :class="slot.simPorcentajeCocina > 90 ? 'text-orange-600' : 'text-orange-500'">{{ slot.simLlegando }} / {{ slot.limite_cocina }}</span>
                               <span class="text-[7px] font-bold text-gray-400 uppercase tracking-tighter">Cocina</span>
                             </div>
                           </div>
@@ -360,27 +339,26 @@
                              <svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="transition-transform" :class="{'rotate-180': expandedSlot === slot.hora}"><path d="m6 9 6 6 6-6"/></svg>
                           </div>
                         </div>
-                        
-                        <!-- Barras Apiladas -->
+                            <!-- Barras Apiladas -->
                         <div class="flex gap-1 h-1.5">
                            <!-- Barra Sillas -->
                            <div class="h-full flex-1 bg-gray-100 rounded-full overflow-hidden">
                              <div class="h-full transition-all duration-700" 
-                                  :style="`width: ${slot.porcentaje}%`" 
-                                  :class="slot.porcentaje > 85 ? 'bg-red-500' : 'bg-intimar-primary'">
+                                  :style="`width: ${Math.min(slot.simPorcentaje, 100)}%`" 
+                                  :class="slot.simPorcentaje > 100 ? 'bg-red-600' : slot.simPorcentaje > 85 ? 'bg-red-500' : 'bg-intimar-primary'">
                              </div>
                            </div>
                            <!-- Barra Cocina -->
                            <div class="h-full w-1/3 bg-gray-100 rounded-full overflow-hidden">
                              <div class="h-full transition-all duration-700" 
-                                  :style="`width: ${slot.porcentaje_cocina}%`" 
-                                  :class="slot.porcentaje_cocina > 90 ? 'bg-orange-600' : 'bg-orange-400'">
+                                  :style="`width: ${Math.min(slot.simPorcentajeCocina, 100)}%`" 
+                                  :class="slot.simPorcentajeCocina > 100 ? 'bg-red-600' : slot.simPorcentajeCocina > 90 ? 'bg-orange-600' : 'bg-orange-400'">
                              </div>
                            </div>
                         </div>
                       </div>
                     </div>
-
+ 
                     <!-- DESPLIEGUE DE DETALLES -->
                     <transition name="fade">
                       <div v-if="expandedSlot === slot.hora" class="mt-3 pt-3 border-t border-gray-100 space-y-2">
@@ -473,6 +451,7 @@ import ReservasFilter from '@/components/Reservas/ReservasFilter.vue'
 import ReservasTable from '@/components/Reservas/ReservasTable.vue'
 import { call, Button } from 'frappe-ui'
 import { session } from '@/data/session'
+import { generateReservasPDF } from '@/utils/pdfExport.js'
 
 const router = useRouter()
 
@@ -482,96 +461,41 @@ const toggleSlot = (hora) => {
   else expandedSlot.value = hora
 }
 
-const exportToPDF = () => {
+const exportToPDF = async () => {
   if (!window.jspdf) {
     showToast('Error', 'La librería de PDF aún se está cargando. Reintenta en un segundo.', 'error')
     return
   }
   
-  const { jsPDF } = window.jspdf
-  const doc = new jsPDF()
+  // Mostrar feedback al usuario mientras carga
+  showToast('Generando Reporte', 'Obteniendo todas las reservas que coinciden con los filtros...', 'info')
   
-  // Estética del Header con el celeste de la marca (#00938F)
-  doc.setFillColor(0, 147, 143) // RGB del #00938F
-  doc.rect(0, 0, 210, 45, 'F')
-  
-  doc.setTextColor(255, 255, 255)
-  doc.setFontSize(24)
-  doc.setFont('helvetica', 'bold')
-  doc.text('INTIMAR', 14, 22)
-  doc.setFontSize(14)
-  doc.text('LISTADO DE RESERVAS', 14, 32)
-  
-  doc.setFontSize(9)
-  doc.setFont('helvetica', 'normal')
-  doc.text(`Generado el: ${new Date().toLocaleString()}`, 14, 40)
-  
-  // Filtros aplicados
-  let filterText = "Reporte de disponibilidad basado en filtros actuales"
-  if (activeFilters.value.fecha) filterText = `Reservas para el día: ${activeFilters.value.fecha}`
-  
-  doc.setTextColor(80, 80, 80)
-  doc.setFontSize(9)
-  doc.setFont('helvetica', 'bolditalic')
-  doc.text(filterText, 14, 55)
+  let allReservas = []
+  try {
+    const response = await call('intimar_erp.api.get_reservas_list', {
+      filters: JSON.stringify(buildFilters()),
+      limit_start: 0,
+      limit_page_length: 5000,
+      order_by: currentSort.value
+    })
+    allReservas = response?.data || response || []
+  } catch (err) {
+    console.error('Error al obtener listado completo para PDF:', err)
+    showToast('Error', 'No se pudieron descargar todas las reservas filtradas.', 'error')
+    return
+  }
 
-  const columns = [
-    { header: 'ID RESERVA', dataKey: 'nro' },
-    { header: 'CLIENTE', dataKey: 'cliente' },
-    { header: 'PERS.', dataKey: 'personas' },
-    { header: 'FECHA', dataKey: 'fecha' },
-    { header: 'HORA', dataKey: 'hora' },
-    { header: 'ANTICIPO', dataKey: 'anticipo' }
-  ]
+  if (allReservas.length === 0) {
+    showToast('Reporte Vacío', 'No hay ninguna reserva con los filtros activos.', 'info')
+    return
+  }
 
-  const rows = filteredReservas.value.map(res => {
-    // Formatear fecha de YYYY-MM-DD a DD-MM-YYYY
-    const dateParts = res.fecha_reserva?.split('-') || []
-    const formattedDate = dateParts.length === 3 ? `${dateParts[2]}-${dateParts[1]}-${dateParts[0]}` : res.fecha_reserva
-
-    return {
-      nro: res.name,
-      cliente: res.nombre?.toUpperCase(),
-      personas: (res.cant_adultos || 0) + (res.cant_ninos || 0),
-      fecha: formattedDate,
-      hora: `${res.hora_reserva} ${res.am_pm || ''}`,
-      anticipo: res.total_pagado ? `S/ ${parseFloat(res.total_pagado).toFixed(2)}` : '---'
-    }
-  })
-
-  doc.autoTable({
-    columns: columns,
-    body: rows,
-    startY: 60,
-    margin: { left: 10, right: 10 },
-    styles: { 
-      fontSize: 9, 
-      cellPadding: 3,
-      font: 'helvetica',
-      valign: 'middle'
-    },
-    headStyles: { 
-      fillColor: [0, 147, 143], 
-      textColor: [255, 255, 255],
-      fontStyle: 'bold',
-      halign: 'center',
-      fontSize: 10
-    },
-    columnStyles: {
-      nro: { halign: 'center', fontStyle: 'bold', cellWidth: 35 },
-      cliente: { fontStyle: 'bold', cellWidth: 45 },
-      personas: { halign: 'center', cellWidth: 15 },
-      fecha: { halign: 'center', cellWidth: 25 },
-      hora: { halign: 'center', cellWidth: 25 },
-      anticipo: { halign: 'right', fontStyle: 'bold', textColor: [0, 100, 0] }
-    },
-    alternateRowStyles: {
-      fillColor: [245, 252, 252]
-    }
-  })
-
-  doc.save(`reservas_intimar_${new Date().toISOString().split('T')[0]}.pdf`)
-  showToast('¡PDF Generado!', 'El reporte se ha descargado correctamente.', 'success')
+  try {
+    generateReservasPDF(allReservas, activeFilters.value, visibleColumns)
+    showToast('¡PDF Generado!', 'El reporte se ha descargado correctamente.', 'success')
+  } catch (err) {
+    console.error('Error al generar PDF:', err)
+  }
 }
 
 const toasts = ref([])
@@ -631,6 +555,31 @@ const buildFilters = () => {
             f.push(['total_pagado', '<=', 0])
         }
     }
+
+    if (activeFilters.value.llegada && activeFilters.value.llegada !== 'Todos') {
+        if (activeFilters.value.llegada === 'Si') {
+            f.push(['hora_llegada', 'is', 'set'])
+        } else if (activeFilters.value.llegada === 'No') {
+            f.push(['hora_llegada', 'is', 'not set'])
+        } else {
+            const h = activeFilters.value.llegada
+            f.push(['hora_llegada', '>=', `${h}:00:00`])
+            f.push(['hora_llegada', '<=', `${h}:59:59`])
+        }
+    }
+
+    if (activeFilters.value.salida && activeFilters.value.salida !== 'Todos') {
+        if (activeFilters.value.salida === 'Si') {
+            f.push(['hora_salida', 'is', 'set'])
+        } else if (activeFilters.value.salida === 'No') {
+            f.push(['hora_salida', 'is', 'not set'])
+        } else {
+            const h = activeFilters.value.salida
+            f.push(['hora_salida', '>=', `${h}:00:00`])
+            f.push(['hora_salida', '<=', `${h}:59:59`])
+        }
+    }
+
     return f
 }
 
@@ -711,6 +660,84 @@ const radarData = ref([])
 const radarDate = ref('')
 const simulator = reactive({ pax: null, hora: '13:00' })
 const simulationResult = ref(null)
+const configuracionIntimar = ref(null)
+
+const fetchConfiguracionIntimar = async () => {
+  try {
+    const doc = await call('frappe.client.get', {
+      doctype: 'Configuracion Intimar',
+      name: 'Configuracion Intimar'
+    })
+    configuracionIntimar.value = doc
+  } catch (e) {
+    console.error('Error al obtener Configuración Intimar:', e)
+  }
+}
+
+const intervaloFlujo = computed(() => {
+  return configuracionIntimar.value?.intervalo_flujo_cocina || 30
+})
+
+const getRoundedSlot = (horaStr) => {
+  if (!horaStr) return ''
+  const [h, m] = horaStr.split(':').map(Number)
+  const interval = intervaloFlujo.value
+  const totalMins = h * 60 + m
+  const roundedMins = Math.floor(totalMins / interval) * interval
+  const roundedH = Math.floor(roundedMins / 60)
+  const roundedM = roundedMins % 60
+  return `${String(roundedH).padStart(2, '0')}:${String(roundedM).padStart(2, '0')}`
+}
+
+const round = (value, decimals) => {
+  return Number(Math.round(value + 'e' + decimals) + 'e-' + decimals)
+}
+
+const simulatedRadarData = computed(() => {
+  if (!radarData.value) return []
+  
+  const pax = parseInt(simulator.pax) || 0
+  const simHora = simulator.hora
+  
+  if (pax <= 0 || !simHora) {
+    return radarData.value.map(slot => ({
+      ...slot,
+      simOcupado: slot.ocupado,
+      simLlegando: slot.llegando,
+      simPorcentaje: slot.porcentaje,
+      simPorcentajeCocina: slot.porcentaje_cocina
+    }))
+  }
+  
+  const slotsDuration = pax > 8 ? 5 : 4
+  const startIndex = radarData.value.findIndex(s => s.hora === simHora)
+  const roundedSimHora = getRoundedSlot(simHora)
+  
+  return radarData.value.map((slot, index) => {
+    let newOcupado = slot.ocupado
+    let newLlegando = slot.llegando
+    
+    if (startIndex !== -1 && index >= startIndex && index < startIndex + slotsDuration) {
+      newOcupado += pax
+    }
+    
+    const roundedSlotHora = getRoundedSlot(slot.hora)
+    if (roundedSlotHora === roundedSimHora && slot.hora === roundedSimHora) {
+      newLlegando += pax
+    }
+    
+    const pct = round((newOcupado / slot.limite * 100), 1)
+    const pctCocina = round((newLlegando / slot.limite_cocina * 100), 1)
+    
+    return {
+      ...slot,
+      simOcupado: newOcupado,
+      simLlegando: newLlegando,
+      simPorcentaje: pct,
+      simPorcentajeCocina: pctCocina
+    }
+  })
+})
 
 // Configuración de Columnas Visibles
 const showColumnToggle = ref(false)
@@ -720,20 +747,41 @@ const sortOptions = {
   'fecha_reserva asc, hora_reserva asc': 'Reserva (Menor a Mayor)',
   'hora_reserva desc': 'Reserva (Mayor a Menor)',
   'hora_llegada asc': 'Llegada (Más antiguo)',
-  'creation desc': 'Recientes'
+  'hora_salida desc': 'Salida (Más recientes)',
+  'creation desc': 'Creación (Más recientes)',
+  'creation asc': 'Creación (Más antiguos)'
 }
 const currentSort = ref('fecha_reserva asc, hora_reserva asc')
 
+const handleSort = (newSort) => {
+  currentSort.value = newSort
+  fetchReservas()
+}
+
 const visibleColumns = reactive({
-  pago: false,
+  cliente: true,
+  celular: true,
+  detalles: true,
+  pago: true,
+  estado: true,
+  motivo: true,
+  mesas: false,
   llegada: false,
-  mesas: true
+  salida: false,
+  creacion: false
 })
 
 const columnLabels = {
-  pago: 'Medio de Pago',
+  cliente: 'Cliente',
+  celular: 'Celular',
+  detalles: 'Detalles',
+  pago: 'Anticipo',
+  estado: 'Estado',
+  motivo: 'Motivo',
+  mesas: 'Asignación',
   llegada: 'Hora Llegada',
-  mesas: 'Mesas Asignadas'
+  salida: 'Hora Salida',
+  creacion: 'Fecha Creación'
 }
 
 // Directiva para cerrar al clickear fuera
@@ -758,30 +806,75 @@ watch(() => [simulator.pax, simulator.hora, radarDate.value], async ([pax, hora,
     return
   }
   
-  try {
-    const res = await call('intimar_erp.api.get_aforo_ocupado', {
-      fecha: fecha,
-      hora: hora
-    })
-    
-    const nuevoTotal = res.ocupado + parseInt(pax)
-    if (nuevoTotal > res.limite) {
-      simulationResult.value = {
-        status: 'error',
-        message: 'Aforo Excedido',
-        detail: `En el rango de esta reserva se alcanzaría un pico de ${nuevoTotal} personas (Límite: ${res.limite}).`
-      }
-    } else {
-      simulationResult.value = {
-        status: 'ok',
-        message: 'Espacio Disponible',
-        detail: `El punto máximo de ocupación sería de ${nuevoTotal} personas (${((nuevoTotal/res.limite)*100).toFixed(0)}%).`
+  if (!radarData.value || !radarData.value.length) {
+    await fetchRadarData()
+  }
+  
+  const roundedHora = getRoundedSlot(hora)
+  const targetSlot = radarData.value.find(s => s.hora === roundedHora)
+  if (!targetSlot) {
+    simulationResult.value = null
+    return
+  }
+  
+  const numPax = parseInt(pax) || 0
+  const startIndex = radarData.value.findIndex(s => s.hora === hora)
+  const slotsDuration = numPax > 8 ? 5 : 4
+  
+  let peakSalonOcupado = 0
+  if (startIndex !== -1) {
+    for (let i = startIndex; i < startIndex + slotsDuration && i < radarData.value.length; i++) {
+      const slot = radarData.value[i]
+      if (slot.ocupado > peakSalonOcupado) {
+        peakSalonOcupado = slot.ocupado
       }
     }
-  } catch (e) {
-    console.error('Error en simulación:', e)
+  }
+  
+  const nuevoTotalSalon = peakSalonOcupado + numPax
+  const nuevoTotalCocina = targetSlot.llegando + numPax
+  
+  const salonExceeded = nuevoTotalSalon > targetSlot.limite
+  const cocinaExceeded = nuevoTotalCocina > targetSlot.limite_cocina
+  
+  if (salonExceeded && cocinaExceeded) {
+    simulationResult.value = {
+      status: 'error',
+      message: 'Límites de Salón y Cocina Excedidos',
+      detail: `Se excederían ambos límites. Salón alcanzará un pico de ${nuevoTotalSalon}/${targetSlot.limite} sillas. Cocina recibirá ${nuevoTotalCocina}/${targetSlot.limite_cocina} personas.`
+    }
+  } else if (salonExceeded) {
+    simulationResult.value = {
+      status: 'error',
+      message: 'Aforo de Salón Excedido',
+      detail: `El salón alcanzaría un pico de ${nuevoTotalSalon} personas en el rango simulado (Límite: ${targetSlot.limite} sillas).`
+    }
+  } else if (cocinaExceeded) {
+    simulationResult.value = {
+      status: 'error',
+      message: 'Capacidad de Cocina Excedida',
+      detail: `La cocina recibiría un flujo de ${nuevoTotalCocina} personas en este bloque de ${intervaloFlujo.value} min (Límite: ${targetSlot.limite_cocina} personas).`
+    }
+  } else {
+    simulationResult.value = {
+      status: 'ok',
+      message: 'Simulación Exitosa',
+      detail: `El salón alcanzará un pico de ${nuevoTotalSalon}/${targetSlot.limite} sillas y la cocina recibirá un flujo de ${nuevoTotalCocina}/${targetSlot.limite_cocina} personas. ¡Espacio disponible!`
+    }
   }
 }, { deep: true })
+
+// Watcher para scroll automático al cambiar horario de simulación
+watch(() => simulator.hora, (newHora) => {
+  if (newHora) {
+    nextTick(() => {
+      const el = document.getElementById(`radar-slot-${newHora}`)
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      }
+    })
+  }
+})
 
 const openAforoRadar = () => {
   try {
@@ -792,30 +885,31 @@ const openAforoRadar = () => {
     showAforoRadar.value = true
     
     if (!filterDate) {
-      showToast('Radar Aforo', 'Mostrando proyección para el día de hoy.', 'info')
+      showToast('Simulación Aforo', 'Mostrando proyección para el día de hoy.', 'info')
     } else {
-      showToast('Radar Aforo', `Proyectando disponibilidad para el ${filterDate}`, 'success')
+      showToast('Simulación Aforo', `Proyectando disponibilidad para el ${filterDate}`, 'success')
     }
     
     fetchRadarData()
   } catch (err) {
-    console.error('Error al abrir radar:', err)
-    showToast('Error', 'No se pudo abrir el radar. Reintenta en un momento.', 'error')
+    console.error('Error al abrir simulación:', err)
+    showToast('Error', 'No se pudo abrir la simulación. Reintenta en un momento.', 'error')
   }
 }
 
 const fetchRadarData = async () => {
   radarLoading.value = true
   try {
+    await fetchConfiguracionIntimar()
     const data = await call('intimar_erp.api.get_ocupacion_proyectada', {
       fecha: radarDate.value
     })
     radarData.value = data
     
-    // Auto-scroll a la hora seleccionada si existe
-    if (activeFilters.value.hora && activeFilters.value.hora !== 'Todas') {
+    // Auto-scroll a la hora simulada si existe
+    if (simulator.hora) {
       nextTick(() => {
-        const el = document.getElementById(`radar-slot-${activeFilters.value.hora}`)
+        const el = document.getElementById(`radar-slot-${simulator.hora}`)
         if (el) {
           el.scrollIntoView({ behavior: 'smooth', block: 'center' })
         }
@@ -933,6 +1027,7 @@ const submitAsignar = async () => {
 onMounted(() => {
   fetchReservas()
   fetchStats()
+  fetchConfiguracionIntimar()
 })
 </script>
 

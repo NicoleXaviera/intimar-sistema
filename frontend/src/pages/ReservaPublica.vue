@@ -164,7 +164,9 @@
                 <div class="space-y-4">
                     <!-- Mensaje de Error del Servidor -->
                     <div v-if="apiError" class="p-4 bg-red-50 border border-red-100 rounded-2xl animate-in fade-in zoom-in duration-300">
-                        <p class="text-[11px] font-bold text-red-600 leading-relaxed" v-html="apiError"></p>
+                        <p class="text-[10px] font-black text-red-600 uppercase tracking-widest leading-relaxed text-center">
+                           {{ apiError }}
+                        </p>
                     </div>
 
                     <p v-if="Object.keys(errors).length > 0" class="text-[10px] font-bold text-red-500 uppercase tracking-widest text-center animate-pulse">{{ t.errorRequired }}</p>
@@ -306,26 +308,7 @@
         </div>
     </div>
 
-    <!-- MODAL DE ADVERTENCIA POLÍTICA 4 PM -->
-    <div v-if="showPolicyModal" class="fixed inset-0 z-[200] flex items-center justify-center p-6 bg-intimar-dark/60 backdrop-blur-md animate-fade-in">
-        <div class="bg-white w-full max-w-sm rounded-[2.5rem] p-10 shadow-2xl space-y-8 text-center border border-red-50">
-            <div class="w-14 h-14 bg-red-50 text-red-600 rounded-full flex items-center justify-center mx-auto">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-            </div>
-            <div class="space-y-4">
-                <h3 class="text-xl font-black tracking-tighter uppercase text-gray-900">Aviso de Tolerancia</h3>
-                <p class="text-gray-500 text-xs font-bold leading-relaxed uppercase tracking-tight">{{ t.noToleranceNotice }}</p>
-            </div>
-            <div class="space-y-3 pt-4">
-                <button @click="confirmPolicy" class="w-full py-4 bg-intimar-primary text-white rounded-full font-black uppercase tracking-[0.2em] text-[9px] shadow-lg transition-all active:scale-95 hover:bg-intimar-dark">
-                    {{ t.policyAccept }}
-                </button>
-                <button @click="showPolicyModal = false" class="w-full py-4 bg-gray-50 text-gray-400 rounded-full font-bold uppercase tracking-[0.2em] text-[9px] transition-all hover:text-gray-600 active:scale-95">
-                    {{ t.btnBack }}
-                </button>
-            </div>
-        </div>
-    </div>
+
 
     <!-- BOTÓN WHATSAPP -->
     <a href="https://wa.me/51981318866?text=Hola%20Intimar,%20tengo%20una%20consulta%20sobre%20mi%20reserva." target="_blank" class="fixed bottom-6 right-6 z-50 w-14 h-14 bg-[#25D366] text-white rounded-full flex items-center justify-center shadow-2xl hover:scale-110 transition-all active:scale-95 group">
@@ -349,8 +332,7 @@ const totalAnticipo = computed(() => {
   const pax = (Number(form.adultos) || 0) + (Number(form.ninos) || 0)
   return pax * 20
 })
-const showWaitlistModal = ref(false); 
-const showPolicyModal = ref(false);
+const showWaitlistModal = ref(false);
 const apiError = ref('');
 const heroImages = ['/files/intimar-1.webp','/files/intimar-2.webp','/files/intimar-3.webp']
 const form = reactive({ fecha: '', adultos: 2, ninos: 0, hora: '', nombre: '', apellido: '', celular: '', codigoPais: '+51', email: '', dni: '', requerimientos: '', necesidades: '', alergias: '', acepta_legal1: false, acepta_legal3: false, aceptar_lista_espera: 0 })
@@ -409,8 +391,6 @@ const translations = {
     btnVerifyWsp: 'Verificar mi reserva',
     verifyText: '¿No te llegó el correo? Verifica aquí:',
     emailCheck1: 'Por favor, revisa tu correo electrónico',
-    noToleranceNotice: 'IMPORTANTE: Para reservas a las 16:00 (4 PM) no se brinda tiempo de tolerancia debido al cierre de cocina. Por favor, asegure su puntualidad.',
-    policyAccept: 'Entiendo y aceptaré la puntualidad',
     generalPolicy: 'Nuestro horario de atención es de 11:00 a.m. a 4:00 p.m, la asignación de mesas es por orden de llegada y la zona sujeta a disponibilidad. Para reservas grupales de 8 a más personas, se requiere un pago de consumo anticipado.',
     anticipoTitle: 'Pago de Anticipo Requerido',
     anticipoNotice: 'Debido al tamaño de tu grupo, nos contactaremos pronto vía WhatsApp para coordinar el pago del anticipo que sería:',
@@ -429,8 +409,6 @@ const translations = {
     btnVerifyWsp: 'Verify my booking',
     verifyText: "Didn't get the email? Verify here:",
     emailCheck1: 'Please check your email',
-    noToleranceNotice: 'IMPORTANT: For 4:00 PM bookings, there is no grace period due to kitchen closing time. Please ensure your punctuality.',
-    policyAccept: 'I understand and will be punctual',
     generalPolicy: 'Our service hours are from 11:00 a.m. to 4:00 p.m., table assignment is on a first-come, first-served basis, and area is subject to availability. For group bookings of 8 or more people, advance payment is required.',
     assignmentNote: 'Tables are assigned based on availability upon arrival.',
     title3: 'Confirm Your Details', subtitle3: 'Just one step left to secure your table',
@@ -483,7 +461,7 @@ const calendarData = computed(() => { const months = []; let curr = new Date(); 
 const nextMonth = () => currentMonthOffset.value++; const prevMonth = () => { if (currentMonthOffset.value > 0) currentMonthOffset.value-- };
 const getMonthName = (m) => { const names = lang.value === 'es' ? ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'] : ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']; return names[m]; }
 const selectDate = (dateStr) => { form.fecha = dateStr; fetchAvailability(); }; 
-const availableSlots = ['11:00', '11:30', '12:00', '12:30', '13:00', '13:30', '14:00', '14:30', '15:00', '15:30', '16:00'];
+const availableSlots = ['11:00', '11:30', '12:00', '12:30', '13:00', '13:30', '14:00', '14:30', '15:00', '15:30', '15:45'];
 
 const fetchAvailability = async () => {
   if (!form.fecha) return;
@@ -512,19 +490,7 @@ const isSlotDisabled = (slotTime) => {
 
 const handleSlotClick = (slot) => {
   if (isSlotDisabled(slot)) return
-  
-  if (slot === '16:00') {
-    showPolicyModal.value = true
-    return
-  }
-  
   form.hora = slot
-  nextStep()
-}
-
-const confirmPolicy = () => {
-  form.hora = '16:00'
-  showPolicyModal.value = false
   nextStep()
 }
 

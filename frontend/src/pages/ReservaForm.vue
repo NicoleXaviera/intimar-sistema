@@ -219,6 +219,10 @@
                 <input v-model="form.celular" type="text" readonly class="w-full px-4 py-3 bg-gray-100 border border-transparent rounded-xl text-xs font-bold text-gray-500 cursor-not-allowed">
               </div>
             </div>
+            <div class="mt-4">
+              <label class="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2 pl-1">Email</label>
+              <input v-model="form.email" type="email" readonly class="w-full px-4 py-3 bg-gray-100 border border-transparent rounded-xl text-xs font-bold text-gray-500 cursor-not-allowed">
+            </div>
           </div>
         </div>
 
@@ -368,15 +372,27 @@
                   </button>
                 </div>
 
-                <!-- Tiempos de Ocupación -->
-                <div v-if="form.hora_llegada || form.hora_salida" class="mt-4 p-4 bg-gray-50 rounded-2xl border-2 border-dashed border-gray-100 grid grid-cols-2 gap-4">
+                <!-- Tiempos de Ocupación Editables -->
+                <div class="mt-5 p-5 bg-gray-50 rounded-[2rem] border border-gray-100 grid grid-cols-2 gap-4">
                     <div>
-                      <label class="block text-[8px] font-black uppercase tracking-widest text-blue-500 mb-0.5">Llegada</label>
-                      <p class="text-xs font-black text-gray-800">{{ formatTimeDisplay(form.hora_llegada) }}</p>
+                      <label class="block text-[10px] font-black uppercase tracking-widest text-blue-500 mb-2 pl-1 flex items-center gap-1">
+                        <span class="w-1.5 h-1.5 bg-blue-500 rounded-full"></span> Hora Llegada
+                      </label>
+                      <input 
+                        type="time" 
+                        v-model="form.hora_llegada"
+                        class="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl text-xs font-bold text-gray-700 focus:border-blue-500 transition-all outline-none"
+                      >
                     </div>
                     <div>
-                      <label class="block text-[8px] font-black uppercase tracking-widest text-green-500 mb-0.5">Salida</label>
-                      <p class="text-xs font-black text-gray-800">{{ formatTimeDisplay(form.hora_salida) || '--:--' }}</p>
+                      <label class="block text-[10px] font-black uppercase tracking-widest text-green-500 mb-2 pl-1 flex items-center gap-1">
+                        <span class="w-1.5 h-1.5 bg-green-500 rounded-full"></span> Hora Salida
+                      </label>
+                      <input 
+                        type="time" 
+                        v-model="form.hora_salida"
+                        class="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl text-xs font-bold text-gray-700 focus:border-green-500 transition-all outline-none"
+                      >
                     </div>
                 </div>
               </div>
@@ -900,6 +916,7 @@ const estadoColors = computed(() => {
     case 'Finalizada': return { bgText: 'bg-gray-800 text-white', border: 'border-gray-900/50', icon: 'text-gray-400' }
     case 'Pendiente a confirmar': return { bgText: 'bg-orange-500 text-white', border: 'border-orange-600/50', icon: 'text-orange-200' }
     case 'Lista de espera': return { bgText: 'bg-yellow-500 text-white', border: 'border-yellow-600/50', icon: 'text-yellow-200' }
+    case 'Atrasada': return { bgText: 'bg-rose-500 text-white', border: 'border-rose-600/50', icon: 'text-rose-200' }
     default: return { bgText: 'bg-red-500 text-white', border: 'border-red-600/50', icon: 'text-red-200' } // Solicitud
   }
 })
@@ -913,6 +930,7 @@ const estadosPermitidos = [
   { value: 'En proceso', label: 'En proceso', colorDot: 'bg-blue-500' },
   { value: 'Finalizada', label: 'Finalizada', colorDot: 'bg-gray-800' },
   { value: 'Cancelada', label: 'Cancelada', colorDot: 'bg-red-500' },
+  { value: 'Atrasada', label: 'Atrasada', colorDot: 'bg-rose-500' },
   { value: 'Lista de espera', label: 'Lista de espera', colorDot: 'bg-yellow-500' }
 ]
 
@@ -961,6 +979,7 @@ const form = reactive({
   cliente: '',
   nombre: '',
   celular: '',
+  email: '',
   cant_adultos: 2,
   cant_ninos: 0,
   fecha_reserva: today,
@@ -1013,11 +1032,7 @@ const fetchMozos = async () => {
 
 const fetchMesas = async () => {
   try {
-    const res = await call('frappe.client.get_list', {
-      doctype: 'Mesa Intimar',
-      fields: ['name', 'numero_mesa', 'ubicacion_mesa'],
-      limit: 500
-    })
+    const res = await call('intimar_erp.api.get_all_mesas_list')
     mesasList.value = res || []
   } catch (e) { console.error(e) }
 }
@@ -1056,9 +1071,10 @@ watch(clienteSearch, (query) => {
           ['nombre_y_apellido_completo', 'like', `%${query}%`],
           ['phone', 'like', `%${query}%`],
           ['name1', 'like', `%${query}%`],
-          ['lastname', 'like', `%${query}%`]
+          ['lastname', 'like', `%${query}%`],
+          ['email', 'like', `%${query}%`]
         ],
-        fields: ['name', 'nombre_y_apellido_completo', 'phone'],
+        fields: ['name', 'nombre_y_apellido_completo', 'phone', 'email'],
         limit: 20
       })
       filteredClientes.value = res || []
@@ -1074,6 +1090,7 @@ const selectCliente = (c) => {
   form.cliente = c.name
   form.nombre = c.nombre_y_apellido_completo
   form.celular = c.phone
+  form.email = c.email || ''
   clienteSearch.value = c.nombre_y_apellido_completo // Mostrar el nombre en el input
   showClienteDropdown.value = false
 }
@@ -1085,6 +1102,7 @@ const onClienteBlur = () => {
     form.cliente = ''
     form.nombre = ''
     form.celular = ''
+    form.email = ''
   } else if (!form.cliente) {
     // Si escribió algo pero no seleccionó de la lista
     clienteSearch.value = ''
@@ -1373,6 +1391,7 @@ const fetchReservaData = async (id) => {
       form.cliente = doc.cliente || ''
       form.nombre = doc.nombre || ''
       form.celular = doc.celular || ''
+      form.email = doc.email || ''
       
       // Si hay un cliente enlazado, forzamos traer su nombre completo real
       if (form.cliente) {
@@ -1380,12 +1399,13 @@ const fetchReservaData = async (id) => {
           const clienteDoc = await call('frappe.client.get_value', {
             doctype: 'Cliente Intimar',
             filters: { name: form.cliente },
-            fieldname: ['name1', 'lastname', 'nombre_y_apellido_completo', 'phone']
+            fieldname: ['name1', 'lastname', 'nombre_y_apellido_completo', 'phone', 'email']
           })
           if (clienteDoc) {
             const nombreCalculado = `${clienteDoc.name1 || ''} ${clienteDoc.lastname || ''}`.trim()
             form.nombre = clienteDoc.nombre_y_apellido_completo || nombreCalculado || form.nombre
             form.celular = clienteDoc.phone || form.celular
+            form.email = clienteDoc.email || form.email
           }
         } catch (e) { console.error("Error al traer datos reales del cliente", e) }
       }
@@ -1397,8 +1417,8 @@ const fetchReservaData = async (id) => {
       form.estado_reserva = doc.estado_reserva || 'Solicitud de reserva'
       form.mozo = doc.mozo || ''
       form.anticipo_required = doc.anticipo_required || 0
-      form.hora_llegada = doc.hora_llegada || null
-      form.hora_salida = doc.hora_salida || null
+      form.hora_llegada = doc.hora_llegada ? doc.hora_llegada.substring(0, 5) : null
+      form.hora_salida = doc.hora_salida ? doc.hora_salida.substring(0, 5) : null
       form.requerimientos = doc.requerimientos || ''
       form.necesidades = doc.necesidades || ''
       form.alergias = doc.alergias || ''
@@ -1497,6 +1517,8 @@ const saveReserva = async () => {
       requerimientos: form.requerimientos || '',
       necesidades: form.necesidades || '',
       alergias: form.alergias || '',
+      hora_llegada: form.hora_llegada || null,
+      hora_salida: form.hora_salida || null,
     }
     // Para tablas hijas, conservamos el ID 'name' si ya existía para que Frappe lo actualice en lugar de recrearlo
     payload.mesas = form.mesas.filter(m => m.mesa).map((m, idx) => {
@@ -1522,6 +1544,8 @@ const saveReserva = async () => {
       requerimientos: form.requerimientos || '',
       necesidades: form.necesidades || '',
       alergias: form.alergias || '',
+      hora_llegada: form.hora_llegada || null,
+      hora_salida: form.hora_salida || null,
       mesas: form.mesas.filter(m => m.mesa),
       anticipos: form.anticipos.map(a => ({
         monto_anticipo: a.monto_anticipo,
@@ -1575,8 +1599,8 @@ const saveReserva = async () => {
     } else {
       const msg = extractErrorMessage(error)
       
-      // Si el mensaje contiene palabras clave de aforo o cocina, lo mostramos en el modal detallado
-      if (msg && (msg.includes('AFORO') || msg.includes('CONTROL DE AFORO') || msg.includes('COCINA') || msg.includes('PRODUCCIÓN'))) {
+      // Si el mensaje contiene palabras clave de aforo, lo mostramos en el modal detallado
+      if (msg && (msg.includes('AFORO') || msg.includes('CONTROL DE AFORO'))) {
         aforoErrorContent.value = msg
         showAforoErrorModal.value = true
       } else {

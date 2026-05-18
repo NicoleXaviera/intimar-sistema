@@ -87,8 +87,12 @@
    "default": "Solicitud de reserva",
    "fieldname": "estado_reserva",
    "fieldtype": "Select",
+   "in_filter": 1,
+   "in_list_view": 1,
+   "in_preview": 1,
+   "in_standard_filter": 1,
    "label": "Estado de Reserva",
-   "options": "Solicitud de reserva\nPendiente a confirmar\nConfirmada\nEn proceso\nFinalizada\nCancelada\nLista de espera"
+   "options": "Solicitud de reserva\nPendiente a confirmar\nConfirmada\nEn proceso\nFinalizada\nCancelada\nLista de espera\nAtrasada"
   },
   {
    "default": "0",
@@ -246,7 +250,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-05-04 21:52:56.285641",
+ "modified": "2026-05-16 13:14:18.311225",
  "modified_by": "Administrator",
  "module": "intimar",
  "name": "Reserva Intimar",

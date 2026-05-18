@@ -416,7 +416,7 @@ const attendanceStats = computed(() => {
   const noShows = reservas.data.filter(r => {
     const isCancelled = r.estado_reserva === 'Cancelada'
     const isPast = r.fecha_reserva < today
-    const wasNotAttended = ['Solicitud de reserva', 'Confirmada', 'Lista de espera'].includes(r.estado_reserva)
+    const wasNotAttended = ['Solicitud de reserva', 'Confirmada', 'Lista de espera', 'Atrasada'].includes(r.estado_reserva)
     return isCancelled || (isPast && wasNotAttended)
   }).length
   
@@ -465,6 +465,7 @@ const getStatusClass = (status) => {
     'En proceso': 'bg-orange-50 text-orange-600 border-orange-100',
     'Finalizada': 'bg-gray-50 text-gray-600 border-gray-100',
     'Cancelada': 'bg-red-50 text-red-600 border-red-100',
+    'Atrasada': 'bg-rose-50 text-rose-600 border-rose-100',
     'Lista de espera': 'bg-purple-50 text-purple-600 border-purple-100'
   }
   return map[status] || 'bg-gray-50 text-gray-400 border-gray-100'

@@ -14,6 +14,7 @@ frappe.views.calendar["Reserva Intimar"] = {
 		"En proceso": "primary",
 		"Finalizada": "success",
 		"Cancelada": "danger",
+		"Atrasada": "danger",
 		"Lista de espera": "orange",
 	},
 	order_by: "hora_reserva",

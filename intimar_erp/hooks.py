@@ -22,6 +22,9 @@ scheduler_events = {
 		"intimar_erp.intimar.whatsapp.notify_waitlist_2_hours_before",
 		"intimar_erp.api.auto_cancel_expired_reservations"
 	],
+	"daily": [
+		"intimar_erp.api.close_atrasadas_at_end_of_day"
+	],
 }
 
 # Document Events

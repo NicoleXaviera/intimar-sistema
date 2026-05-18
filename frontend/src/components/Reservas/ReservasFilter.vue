@@ -1,12 +1,22 @@
 <template>
   <div class="bg-white p-3 md:p-6 rounded-[1.2rem] md:rounded-[2rem] shadow-sm border border-gray-100 relative z-20">
     <!-- Header del Filtro -->
-    <div class="flex items-center justify-between mb-3 md:mb-5">
-      <h3 class="text-[10px] md:text-xs font-black text-gray-900 uppercase tracking-widest flex items-center gap-2">
-        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="text-intimar-gold"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
-        <span class="hidden sm:inline">Filtros Rápidos</span>
-        <span class="sm:hidden">Filtros</span>
-      </h3>
+    <div class="flex items-center justify-between mb-3 md:mb-5 flex-wrap gap-3">
+      <div class="flex items-center gap-3 flex-wrap">
+        <h3 class="text-[10px] md:text-xs font-black text-gray-900 uppercase tracking-widest flex items-center gap-2">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="text-intimar-gold"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+          <span class="hidden sm:inline">Filtros Rápidos</span>
+          <span class="sm:hidden">Filtros</span>
+        </h3>
+        <div v-if="totalReservas !== undefined" class="flex items-center gap-1.5 ml-1">
+          <span class="bg-intimar-primary/10 text-intimar-primary text-[9px] md:text-[10px] font-black px-2 py-0.5 md:px-2.5 md:py-1 rounded-lg border border-intimar-primary/20">
+            {{ totalReservas }} Reservas
+          </span>
+          <span v-if="totalPersonas !== undefined" class="bg-amber-100/60 text-amber-700 text-[9px] md:text-[10px] font-black px-2 py-0.5 md:px-2.5 md:py-1 rounded-lg border border-amber-200">
+            {{ totalPersonas }} Personas
+          </span>
+        </div>
+      </div>
       <button @click="clearFilters" class="text-[8px] md:text-[10px] font-black uppercase tracking-widest text-red-500 hover:text-red-700 bg-red-50 hover:bg-red-100 px-3 py-1.5 md:px-4 md:py-2 rounded-lg md:rounded-xl transition-all flex items-center gap-1.5">
         Limpiar
       </button>
@@ -105,13 +115,74 @@
         <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none text-gray-400"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></div>
       </div>
 
+      <!-- Hora Llegada -->
+      <div class="relative">
+        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-400">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="text-gray-400"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        </div>
+        <select v-model="filters.llegada" class="w-full pl-10 pr-4 py-3 bg-gray-50 border border-transparent rounded-2xl text-xs font-bold text-gray-700 focus:border-intimar-gold/30 focus:bg-white focus:ring-4 focus:ring-intimar-gold/10 transition-all appearance-none cursor-pointer">
+          <option value="Todos">Llegada: Todos</option>
+          <option value="Si">Llegaron (Con Hora)</option>
+          <option value="No">No Llegaron (Pendiente)</option>
+          <option value="11">Llegada: 11 AM</option>
+          <option value="12">Llegada: 12 PM</option>
+          <option value="13">Llegada: 1 PM</option>
+          <option value="14">Llegada: 2 PM</option>
+          <option value="15">Llegada: 3 PM</option>
+          <option value="16">Llegada: 4 PM</option>
+          <option value="17">Llegada: 5 PM</option>
+          <option value="18">Llegada: 6 PM</option>
+          <option value="19">Llegada: 7 PM</option>
+          <option value="20">Llegada: 8 PM</option>
+          <option value="21">Llegada: 9 PM</option>
+          <option value="22">Llegada: 10 PM</option>
+        </select>
+        <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none text-gray-400"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></div>
+      </div>
+
+      <!-- Hora Salida -->
+      <div class="relative">
+        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-400">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="text-gray-400"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        </div>
+        <select v-model="filters.salida" class="w-full pl-10 pr-4 py-3 bg-gray-50 border border-transparent rounded-2xl text-xs font-bold text-gray-700 focus:border-intimar-gold/30 focus:bg-white focus:ring-4 focus:ring-intimar-gold/10 transition-all appearance-none cursor-pointer">
+          <option value="Todos">Salida: Todos</option>
+          <option value="Si">Salieron (Con Hora)</option>
+          <option value="No">No Salieron (Pendiente)</option>
+          <option value="11">Salida: 11 AM</option>
+          <option value="12">Salida: 12 PM</option>
+          <option value="13">Salida: 1 PM</option>
+          <option value="14">Salida: 2 PM</option>
+          <option value="15">Salida: 3 PM</option>
+          <option value="16">Salida: 4 PM</option>
+          <option value="17">Salida: 5 PM</option>
+          <option value="18">Salida: 6 PM</option>
+          <option value="19">Salida: 7 PM</option>
+          <option value="20">Salida: 8 PM</option>
+          <option value="21">Salida: 9 PM</option>
+          <option value="22">Salida: 10 PM</option>
+        </select>
+        <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none text-gray-400"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></div>
+      </div>
+
     </div>
   </div>
 </template>
 
 <script setup>
-import { reactive, watch, defineEmits, ref } from 'vue'
+import { reactive, watch, defineEmits, ref, defineProps } from 'vue'
 import { useRoute } from 'vue-router'
+
+const props = defineProps({
+  totalReservas: {
+    type: Number,
+    default: undefined
+  },
+  totalPersonas: {
+    type: Number,
+    default: undefined
+  }
+})
 
 const emit = defineEmits(['filter'])
 const route = useRoute()
@@ -125,6 +196,7 @@ const estados = [
   { label: 'En proceso', value: 'En proceso', icon: '🔵' },
   { label: 'Finalizada', value: 'Finalizada', icon: '⚫' },
   { label: 'Cancelada', value: 'Cancelada', icon: '❌' },
+  { label: 'Atrasada', value: 'Atrasada', icon: '⏰' },
   { label: 'Lista de espera', value: 'Lista de espera', icon: '⏳' },
 ]
 
@@ -154,6 +226,8 @@ const filters = reactive({
   celular: '',
   fecha: initialDate, // Fecha del calendario o hoy
   hora: 'Todas',
+  llegada: 'Todos',
+  salida: 'Todos',
   estado: [], // Cambiado a Array para multiselección
   anticipo: 'Todos'
 })
@@ -169,6 +243,8 @@ const clearFilters = () => {
   filters.celular = ''
   filters.fecha = ''
   filters.hora = 'Todas'
+  filters.llegada = 'Todos'
+  filters.salida = 'Todos'
   filters.estado = []
   filters.anticipo = 'Todos'
 }

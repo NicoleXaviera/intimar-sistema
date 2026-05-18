@@ -16,6 +16,9 @@ def bypass_csrf():
 def process_virtual_filters(filters):
     if not filters: return filters
     
+    if isinstance(filters, dict):
+        return filters
+        
     processed = []
     for f in filters:
         if isinstance(f, list) and len(f) >= 3 and f[0] == 'total_pagado':
@@ -63,26 +66,59 @@ def get_mesas_with_reserva(limit_start=0, limit_page_length=0, with_pagination=0
     
     for mesa in mesas:
         if not mesa.estado_mesa: 
-            reserva_parent = frappe.get_value("Mesa Reserva Intimar", 
-                {"mesa": mesa.name, "parenttype": "Reserva Intimar"}, "parent")
+            # Buscar la reserva activa que actualmente ocupa esta mesa usando Frappe ORM
+            child_records = frappe.get_all("Mesa Reserva Intimar",
+                filters={"mesa": mesa.name, "parenttype": "Reserva Intimar"},
+                fields=["parent"],
+                order_by="creation desc"
+            )
+            parent_ids = [c.parent for c in child_records] if child_records else []
             
+            reserva_parent = None
+            if parent_ids:
+                active_parents = frappe.get_all("Reserva Intimar",
+                    filters={
+                        "name": ["in", parent_ids],
+                        "estado_reserva": ["in", ["Confirmada", "En proceso"]]
+                    },
+                    fields=["name"],
+                    order_by="creation desc",
+                    limit=1
+                )
+                if active_parents:
+                    reserva_parent = active_parents[0].name
+                else:
+                    # Fallback a cualquier reserva activa no finalizada
+                    active_parents_any = frappe.get_all("Reserva Intimar",
+                        filters={
+                            "name": ["in", parent_ids],
+                            "estado_reserva": ["not in", ["Finalizada", "Cancelada", "Atrasada"]]
+                        },
+                        fields=["name"],
+                        order_by="creation desc",
+                        limit=1
+                    )
+                    if active_parents_any:
+                        reserva_parent = active_parents_any[0].name
+
             if reserva_parent:
                 res = frappe.get_doc("Reserva Intimar", reserva_parent)
-                if res.estado_reserva not in ["Finalizada", "Cancelada"]:
-                    cliente = frappe.get_value("Cliente Intimar", res.cliente, ["nombre_y_apellido_completo", "phone"], as_dict=1)
-                    mozo_nombre = frappe.get_value("Mozo Intimar", res.mozo, "nombre") or "Sin Mozo"
-                    
-                    mesa.reserva = {
-                        "name": res.name,
-                        "cliente_nombre": cliente.nombre_y_apellido_completo if cliente and cliente.nombre_y_apellido_completo else "Cliente sin nombre",
-                        "cliente_telefono": (cliente.phone or "") if cliente else "",
-                        "hora_llegada": res.hora_llegada,
-                        "mozo_nombre": mozo_nombre,
-                        "cant_adultos": res.cant_adultos,
-                        "cant_ninos": res.cant_ninos
-                    }
-                else:
-                    mesa.reserva = None
+                cliente = frappe.get_value("Cliente Intimar", res.cliente, ["nombre_y_apellido_completo", "phone"], as_dict=1)
+                mozo_nombre = frappe.get_value("Mozo Intimar", res.mozo, "nombre") or "Sin Mozo"
+                
+                # Obtener IDs de mesa completos de todas las mesas asignadas a esta reserva
+                otras_mesas = [m.mesa for m in res.mesas if m.mesa]
+                
+                mesa.reserva = {
+                    "name": res.name,
+                    "cliente_nombre": cliente.nombre_y_apellido_completo if cliente and cliente.nombre_y_apellido_completo else "Cliente sin nombre",
+                    "cliente_telefono": (cliente.phone or "") if cliente else "",
+                    "hora_llegada": res.hora_llegada,
+                    "mozo_nombre": mozo_nombre,
+                    "cant_adultos": res.cant_adultos,
+                    "cant_ninos": res.cant_ninos,
+                    "mesas_asignadas": sorted(otras_mesas) if otras_mesas else []
+                }
             else:
                 mesa.reserva = None
                 
@@ -164,7 +200,7 @@ def get_aforo_ocupado(fecha, hora, excluir_reserva=None):
     reservas = frappe.get_all("Reserva Intimar", 
         filters={
             "fecha_reserva": fecha,
-            "estado_reserva": ["not in", ["Cancelada", "Finalizada", "Lista de espera"]],
+            "estado_reserva": ["not in", ["Cancelada", "Finalizada", "Lista de espera", "Atrasada"]],
             "name": ["!=", excluir_reserva] if excluir_reserva else ["!=", ""]
         },
         fields=["name", "hora_reserva", "cant_adultos", "cant_ninos", "estado_reserva", "hora_llegada"]
@@ -240,7 +276,7 @@ def crear_reserva_rapida(nombre, apellido, celular, adultos, ninos=0, email=None
             reservas_ahora = frappe.get_all("Reserva Intimar",
                 filters={
                     "fecha_reserva": frappe.utils.today(),
-                    "estado_reserva": ["not in", ["Cancelada", "Finalizada", "Lista de espera"]]
+                    "estado_reserva": ["not in", ["Cancelada", "Finalizada", "Lista de espera", "Atrasada"]]
                 },
                 fields=["name", "nombre", "cliente", "hora_reserva", "cant_adultos", "cant_ninos", "hora_llegada", "estado_reserva"]
             )
@@ -286,11 +322,29 @@ def crear_reserva_rapida(nombre, apellido, celular, adultos, ninos=0, email=None
         cliente = clientes[0] if clientes else None
         
         if cliente:
-            # SI EXISTE: "Jalamos" la data registrada y NO creamos nada nuevo
+            # SI EXISTE: Actualizamos con la nueva información que se ha ingresado
             cliente_id = cliente.name
-            nombre = cliente.name1 # Prioridad absoluta a la data registrada
-            apellido = cliente.lastname
-            email = cliente.email or email
+            cliente_doc = frappe.get_doc('Cliente Intimar', cliente_id)
+            changed = False
+            
+            if nombre and cliente_doc.name1 != nombre:
+                cliente_doc.name1 = nombre
+                changed = True
+            if apellido is not None and cliente_doc.lastname != apellido:
+                cliente_doc.lastname = apellido
+                changed = True
+            
+            full_name = f"{nombre} {apellido if apellido else ''}".strip()
+            if cliente_doc.nombre_y_apellido_completo != full_name:
+                cliente_doc.nombre_y_apellido_completo = full_name
+                changed = True
+                
+            if email and cliente_doc.email != email:
+                cliente_doc.email = email
+                changed = True
+                
+            if changed:
+                cliente_doc.save(ignore_permissions=True)
         else:
             nuevo_cliente = frappe.get_doc({
                 'doctype': 'Cliente Intimar',
@@ -415,7 +469,41 @@ def asignar_mesa_a_reserva(reserva_id, mesa_id, mozo_id=None, adultos=None, nino
 
 @frappe.whitelist()
 def liberar_mesa(mesa_id):
-    reserva_parent = frappe.get_value("Mesa Reserva Intimar", {"mesa": mesa_id}, "parent")
+    # Buscar la reserva activa que actualmente ocupa esta mesa usando Frappe ORM
+    child_records = frappe.get_all("Mesa Reserva Intimar",
+        filters={"mesa": mesa_id, "parenttype": "Reserva Intimar"},
+        fields=["parent"],
+        order_by="creation desc"
+    )
+    parent_ids = [c.parent for c in child_records] if child_records else []
+    
+    reserva_parent = None
+    if parent_ids:
+        active_parents = frappe.get_all("Reserva Intimar",
+            filters={
+                "name": ["in", parent_ids],
+                "estado_reserva": ["in", ["Confirmada", "En proceso"]]
+            },
+            fields=["name"],
+            order_by="creation desc",
+            limit=1
+        )
+        if active_parents:
+            reserva_parent = active_parents[0].name
+        else:
+            # Fallback a cualquier activa
+            active_parents_any = frappe.get_all("Reserva Intimar",
+                filters={
+                    "name": ["in", parent_ids],
+                    "estado_reserva": ["not in", ["Finalizada", "Cancelada", "Atrasada"]]
+                },
+                fields=["name"],
+                order_by="creation desc",
+                limit=1
+            )
+            if active_parents_any:
+                reserva_parent = active_parents_any[0].name
+
     if reserva_parent:
         res = frappe.get_doc("Reserva Intimar", reserva_parent)
         res.estado_reserva = "Finalizada"
@@ -458,7 +546,8 @@ def get_reservas_list(filters=None, limit_start=0, limit_page_length=20, order_b
             "name", "cliente", "nombre", "apellido", "celular", "fecha_reserva", 
             "hora_reserva", "cant_adultos", "cant_ninos", "estado_reserva", 
             "anticipo_required", "mozo", "hora_llegada", "hora_salida", 
-            "am_pm", "requerimientos", "necesidades", "alergias", "motivo_reserva"
+            "am_pm", "requerimientos", "necesidades", "alergias", "motivo_reserva",
+            "creation"
         ],
         order_by=db_order
     )
@@ -498,6 +587,13 @@ def get_reservas_list(filters=None, limit_start=0, limit_page_length=20, order_b
         
         r["total_pagado_txt"] = " | ".join(resumen) if resumen else ""
         r["total_pagado"] = total_pen + (total_usd * 3.7)
+        r["anticipos"] = anticipos
+        
+        # Obtener mesas asignadas
+        r["mesas"] = frappe.get_all("Mesa Reserva Intimar",
+            filters={"parent": r.name},
+            fields=["name", "mesa"]
+        )
 
     return data
 
@@ -542,6 +638,32 @@ def crear_reserva_publica(cliente_nombre, cliente_celular, fecha, hora, adultos,
         })
         nuevo_cliente.insert(ignore_permissions=True)
         cliente_id = nuevo_cliente.name
+    else:
+        # Actualizar toda la información del cliente si ya existe para que esté al día y funcione fetch_from correctamente
+        cliente_doc = frappe.get_doc('Cliente Intimar', cliente_id)
+        changed = False
+        
+        if cliente_nombre and cliente_doc.name1 != cliente_nombre:
+            cliente_doc.name1 = cliente_nombre
+            changed = True
+        if apellido is not None and cliente_doc.lastname != apellido:
+            cliente_doc.lastname = apellido
+            changed = True
+            
+        full_name = f"{cliente_nombre} {apellido if apellido else ''}".strip()
+        if cliente_doc.nombre_y_apellido_completo != full_name:
+            cliente_doc.nombre_y_apellido_completo = full_name
+            changed = True
+            
+        if email and cliente_doc.email != email:
+            cliente_doc.email = email
+            changed = True
+        if dni and cliente_doc.dni_ruc != dni:
+            cliente_doc.dni_ruc = dni
+            changed = True
+            
+        if changed:
+            cliente_doc.save(ignore_permissions=True)
     
     # 2. Crear la reserva
     # Determinar estado inicial basado en aforo y cantidad de personas
@@ -937,7 +1059,7 @@ def get_ocupacion_proyectada(fecha=None):
     # Horas cada 30 min para mayor precisión con duraciones de 1.5h
     horas_check = [
         "11:00", "11:30", "12:00", "12:30", "13:00", "13:30", 
-        "14:00", "14:30", "15:00", "15:30", "16:00", "16:30", 
+        "14:00", "14:30", "15:00", "15:30", "15:45", "16:00", "16:30", 
         "17:00", "17:30", "18:00"
     ]
     
@@ -945,7 +1067,7 @@ def get_ocupacion_proyectada(fecha=None):
     reservas = frappe.get_all("Reserva Intimar",
         filters={
             "fecha_reserva": fecha,
-            "estado_reserva": ["not in", ["Cancelada", "Finalizada", "Lista de espera"]]
+            "estado_reserva": ["not in", ["Cancelada", "Finalizada", "Lista de espera", "Atrasada"]]
         },
         fields=["name", "nombre", "cliente", "hora_reserva", "cant_adultos", "cant_ninos", "estado_reserva", "hora_llegada"]
     )
@@ -1053,9 +1175,31 @@ def auto_cancel_expired_reservations():
             reserva_time = get_datetime(f"{frappe.utils.today()} {r.hora_reserva}")
             # Si pasaron más de 30 minutos de la hora citada
             if now > add_to_date(reserva_time, minutes=30):
-                frappe.db.set_value("Reserva Intimar", r.name, "estado_reserva", "Cancelada")
-                frappe.get_doc("Reserva Intimar", r.name).add_comment("Comment", "Cancelada automáticamente por inasistencia (30 min tarde).")
+                frappe.db.set_value("Reserva Intimar", r.name, "estado_reserva", "Atrasada")
+                frappe.get_doc("Reserva Intimar", r.name).add_comment("Comment", "Estado cambiado a Atrasada automáticamente por inasistencia (30 min tarde).")
         except Exception:
             continue
     
     frappe.db.commit()
+
+def close_atrasadas_at_end_of_day():
+    """Al final del día, convierte las reservas Atrasadas a Canceladas"""
+    import frappe
+    reservas = frappe.get_all("Reserva Intimar", 
+        filters={"estado_reserva": "Atrasada"},
+        fields=["name"]
+    )
+    for r in reservas:
+        try:
+            frappe.db.set_value("Reserva Intimar", r.name, "estado_reserva", "Cancelada")
+            frappe.get_doc("Reserva Intimar", r.name).add_comment("Comment", "Cierre del día: La reserva quedó Atrasada y no se presentó, se marca como Cancelada definitivamente.")
+        except Exception:
+            continue
+    
+    frappe.db.commit()
+
+@frappe.whitelist()
+def get_all_mesas_list():
+    """Retorna todas las mesas del sistema sin restricciones de listado para el select."""
+    import frappe
+    return frappe.get_all("Mesa Intimar", fields=["name", "numero_mesa", "ubicacion_mesa"], order_by="numero_mesa asc")

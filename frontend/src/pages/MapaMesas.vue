@@ -137,14 +137,33 @@
                     {{ mesa.ubicacion_mesa || 'Principal' }}
                   </span>
 
-                  <div v-if="!mesa.estado_mesa && mesa.reserva" class="mt-4 w-full text-center space-y-1 bg-white/10 py-2 rounded-2xl">
-                    <p class="text-xs font-black truncate px-2">{{ mesa.reserva.cliente_nombre }}</p>
-                    <div class="flex items-center justify-center gap-2 text-[10px] opacity-90 font-bold uppercase">
-                      <span>{{ formatTime(mesa.reserva.hora_llegada) }}</span>
-                      <span>•</span>
-                      <span>{{ mesa.reserva.mozo_nombre || 'Sin mozo' }}</span>
-                    </div>
-                    <p class="text-[10px] font-bold opacity-70">{{ mesa.reserva.cant_adultos + mesa.reserva.cant_ninos }} PERS.</p>
+                  <div v-if="!mesa.estado_mesa && mesa.reserva" class="mt-4 w-full text-center space-y-1 bg-white/10 py-2 rounded-2xl h-[105px] flex flex-col justify-center">
+                    <!-- Si es mesa principal (la primera de la lista de mesas asignadas) -->
+                    <template v-if="!mesa.reserva.mesas_asignadas || mesa.reserva.mesas_asignadas.length <= 1 || mesa.name === mesa.reserva.mesas_asignadas[0]">
+                      <p v-if="mesa.reserva.mesas_asignadas && mesa.reserva.mesas_asignadas.length > 1" class="text-[8px] font-black tracking-widest bg-black/20 text-white px-2 py-0.5 rounded-full inline-block uppercase mb-1">
+                        M. UNIDAS: {{ mesa.reserva.mesas_asignadas.join(', ') }}
+                      </p>
+                      <p class="text-xs font-black truncate px-2">{{ mesa.reserva.cliente_nombre }}</p>
+                      <div class="flex items-center justify-center gap-2 text-[10px] opacity-90 font-bold uppercase">
+                        <span>{{ formatTime(mesa.reserva.hora_llegada) }}</span>
+                        <span>•</span>
+                        <span>{{ mesa.reserva.mozo_nombre || 'Sin mozo' }}</span>
+                      </div>
+                      <p class="text-[10px] font-bold opacity-70">{{ mesa.reserva.cant_adultos + mesa.reserva.cant_ninos }} PERS.</p>
+                    </template>
+                    
+                    <!-- Si es mesa secundaria / anexada -->
+                    <template v-else>
+                      <p class="text-[8px] font-black tracking-widest bg-black/25 text-white/90 px-2 py-0.5 rounded-full inline-block uppercase mb-0.5">
+                        MESA ANEXA
+                      </p>
+                      <p class="text-[9px] font-bold opacity-90 uppercase tracking-wide">
+                        UNIDA A: {{ mesa.reserva.mesas_asignadas[0] }}
+                      </p>
+                      <p class="text-[8px] font-bold opacity-60 uppercase truncate px-2 mt-0.5">
+                        {{ mesa.reserva.cliente_nombre }}
+                      </p>
+                    </template>
                   </div>
                   
                   <!-- Estado Visual -->
@@ -456,6 +475,12 @@
                             </p>
                         </div>
 
+                        <!-- Mesas Unidas -->
+                        <div v-if="selectedMesa.reserva.mesas_asignadas && selectedMesa.reserva.mesas_asignadas.length > 1" class="text-center bg-intimar-primary/5 p-3 rounded-2xl border border-intimar-primary/10">
+                            <p class="text-[9px] uppercase text-intimar-primary font-black tracking-[0.2em] mb-0.5">Mesas Unidas en esta Reserva:</p>
+                            <p class="font-black text-base text-intimar-primary">Mesas {{ selectedMesa.reserva.mesas_asignadas.join(' + ') }}</p>
+                        </div>
+
                         <div class="flex justify-center gap-10 border-t border-gray-200 pt-6">
                             <div class="text-center">
                                 <p class="text-[10px] uppercase text-gray-400 font-black tracking-[0.2em] mb-1 text-center">Llegada:</p>
@@ -646,10 +671,14 @@ const reservasHoy = computed(() => reservasPendientes.data || [])
 
 const personasEnRestaurante = computed(() => {
   if (!mesas.data) return 0
+  const countedReservas = new Set()
   return mesas.data.reduce((total, m) => {
-    // Si la mesa está ocupada (estado_mesa = 0/false) y tiene reserva asignada
-    if (!m.estado_mesa && m.reserva) {
-      return total + (m.reserva.cant_adultos || 0) + (m.reserva.cant_ninos || 0)
+    // Si la mesa está ocupada (estado_mesa = 0/false), tiene reserva asignada y no ha sido contada
+    if (!m.estado_mesa && m.reserva && m.reserva.name) {
+      if (!countedReservas.has(m.reserva.name)) {
+        countedReservas.add(m.reserva.name)
+        return total + (m.reserva.cant_adultos || 0) + (m.reserva.cant_ninos || 0)
+      }
     }
     return total
   }, 0)

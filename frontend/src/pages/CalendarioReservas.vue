@@ -549,6 +549,8 @@ const getStatusColor = (status) => {
     case 'Cancelada':
     case 'No Asistió':
       return 'bg-intimar-red/10 text-intimar-red border-intimar-red/20'
+    case 'Atrasada':
+      return 'bg-rose-100 text-rose-600 border-rose-200'
     default:
       return 'bg-gray-100 text-gray-500 border-gray-200'
   }
@@ -560,6 +562,7 @@ const getDotColor = (status) => {
     case 'Pendiente': return 'bg-intimar-gold'
     case 'Cancelada':
     case 'No Asistió': return 'bg-intimar-red'
+    case 'Atrasada': return 'bg-rose-500'
     default: return 'bg-gray-400'
   }
 }
@@ -573,6 +576,8 @@ const getStatusBadge = (status) => {
     case 'Cancelada':
     case 'No Asistió':
       return 'bg-intimar-red/10 text-intimar-red border-intimar-red/20'
+    case 'Atrasada':
+      return 'bg-rose-100 text-rose-600 border-rose-200'
     default:
       return 'bg-gray-100 text-gray-500 border-gray-200'
   }
