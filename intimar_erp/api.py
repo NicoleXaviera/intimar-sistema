@@ -9,6 +9,141 @@ def clean_phone(phone):
     # Remove everything except + and digits
     return re.sub(r"[^\d+]", "", phone)
 
+@frappe.whitelist()
+def create_cierres_custom_field():
+    if not frappe.db.exists("Custom Field", "Configuracion Intimar-cierres_especiales"):
+        frappe.get_doc({
+            "doctype": "Custom Field",
+            "dt": "Configuracion Intimar",
+            "fieldname": "cierres_especiales",
+            "label": "Cierres Especiales (Fechas y Horarios)",
+            "fieldtype": "Small Text",
+            "insert_after": "capacidad_cocina_30min",
+            "description": "Indique días de la semana o fechas específicas a cerrar. Ej:\nmiércoles\n2026-05-25\n2026-05-26: 12:00, 12:30"
+        }).insert(ignore_permissions=True)
+        frappe.db.commit()
+        return "Created"
+    return "Exists"
+
+def expand_horas(horas_raw):
+    all_slots = ['11:00', '11:30', '12:00', '12:30', '13:00', '13:30', '14:00', '14:30', '15:00', '15:30', '15:45']
+    expanded = []
+    
+    if isinstance(horas_raw, str):
+        parts = [p.strip() for p in horas_raw.split(",") if p.strip()]
+    elif isinstance(horas_raw, list):
+        parts = []
+        for h in horas_raw:
+            parts.extend([p.strip() for p in str(h).split(",") if p.strip()])
+    else:
+        return []
+        
+    for part in parts:
+        if "-" in part:
+            subparts = part.split("-", 1)
+            if len(subparts) == 2:
+                start = subparts[0].strip()
+                end = subparts[1].strip()
+                for slot in all_slots:
+                    if start <= slot <= end:
+                        if slot not in expanded:
+                            expanded.append(slot)
+        else:
+            if part in all_slots and part not in expanded:
+                expanded.append(part)
+                
+    return expanded
+
+@frappe.whitelist(allow_guest=True)
+def get_cierres_especiales():
+    config = frappe.get_doc("Configuracion Intimar", ignore_permissions=True)
+    texto = config.get("cierres_especiales") or ""
+    
+    cierres = {
+        "fechas": {},
+        "dias_semana_python": {"2": "todo"},
+        "dias_semana_js": {"3": "todo"}
+    }
+    
+    # Si el campo está completamente vacío, retornar por defecto
+    if not texto.strip():
+        return cierres
+        
+    import re
+    dias_map = {
+        "lunes": 0, "monday": 0,
+        "martes": 1, "tuesday": 1,
+        "miercoles": 2, "miércoles": 2, "wednesday": 2,
+        "jueves": 3, "thursday": 3,
+        "viernes": 4, "friday": 4,
+        "sabado": 5, "sábado": 5, "saturday": 5,
+        "domingo": 6, "sunday": 6
+    }
+    
+    # 1. Intentar parsear como JSON estructurado (Tabla)
+    import json
+    try:
+        items = json.loads(texto)
+        if isinstance(items, list):
+            for item in items:
+                tipo = item.get("tipo")
+                valor = str(item.get("valor", "")).strip().lower()
+                cobertura = item.get("cobertura", "todo")
+                horas = item.get("horas", [])
+                
+                val_res = "todo" if cobertura == "todo" else expand_horas(horas)
+                
+                if tipo == "fecha":
+                    cierres["fechas"][valor] = val_res
+                elif tipo == "dia_semana":
+                    if valor in dias_map:
+                        dia_val = dias_map[valor]
+                    else:
+                        try:
+                            dia_val = int(valor)
+                        except ValueError:
+                            continue
+                    
+                    js_val = 0 if dia_val == 6 else (dia_val + 1)
+                    cierres["dias_semana_python"][str(dia_val)] = val_res
+                    cierres["dias_semana_js"][str(js_val)] = val_res
+            return cierres
+    except Exception:
+        pass
+        
+    # 2. Fallback a texto plano por compatibilidad
+    for line in texto.strip().split("\n"):
+        line = line.strip().lower()
+        if not line:
+            continue
+            
+        # Buscar fecha YYYY-MM-DD
+        match_fecha = re.match(r'^(\d{4}-\d{2}-\d{2})', line)
+        if match_fecha:
+            fecha = match_fecha.group(1)
+            if ":" in line[10:]:
+                parts = line.split(":", 1)
+                cierres["fechas"][fecha] = expand_horas(parts[1])
+            else:
+                cierres["fechas"][fecha] = "todo"
+            continue
+            
+        # Buscar día de la semana
+        for dia_nombre, dia_val in dias_map.items():
+            if line.startswith(dia_nombre):
+                js_val = 0 if dia_val == 6 else (dia_val + 1)
+                if ":" in line:
+                    parts = line.split(":", 1)
+                    val_res = expand_horas(parts[1])
+                    cierres["dias_semana_python"][str(dia_val)] = val_res
+                    cierres["dias_semana_js"][str(js_val)] = val_res
+                else:
+                    cierres["dias_semana_python"][str(dia_val)] = "todo"
+                    cierres["dias_semana_js"][str(js_val)] = "todo"
+                break
+                
+    return cierres
+
 def bypass_csrf():
     if "intimar_erp.api.crear_reserva_publica" in frappe.request.path:
         frappe.local.conf.ignore_csrf = True
@@ -1203,3 +1338,5 @@ def get_all_mesas_list():
     """Retorna todas las mesas del sistema sin restricciones de listado para el select."""
     import frappe
     return frappe.get_all("Mesa Intimar", fields=["name", "numero_mesa", "ubicacion_mesa"], order_by="numero_mesa asc")
+
+

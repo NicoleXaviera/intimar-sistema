@@ -15,7 +15,7 @@
    "fieldname": "nombre_ubicacion",
    "fieldtype": "Data",
    "in_list_view": 1,
-   "label": "Nombre de Ubicaci\u00f3n",
+   "label": "Nombre de Ubicación",
    "reqd": 1,
    "unique": 1
   },
@@ -23,7 +23,7 @@
    "fieldname": "codigo_ubicacion",
    "fieldtype": "Data",
    "in_list_view": 1,
-   "label": "C\u00f3digo (ej: COM, TER)",
+   "label": "Código (ej: COM, TER)",
    "reqd": 1,
    "unique": 1
   }
@@ -65,5 +65,6 @@
  "row_format": "Dynamic",
  "sort_field": "modified",
  "sort_order": "DESC",
- "states": []
+ "states": [],
+ "track_changes": 1
 }

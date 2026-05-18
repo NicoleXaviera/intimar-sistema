@@ -457,7 +457,34 @@ const whatsappUrl = computed(() => {
   return `https://wa.me/${phone}?text=${encodeURIComponent(msg)}`
 })
 const formatDate = (dateStr) => { if (!dateStr) return ''; const date = new Date(dateStr + 'T12:00:00'); return date.toLocaleDateString(lang.value === 'es' ? 'es-ES' : 'en-US', { weekday: 'short', day: 'numeric', month: 'short' }).toUpperCase(); }
-const calendarData = computed(() => { const months = []; let curr = new Date(); curr.setMonth(curr.getMonth() + currentMonthOffset.value); curr.setDate(1); for (let i = 0; i < 2; i++) { const month = curr.getMonth(); const year = curr.getFullYear(); let firstDay = new Date(year, month, 1).getDay(); let padding = firstDay === 0 ? 6 : firstDay - 1; const daysInMonth = new Date(year, month + 1, 0).getDate(); const days = []; for (let d = 1; d <= daysInMonth; d++) { const date = new Date(year, month, d); const dateStr = year + '-' + String(month + 1).padStart(2, '0') + '-' + String(d).padStart(2, '0'); const today = new Date(); today.setHours(0,0,0,0); days.push({ day: d, dateStr, disabled: date < today }) } months.push({ month, year, padding, days }); curr.setMonth(curr.getMonth() + 1); } return months })
+
+const cierresEspeciales = ref({ fechas: {}, dias_semana_js: {} });
+const fetchCierresEspeciales = async () => {
+  try {
+    const data = await call('intimar_erp.api.get_cierres_especiales');
+    if (data) cierresEspeciales.value = data;
+  } catch (e) {
+    console.error('Error fetching closed dates/hours:', e);
+  }
+};
+const isDateDisabled = (date, dateStr) => {
+  const today = new Date();
+  today.setHours(0,0,0,0);
+  if (date < today) return true;
+  
+  if (cierresEspeciales.value) {
+    if (cierresEspeciales.value.fechas && cierresEspeciales.value.fechas[dateStr] === 'todo') {
+      return true;
+    }
+    const dayOfWeek = String(date.getDay());
+    if (cierresEspeciales.value.dias_semana_js && cierresEspeciales.value.dias_semana_js[dayOfWeek] === 'todo') {
+      return true;
+    }
+  }
+  return false;
+};
+
+const calendarData = computed(() => { const months = []; let curr = new Date(); curr.setMonth(curr.getMonth() + currentMonthOffset.value); curr.setDate(1); for (let i = 0; i < 2; i++) { const month = curr.getMonth(); const year = curr.getFullYear(); let firstDay = new Date(year, month, 1).getDay(); let padding = firstDay === 0 ? 6 : firstDay - 1; const daysInMonth = new Date(year, month + 1, 0).getDate(); const days = []; for (let d = 1; d <= daysInMonth; d++) { const date = new Date(year, month, d); const dateStr = year + '-' + String(month + 1).padStart(2, '0') + '-' + String(d).padStart(2, '0'); days.push({ day: d, dateStr, disabled: isDateDisabled(date, dateStr) }) } months.push({ month, year, padding, days }); curr.setMonth(curr.getMonth() + 1); } return months })
 const nextMonth = () => currentMonthOffset.value++; const prevMonth = () => { if (currentMonthOffset.value > 0) currentMonthOffset.value-- };
 const getMonthName = (m) => { const names = lang.value === 'es' ? ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'] : ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']; return names[m]; }
 const selectDate = (dateStr) => { form.fecha = dateStr; fetchAvailability(); }; 
@@ -477,6 +504,21 @@ const fetchAvailability = async () => {
 };
 
 const isSlotDisabled = (slotTime) => {
+  if (form.fecha && cierresEspeciales.value) {
+    if (cierresEspeciales.value.fechas) {
+      const fechaVal = cierresEspeciales.value.fechas[form.fecha];
+      if (fechaVal === 'todo') return true;
+      if (Array.isArray(fechaVal) && fechaVal.includes(slotTime)) return true;
+    }
+    if (cierresEspeciales.value.dias_semana_js) {
+      const date = new Date(form.fecha + 'T12:00:00');
+      const dayOfWeek = String(date.getDay());
+      const wdayVal = cierresEspeciales.value.dias_semana_js[dayOfWeek];
+      if (wdayVal === 'todo') return true;
+      if (Array.isArray(wdayVal) && wdayVal.includes(slotTime)) return true;
+    }
+  }
+
   if (!radarData.value || radarData.value.length === 0) return false;
   const pax = (Number(form.adultos) || 0) + (Number(form.ninos) || 0);
   const slot = radarData.value.find(s => s.hora === slotTime);
@@ -560,7 +602,7 @@ const changeTime = () => { showWaitlistModal.value = false; step.value = 2; wind
 
 const resetForm = () => { step.value = 1; showManualPax.value = false; reservationId.value = ''; showWaitlistModal.value = false; Object.assign(form, { fecha: '', adultos: 2, ninos: 0, hora: '', nombre: '', apellido: '', celular: '', codigoPais: '+51', email: '', dni: '', requerimientos: '', necesidades: '', alergias: '', acepta_legal1: false, acepta_legal3: false, aceptar_lista_espera: 0 }); Object.keys(errors).forEach(key => delete errors[key]) }
 
-onMounted(() => { const userLang = navigator.language || navigator.userLanguage; if (userLang.startsWith('en')) lang.value = 'en'; else lang.value = 'es'; heroTimer = setInterval(() => { currentHeroIdx.value = (currentHeroIdx.value + 1) % heroImages.length }, 6000) })
+onMounted(() => { fetchCierresEspeciales(); const userLang = navigator.language || navigator.userLanguage; if (userLang.startsWith('en')) lang.value = 'en'; else lang.value = 'es'; heroTimer = setInterval(() => { currentHeroIdx.value = (currentHeroIdx.value + 1) % heroImages.length }, 6000) })
 onUnmounted(() => { if (heroTimer) clearInterval(heroTimer) })
 </script>
 

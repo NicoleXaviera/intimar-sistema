@@ -17,14 +17,14 @@
    "fieldname": "numero_mesa",
    "fieldtype": "Float",
    "in_list_view": 1,
-   "label": "N\u00famero de Mesa",
+   "label": "Número de Mesa",
    "reqd": 1
   },
   {
    "fieldname": "ubicacion_mesa",
    "fieldtype": "Link",
    "in_list_view": 1,
-   "label": "Ubicaci\u00f3n",
+   "label": "Ubicación",
    "options": "Ubicacion Mesa Intimar",
    "reqd": 1
   },
@@ -32,7 +32,7 @@
    "fetch_from": "ubicacion_mesa.codigo_ubicacion",
    "fieldname": "codigo_ubicacion",
    "fieldtype": "Data",
-   "label": "C\u00f3digo Ubicaci\u00f3n",
+   "label": "Código Ubicación",
    "read_only": 1
   },
   {
@@ -109,5 +109,6 @@
  "row_format": "Dynamic",
  "sort_field": "modified",
  "sort_order": "DESC",
- "states": []
+ "states": [],
+ "track_changes": 1
 }

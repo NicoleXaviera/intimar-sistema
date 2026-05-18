@@ -73,11 +73,35 @@ class ReservaIntimar(Document):
 				frappe.throw(_("La fecha y hora de reserva deben ser posteriores a la actual."))
 
 	def validate_wednesday(self):
-		# Temporalmente desactivado para pruebas
-		return
-		# date_obj = get_datetime(self.fecha_reserva)
-		# if date_obj.weekday() == 2: # 2 es Miércoles (0=Lunes)
-		# 	frappe.throw(_("Los miércoles no hay atención. Por favor, seleccione otra fecha."))
+		if self.flags.ignore_past_date_validation or self.motivo_reserva in ["S.R. (Walk-in)", "Importado de Excel"]:
+			return
+		
+		# Validar cierres especiales configurados
+		from intimar_erp.api import get_cierres_especiales
+		cierres = get_cierres_especiales()
+		
+		# 1. Validar por fecha específica
+		fecha_str = str(self.fecha_reserva)
+		if fecha_str in cierres["fechas"]:
+			val = cierres["fechas"][fecha_str]
+			if val == "todo":
+				frappe.throw(_("El día {0} no hay atención debido a un cierre configurado.").format(fecha_str))
+			else:
+				hora_corta = ":".join(str(self.hora_reserva).split(":")[:2])
+				if hora_corta in val:
+					frappe.throw(_("El horario {0} del día {1} está cerrado para reservas.").format(hora_corta, fecha_str))
+					
+		# 2. Validar por día de la semana
+		date_obj = get_datetime(self.fecha_reserva)
+		wday = date_obj.weekday() # 0=Lunes, ..., 6=Domingo
+		if str(wday) in cierres["dias_semana_python"]:
+			val = cierres["dias_semana_python"][str(wday)]
+			if val == "todo":
+				frappe.throw(_("Los días de la semana correspondientes a esta fecha no tienen atención."))
+			else:
+				hora_corta = ":".join(str(self.hora_reserva).split(":")[:2])
+				if hora_corta in val:
+					frappe.throw(_("El horario {0} está cerrado para este día de la semana.").format(hora_corta))
 
 	def validate_anticipo(self):
 		config = frappe.get_doc("Configuracion Intimar", ignore_permissions=True)

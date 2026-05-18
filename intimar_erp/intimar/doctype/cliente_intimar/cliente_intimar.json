@@ -56,13 +56,13 @@
   {
    "fieldname": "email",
    "fieldtype": "Data",
-   "label": "Correo Electr\u00f3nico",
+   "label": "Correo Electrónico",
    "options": "Email"
   },
   {
    "fieldname": "direccion",
    "fieldtype": "Small Text",
-   "label": "Direcci\u00f3n"
+   "label": "Dirección"
   },
   {
    "fieldname": "fecha_nacimiento",
@@ -146,5 +146,6 @@
  "row_format": "Dynamic",
  "sort_field": "modified",
  "sort_order": "DESC",
- "states": []
+ "states": [],
+ "track_changes": 1
 }

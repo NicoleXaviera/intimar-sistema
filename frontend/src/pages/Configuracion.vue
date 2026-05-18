@@ -242,6 +242,76 @@
                 </div>
               </div>
             </div>
+
+            <!-- Card: Cierres Especiales -->
+            <div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-gray-100 md:col-span-2">
+              <h3 class="text-lg font-black text-gray-900 uppercase tracking-tighter mb-6 flex items-center gap-3">
+                <span class="w-2 h-8 bg-red-600 rounded-full"></span>
+                Cierres Especiales (Días, Fechas y Horas)
+              </h3>
+              <div class="space-y-4">
+                <p class="text-[10px] text-gray-400 ml-2 mb-3 italic">
+                  Defina días recurrentes o fechas del calendario específicas que deban permanecer cerradas total o parcialmente.
+                </p>
+                <div class="overflow-x-auto border border-gray-100 rounded-3xl">
+                  <table class="w-full text-left border-collapse">
+                    <thead>
+                      <tr class="bg-gray-50 border-b border-gray-100">
+                        <th class="p-4 text-[9px] font-black uppercase tracking-widest text-gray-400">Tipo de Cierre</th>
+                        <th class="p-4 text-[9px] font-black uppercase tracking-widest text-gray-400">Día / Fecha</th>
+                        <th class="p-4 text-[9px] font-black uppercase tracking-widest text-gray-400">Cobertura</th>
+                        <th class="p-4 text-[9px] font-black uppercase tracking-widest text-gray-400">Horas (Separadas por coma)</th>
+                        <th class="p-4 text-[9px] font-black uppercase tracking-widest text-gray-400 text-center w-16">Acciones</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr v-for="(row, idx) in cierresList" :key="idx" class="border-b border-gray-50 hover:bg-gray-50/50 transition-colors">
+                        <td class="p-3">
+                          <select v-model="row.tipo" class="px-3 py-2 bg-gray-50 border border-gray-100 rounded-xl outline-none font-bold text-xs focus:border-intimar-primary">
+                            <option value="dia_semana">Día de la Semana</option>
+                            <option value="fecha">Fecha Específica</option>
+                          </select>
+                        </td>
+                        <td class="p-3">
+                          <select v-if="row.tipo === 'dia_semana'" v-model="row.valor" class="px-3 py-2 bg-gray-50 border border-gray-100 rounded-xl outline-none font-bold text-xs focus:border-intimar-primary w-full max-w-[150px]">
+                            <option value="lunes">Lunes</option>
+                            <option value="martes">Martes</option>
+                            <option value="miercoles">Miércoles</option>
+                            <option value="jueves">Jueves</option>
+                            <option value="viernes">Viernes</option>
+                            <option value="sabado">Sábado</option>
+                            <option value="domingo">Domingo</option>
+                          </select>
+                          <input v-else v-model="row.valor" type="date" class="px-3 py-2 bg-gray-50 border border-gray-100 rounded-xl outline-none font-bold text-xs focus:border-intimar-primary w-full max-w-[150px]">
+                        </td>
+                        <td class="p-3">
+                          <select v-model="row.cobertura" class="px-3 py-2 bg-gray-50 border border-gray-100 rounded-xl outline-none font-bold text-xs focus:border-intimar-primary">
+                            <option value="todo">Todo el día</option>
+                            <option value="horas">Horas Específicas</option>
+                          </select>
+                        </td>
+                        <td class="p-3">
+                          <input v-if="row.cobertura === 'horas'" v-model="row.horasInput" type="text" class="w-full px-3 py-2 bg-gray-50 border border-gray-100 rounded-xl outline-none font-bold text-xs focus:border-intimar-primary placeholder-gray-300" placeholder="Ej: 12:00-14:30 o 12:00, 12:30">
+                          <span v-else class="text-[10px] text-gray-300 font-bold uppercase tracking-wider ml-3">Día Completo</span>
+                        </td>
+                        <td class="p-3 text-center">
+                          <button @click="removeCierreRow(idx)" class="w-8 h-8 rounded-full bg-red-50 text-red-500 hover:bg-red-500 hover:text-white transition-all flex items-center justify-center mx-auto active:scale-90" title="Eliminar fila">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+                          </button>
+                        </td>
+                      </tr>
+                      <tr v-if="cierresList.length === 0">
+                        <td colspan="5" class="p-8 text-center text-gray-300 font-bold uppercase tracking-widest text-[10px]">No hay cierres configurados</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                <button @click="addCierreRow" class="mt-4 px-6 py-3 bg-gray-900 hover:bg-gray-800 text-white rounded-2xl font-black uppercase tracking-widest text-[9px] transition-all flex items-center gap-2 active:scale-95">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                  AGREGAR CIERRE
+                </button>
+              </div>
+            </div>
           </div>
         </div>
     </div>
@@ -263,6 +333,21 @@ const errorMessage = ref('')
 const successMessage = ref('')
 const helpSection = ref('general')
 
+const cierresList = ref([])
+
+const addCierreRow = () => {
+  cierresList.value.push({
+    tipo: 'dia_semana',
+    valor: 'miercoles',
+    cobertura: 'todo',
+    horasInput: ''
+  })
+}
+
+const removeCierreRow = (idx) => {
+  cierresList.value.splice(idx, 1)
+}
+
 const openGuide = (section) => {
   helpSection.value = section
   showAforoGuide.value = true
@@ -278,7 +363,8 @@ const formData = reactive({
   capacidad_cocina_30min: 30,
   intervalo_flujo_cocina: 30,
   hora_minima: '09:00:00',
-  hora_maxima: '22:00:00'
+  hora_maxima: '22:00:00',
+  cierres_especiales: ''
 })
 
 const fetchConfig = async () => {
@@ -300,6 +386,57 @@ const fetchConfig = async () => {
       formData.intervalo_flujo_cocina = data.intervalo_flujo_cocina || 30
       formData.hora_minima = data.hora_minima || '09:00:00'
       formData.hora_maxima = data.hora_maxima || '22:00:00'
+      formData.cierres_especiales = data.cierres_especiales || ''
+      try {
+        const parsed = JSON.parse(data.cierres_especiales)
+        if (Array.isArray(parsed)) {
+          cierresList.value = parsed.map(item => ({
+            tipo: item.tipo || 'dia_semana',
+            valor: item.valor || '',
+            cobertura: item.cobertura || 'todo',
+            horasInput: Array.isArray(item.horas) ? item.horas.join(', ') : (item.horas || '')
+          }))
+        } else {
+          cierresList.value = []
+        }
+      } catch (e) {
+        cierresList.value = []
+        if (data.cierres_especiales) {
+          const lines = data.cierres_especiales.split('\n')
+          lines.forEach(line => {
+            const trimmed = line.trim()
+            if (!trimmed) return
+            let tipo = 'dia_semana'
+            let valor = trimmed
+            let cobertura = 'todo'
+            let horasInput = ''
+            
+            if (trimmed.match(/^\d{4}-\d{2}-\d{2}/)) {
+              tipo = 'fecha'
+            }
+            
+            if (trimmed.includes(':')) {
+              cobertura = 'horas'
+              const parts = trimmed.split(':')
+              valor = parts[0].trim()
+              horasInput = parts[1].trim()
+            }
+            
+            cierresList.value.push({ tipo, valor, cobertura, horasInput })
+          })
+        }
+      }
+      
+      // Asegurar que Miércoles esté siempre incluido por defecto en la lista interactiva
+      const tieneMiercoles = cierresList.value.some(row => row.tipo === 'dia_semana' && row.valor === 'miercoles')
+      if (!tieneMiercoles) {
+        cierresList.value.unshift({
+          tipo: 'dia_semana',
+          valor: 'miercoles',
+          cobertura: 'todo',
+          horasInput: ''
+        })
+      }
     }
   } catch (e) {
     console.error('Error cargando config:', e)
@@ -318,6 +455,20 @@ const saveConfig = async () => {
   errorMessage.value = ''
   successMessage.value = ''
   
+  // Serializar la lista de cierres a JSON
+  const serialized = cierresList.value.map(row => {
+    const horas = row.cobertura === 'horas'
+      ? row.horasInput.split(',').map(h => h.trim()).filter(h => h.match(/^\d{2}:\d{2}$/) || h.match(/^\d{2}:\d{2}\s*-\s*\d{2}:\d{2}$/))
+      : []
+    return {
+      tipo: row.tipo,
+      valor: row.valor,
+      cobertura: row.cobertura,
+      horas: horas
+    }
+  })
+  formData.cierres_especiales = JSON.stringify(serialized)
+  
   saving.value = true
   try {
     await call('frappe.client.set_value', {
@@ -333,7 +484,8 @@ const saveConfig = async () => {
         capacidad_cocina_30min: formData.capacidad_cocina_30min,
         intervalo_flujo_cocina: formData.intervalo_flujo_cocina,
         hora_minima: formData.hora_minima,
-        hora_maxima: formData.hora_maxima
+        hora_maxima: formData.hora_maxima,
+        cierres_especiales: formData.cierres_especiales
       }
     })
     

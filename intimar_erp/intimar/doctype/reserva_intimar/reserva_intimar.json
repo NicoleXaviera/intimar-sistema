@@ -62,12 +62,13 @@
   {
    "fieldname": "cant_ninos",
    "fieldtype": "Int",
-   "label": "Cantidad de Ni\u00f1os"
+   "label": "Cantidad de Niños"
   },
   {
    "fieldname": "fecha_reserva",
    "fieldtype": "Date",
    "in_list_view": 1,
+   "in_standard_filter": 1,
    "label": "Fecha de Reserva",
    "reqd": 1
   },
@@ -81,6 +82,7 @@
   {
    "fieldname": "motivo_reserva",
    "fieldtype": "Small Text",
+   "in_standard_filter": 1,
    "label": "Motivo de Reserva"
   },
   {
@@ -115,7 +117,7 @@
   {
    "fieldname": "section_mesas",
    "fieldtype": "Section Break",
-   "label": "Asignaci\u00f3n de Mesas"
+   "label": "Asignación de Mesas"
   },
   {
    "fieldname": "mesas",
@@ -165,12 +167,14 @@
    "fetch_from": "cliente.name1",
    "fieldname": "nombre",
    "fieldtype": "Data",
+   "in_standard_filter": 1,
    "label": "Nombre"
   },
   {
    "fetch_from": "cliente.lastname",
    "fieldname": "apellido",
    "fieldtype": "Data",
+   "in_standard_filter": 1,
    "label": "Apellido"
   },
   {
@@ -193,7 +197,7 @@
   {
    "fieldname": "codigo_pais",
    "fieldtype": "Data",
-   "label": "C\u00f3digo de Pa\u00eds"
+   "label": "Código de País"
   },
   {
    "fetch_from": "cliente.dni_ruc",
@@ -213,7 +217,7 @@
   {
    "fieldname": "personalizacion_section",
    "fieldtype": "Section Break",
-   "label": "Personalizaci\u00f3n"
+   "label": "Personalización"
   },
   {
    "fieldname": "requerimientos",
@@ -239,7 +243,7 @@
    "default": "0",
    "fieldname": "acepta_politicas",
    "fieldtype": "Check",
-   "label": "Acepta Pol\u00edticas"
+   "label": "Acepta Políticas"
   },
   {
    "default": "0",
@@ -250,7 +254,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-05-16 13:14:18.311225",
+ "modified": "2026-05-17 19:48:13.778883",
  "modified_by": "Administrator",
  "module": "intimar",
  "name": "Reserva Intimar",
@@ -313,5 +317,6 @@
  "row_format": "Dynamic",
  "sort_field": "modified",
  "sort_order": "DESC",
- "states": []
+ "states": [],
+ "track_changes": 1
 }
