@@ -25,12 +25,30 @@ const roles = createResource({
   url: 'intimar_erp.api.get_current_user_roles',
   onSuccess: (data) => {
     session.roles = data || []
+    if (route.path === '/') {
+      if (session.isAdmin) {
+        router.replace('/insights')
+      } else {
+        router.replace('/mapa')
+      }
+    }
   }
 })
 
 watch(() => user.data, (newUser) => {
   if (newUser) {
     roles.fetch()
+  }
+})
+
+// Vigilamos cambios de ruta a raíz para despachar según rol
+watch(() => route.path, (newPath) => {
+  if (newPath === '/' && session.roles.length > 0) {
+    if (session.isAdmin) {
+      router.replace('/insights')
+    } else {
+      router.replace('/mapa')
+    }
   }
 })
 

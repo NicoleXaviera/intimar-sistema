@@ -97,8 +97,12 @@ router.beforeEach((to, from, next) => {
 
   const isLoggedIn = user_id && user_id !== 'Guest'
 
+  // Si ya está logueado e intenta ingresar a Login, redirigir a raíz para despacho de rol
+  if (to.name === 'Login' && isLoggedIn) {
+    next('/')
+  }
   // Si la ruta no es pública y no es Login, y no está logueado -> Login
-  if (!to.meta.isPublic && to.name !== 'Login' && !isLoggedIn) {
+  else if (!to.meta.isPublic && to.name !== 'Login' && !isLoggedIn) {
     next('/login')
   } 
   // Si intenta entrar a la raíz y no está logueado -> Reserva Pública

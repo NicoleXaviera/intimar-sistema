@@ -1013,7 +1013,7 @@ const submitAsignar = async () => {
     
     // Redirigir al mapa de mesas después de un breve delay
     setTimeout(() => {
-      router.push('/mapa-mesas')
+      router.push('/mapa')
     }, 1500)
   } catch (error) {
     console.error('Error al asignar mesa:', error)

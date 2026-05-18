@@ -1577,13 +1577,13 @@ const saveReserva = async () => {
         doc: payload
       })
       showToast("¡Creada!", "La nueva reserva se guardó con éxito.", "success")
-      
-      // Si se guardó con éxito y era nueva, cambiamos la URL a edición suavemente
-      if (result && result.name) {
-        setTimeout(() => {
-          router.replace(`/reservas/${result.name}`)
-        }, 1500)
-      }
+    }
+    
+    // Redirigir a la lista de reservas en ambos casos tras guardar con éxito
+    if (result && result.name) {
+      setTimeout(() => {
+        router.push('/reservas')
+      }, 1500)
     }
     
   } catch (error) {

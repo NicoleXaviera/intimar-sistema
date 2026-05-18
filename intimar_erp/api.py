@@ -571,9 +571,9 @@ def asignar_mesa_a_reserva(reserva_id, mesa_id, mozo_id=None, adultos=None, nino
     
     reserva = frappe.get_doc("Reserva Intimar", reserva_id)
     
-    # Validar estado: Solo permitir asignación a reservas Confirmadas
-    if reserva.estado_reserva != "Confirmada":
-        frappe.throw(f"No se puede asignar mesa. La reserva debe estar en estado 'Confirmada' (Estado actual: {reserva.estado_reserva})")
+    # Validar estado: Solo permitir asignación a reservas Confirmadas o Atrasadas
+    if reserva.estado_reserva not in ["Confirmada", "Atrasada"]:
+        frappe.throw(f"No se puede asignar mesa. La reserva debe estar en estado 'Confirmada' o 'Atrasada' (Estado actual: {reserva.estado_reserva})")
     
     # Actualizar PERS. si han cambiado
     if adultos is not None or ninos is not None:
@@ -650,12 +650,41 @@ def liberar_mesa(mesa_id):
     m_doc.save(ignore_permissions=True)
     return {"status": "success"}
 
+def parse_name_filters(filters):
+    db_filters = []
+    or_filters = None
+    nombre_query = None
+    
+    if filters:
+        for f in filters:
+            if isinstance(f, list) and len(f) >= 3 and f[0] == "nombre":
+                nombre_query = f[2].strip("%") if isinstance(f[2], str) else f[2]
+            else:
+                db_filters.append(f)
+    else:
+        db_filters = filters
+
+    if nombre_query:
+        or_filters = []
+        or_filters.append(["nombre", "like", f"%{nombre_query}%"])
+        or_filters.append(["apellido", "like", f"%{nombre_query}%"])
+        
+        words = [w.strip() for w in nombre_query.split() if w.strip()]
+        if len(words) >= 2:
+            for w in words:
+                or_filters.append(["nombre", "like", f"%{w}%"])
+                or_filters.append(["apellido", "like", f"%{w}%"])
+                
+    return db_filters, or_filters
+
 @frappe.whitelist()
 def get_reservas_list(filters=None, limit_start=0, limit_page_length=20, order_by="creation desc"):
     if isinstance(filters, str):
         filters = json.loads(filters)
         
     filters = process_virtual_filters(filters)
+    
+    db_filters, or_filters = parse_name_filters(filters)
         
     # Si ordenamos por llegada, usamos un orden base para la DB y luego refinamos en Python
     db_order = order_by
@@ -663,13 +692,17 @@ def get_reservas_list(filters=None, limit_start=0, limit_page_length=20, order_b
         db_order = "hora_llegada asc"
         
     # Primero obtenemos los nombres que cumplen los filtros
-    reserva_names = frappe.get_all("Reserva Intimar", 
-        filters=filters, 
-        limit_start=limit_start, 
-        limit_page_length=limit_page_length, 
-        order_by=db_order,
-        pluck="name"
-    )
+    kwargs = {
+        "filters": db_filters,
+        "limit_start": limit_start,
+        "limit_page_length": limit_page_length,
+        "order_by": db_order,
+        "pluck": "name"
+    }
+    if or_filters:
+        kwargs["or_filters"] = or_filters
+        
+    reserva_names = frappe.get_all("Reserva Intimar", **kwargs)
     
     if not reserva_names:
         return []

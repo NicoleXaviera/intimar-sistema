@@ -89,7 +89,7 @@ async function login() {
     })
     
     if (response.message === 'Logged In') {
-      window.location.href = (import.meta.env.DEV ? '/frontend' : '/intimar') + '/mapa'
+      window.location.href = (import.meta.env.DEV ? '/frontend' : '/intimar') + '/'
     } else {
       error.value = 'Las credenciales no coinciden con nuestros registros.'
     }
